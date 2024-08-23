@@ -6,6 +6,9 @@
     @close="close"
   >
     <el-form label-suffix="：">
+      <el-form-item label="快捷访问">
+        <el-input v-model="form.shortcut" />
+      </el-form-item>
       <el-form-item label="倍数">
         <el-radio-group v-model="form.pixel">
           <el-radio :value="2">二倍图</el-radio>
@@ -27,7 +30,7 @@
       <el-form-item label="直接进入OSS客户端">
         <el-radio-group v-model="form.fasterEnter">
           <el-radio :value="1">是</el-radio>
-          <el-radio :value="2">否</el-radio>
+          <el-radio :value="0">否</el-radio>
         </el-radio-group>
       </el-form-item>
     </el-form>
@@ -40,7 +43,7 @@
 <script setup>
 import { ref } from "vue";
 import request from "@/helpers/request";
-import {useRoute} from 'vue-router';
+import { useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
 const route = useRoute();
 
@@ -52,7 +55,8 @@ const form = ref({
   pixel: 2,
   platform: 1,
   previewType: 1,
-  fasterEnter: 2,
+  fasterEnter: 0,
+  shortcut: "",
 });
 
 const getSetting = async () => {
@@ -67,7 +71,7 @@ getSetting();
 const save = async () => {
   await request("file-saveSetting", {
     id: Number(route.query.id),
-    ...form.value
+    ...form.value,
   });
   ElMessage.success("保存成功");
   emit("submit", form.value);

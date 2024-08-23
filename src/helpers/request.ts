@@ -63,19 +63,19 @@ export function useRequest<T = any>(
 
 export const requestUtil = {
   /**
- * 复制文本
- * @param {string} text 复制的文本
- */
+   * 复制文本
+   * @param {string} text 复制的文本
+   */
   copy(text: string) {
     doRequest("copy", text);
     ElMessage.success("复制成功");
   },
 
   /**
- * 下载文件，支持单个或批量下载
- * @param {string | string[]} url 下载地址
- * @returns 
- */
+   * 下载文件，支持单个或批量下载
+   * @param {string | string[]} url 下载地址
+   * @returns
+   */
   async download(url: string | string[]) {
     try {
       await doRequest("download", url);
@@ -91,7 +91,7 @@ export const requestUtil = {
   open(type: "vscode" | "path" | "web", url: string | string[]) {
     doRequest("open", {
       type,
-      url
+      url,
     });
-  }
-}
+  },
+};

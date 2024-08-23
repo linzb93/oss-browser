@@ -59,7 +59,7 @@ import { ref, shallowRef, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { omit } from "lodash-es";
 import { ElMessage } from "element-plus";
-import request from "@/helpers/request"
+import request from "@/helpers/request";
 import DeleteConfirm from "@/components/DeleteConfirm.vue";
 import { useOssStore } from "@/store";
 
@@ -79,17 +79,17 @@ onMounted(async () => {
 // 如果有设置快捷进入的客户端，就直接进入文件列表页面
 const jumpIfFastEnterSetted = () => {
   const accounts = list.value;
-  const matchAccount = accounts.find((account) => !!account.fasterEnter);
+  const matchAccount = accounts.find((account) => !!account.fastEnter);
   if (!matchAccount) {
     return;
   }
   router.replace({
-    path: '/fileList',
+    path: "/fileList",
     query: {
       id: matchAccount.id,
-      shortcut: matchAccount.shortcut
-    }
-  })
+      shortcut: matchAccount.shortcut,
+    },
+  });
 };
 const visible = shallowRef(false);
 const add = () => {
@@ -121,7 +121,7 @@ const jump = (item) => {
     path: "/fileList/",
     query: {
       id: item.id,
-      shortcut: item.shortcut
+      shortcut: item.shortcut,
     },
   });
 };

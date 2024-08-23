@@ -1,22 +1,23 @@
-import { app, BrowserWindow, shell, ipcMain } from 'electron'
+import {
+  app,
+  BrowserWindow,
+  shell,
+  ipcMain,
+  Menu,
+  dialog,
+} from "electron";
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import os from 'node:os'
-
-const require = createRequire(import.meta.url)
+import registerRoute from "./app/router";
+import isDev from "electron-is-dev";
+import unhandled from "electron-unhandled";
+import { root, publicPath } from "./app/helper/constant";
+unhandled();
+const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-// The built directory structure
-//
-// ├─┬ dist-electron
-// │ ├─┬ main
-// │ │ └── index.js    > Electron-Main
-// │ └─┬ preload
-// │   └── index.mjs   > Preload-Scripts
-// ├─┬ dist
-// │ └── index.html    > Electron-Renderer
-//
 process.env.APP_ROOT = path.join(__dirname, '../..')
 
 export const MAIN_DIST = path.join(process.env.APP_ROOT, 'dist-electron')
@@ -27,11 +28,10 @@ process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL
   ? path.join(process.env.APP_ROOT, 'public')
   : RENDERER_DIST
 
-// Disable GPU Acceleration for Windows 7
-if (os.release().startsWith('6.1')) app.disableHardwareAcceleration()
+  const isMac = process.platform === "darwin";
 
 // Set application name for Windows 10+ notifications
-if (process.platform === 'win32') app.setAppUserModelId(app.getName())
+if (!isMac) app.setAppUserModelId(app.getName())
 
 if (!app.requestSingleInstanceLock()) {
   app.quit()
@@ -44,16 +44,9 @@ const indexHtml = path.join(RENDERER_DIST, 'index.html')
 
 async function createWindow() {
   win = new BrowserWindow({
-    title: 'Main window',
-    icon: path.join(process.env.VITE_PUBLIC, 'favicon.ico'),
+    title: 'OSS Browser',
     webPreferences: {
       preload,
-      // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
-      // nodeIntegration: true,
-
-      // Consider using contextBridge.exposeInMainWorld
-      // Read more on https://www.electronjs.org/docs/latest/tutorial/context-isolation
-      // contextIsolation: false,
     },
   })
 
@@ -78,7 +71,43 @@ async function createWindow() {
   // win.webContents.on('will-navigate', (event, url) => { }) #344
 }
 
-app.whenReady().then(createWindow)
+app.whenReady().then(() => {
+  createWindow();
+  const menu = Menu.buildFromTemplate([
+    {
+      label: "应用",
+      submenu: [
+        { role: "reload" },
+        {
+          label: "about",
+          click: () => {
+            dialog.showMessageBox({
+              title: "关于我们",
+              message: `${app.getVersion()
+                }\n @copyright ${new Date().getFullYear()} linzb93`,
+            });
+          },
+        },
+        { type: "separator" },
+        { role: "quit" },
+      ],
+    },
+    {
+      label: "调试",
+      submenu: [
+        { role: "toggleDevTools" },
+        {
+          label: "打开缓存页面",
+          click: () => {
+            shell.openPath(root);
+          },
+        },
+      ],
+    },
+  ]);
+  Menu.setApplicationMenu(menu);
+  registerRoute();
+})
 
 app.on('window-all-closed', () => {
   win = null

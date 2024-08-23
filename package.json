@@ -46,6 +46,8 @@
     "@linzb93/utils": "^0.0.14",
     "ali-oss": "^6.20.0",
     "electron-is-dev": "^3.0.1",
-    "electron-unhandled": "^4.0.1"
+    "electron-unhandled": "^4.0.1",
+    "lowdb": "^7.0.1",
+    "p-map": "^7.0.2"
   }
 }

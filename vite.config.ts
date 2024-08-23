@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import { defineConfig } from 'vite'
+import path from 'node:path'
 import vue from '@vitejs/plugin-vue'
 import electron from 'vite-plugin-electron/simple'
 import pkg from './package.json'
@@ -13,6 +14,14 @@ export default defineConfig(({ command }) => {
   const sourcemap = isServe || !!process.env.VSCODE_DEBUG
 
   return {
+    define: {
+      'process.platform': JSON.stringify(process.platform)
+    },
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "./src"),
+      },
+    },
     plugins: [
       vue(),
       electron({

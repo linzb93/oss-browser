@@ -10,7 +10,7 @@ export interface Request<T = AnyObject> {
 export interface Database {
   accounts: {
     id: number;
-    platform?: string;
+    platform?: number;
     name?: string;
     domain?: string;
     setting?: {

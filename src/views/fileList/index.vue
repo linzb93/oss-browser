@@ -126,6 +126,7 @@
                 <el-link
                   type="primary"
                   :underline="false"
+                  class="mr10"
                   v-if="isPic(scope.row)"
                   @click="getCss(scope.row)"
                   >复制样式</el-link

@@ -16,7 +16,7 @@
       </div>
     </div>
     <template #reference>
-      <el-link v-if="!hasSlot" type="danger" :underline="false" class="ml10">{{
+      <el-link v-if="!hasSlot" type="danger" :underline="false">{{
         deleteText
       }}</el-link>
       <slot name="icon" v-else />

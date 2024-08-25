@@ -1,29 +1,48 @@
 <template>
-  <el-button type="primary" @click="add">添加项目</el-button>
-  <el-table :data="list">
-    <el-table-column label="名称" prop="name"></el-table-column>
-    <el-table-column label="平台">
-      <template #default="scope">
-        {{ getPlatformName(scope.row.platform) }}
+  <template v-if="list.length">
+    <el-button type="primary" @click="add">添加应用</el-button>
+    <el-table :data="list">
+      <el-table-column label="ID" prop="id"></el-table-column>
+      <el-table-column label="名称" prop="name"></el-table-column>
+      <el-table-column label="平台">
+        <template #default="scope">
+          {{ getPlatformName(scope.row.platform) }}
+        </template>
+      </el-table-column>
+      <el-table-column label="操作">
+        <template #default="scope">
+          <el-link type="primary" :underline="false" @click="jump(scope.row)"
+            >进入</el-link
+          >
+          <el-link type="primary" :underline="false" @click="edit(scope.row)"
+            >编辑</el-link
+          >
+          <el-link
+            type="primary"
+            :underline="false"
+            class="mr10"
+            @click="edit(omit(scope.row, ['id']))"
+            >复制</el-link
+          >
+          <delete-confirm delete-text="移除" @confirm="remove(scope.row)" />
+        </template>
+      </el-table-column>
+    </el-table>
+  </template>
+  <div class="flex-center full-height" v-else>
+    <el-empty>
+      <template #description>
+        <span></span>
       </template>
-    </el-table-column>
-    <el-table-column label="操作">
-      <template #default="scope">
-        <el-link type="primary" :underline="false" @click="jump(scope.row)"
-          >进入</el-link
-        >
-        <el-link
-          type="primary"
-          :underline="false"
-          class="mr10"
-          @click="edit(scope.row)"
-          >编辑</el-link
-        >
-        <delete-confirm delete-text="移除" @confirm="remove(scope.row)" />
-      </template>
-    </el-table-column>
-  </el-table>
-  <el-dialog v-model="visible" title="添加项目" width="400" @close="close">
+      <el-button type="primary" @click="add">添加您的第一个应用</el-button>
+    </el-empty>
+  </div>
+  <el-dialog
+    v-model="visible"
+    :title="`${form.id ? '编辑' : '添加'}项目`"
+    width="400"
+    @close="close"
+  >
     <el-form :model="form" label-suffix=":" label-width="130px">
       <el-form-item label="名称">
         <el-input v-model="form.name" />

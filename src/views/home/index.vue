@@ -12,7 +12,11 @@
         <el-link type="primary" :underline="false" @click="jump(scope.row)"
           >进入</el-link
         >
-        <el-link type="primary" :underline="false" @click="edit(scope.row)"
+        <el-link
+          type="primary"
+          :underline="false"
+          class="mr10"
+          @click="edit(scope.row)"
           >编辑</el-link
         >
         <delete-confirm delete-text="移除" @confirm="remove(scope.row)" />

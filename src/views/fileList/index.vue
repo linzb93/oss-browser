@@ -14,10 +14,18 @@
       /></el-icon>
       <el-button type="primary" @click="createDir">创建文件夹</el-button>
       <el-button type="primary" @click="visible.setting = true">设置</el-button>
-      <template v-if="selected.length">
-        <el-button type="danger" @click="deleteMulti">批量删除</el-button>
-        <el-button type="primary" @click="downloadMulti">批量下载</el-button>
-      </template>
+      <el-dropdown class="ml10" @command="batchCommand">
+        <el-button type="primary">批量操作</el-button>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item command="copy">批量复制地址</el-dropdown-item>
+            <el-dropdown-item command="download">批量下载</el-dropdown-item>
+            <el-dropdown-item command="delete"
+              ><el-text type="danger">批量删除</el-text></el-dropdown-item
+            >
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
       <!-- <el-button type="primary" @click="visible.history = true"
         >上传历史</el-button
       > -->
@@ -120,6 +128,7 @@
                 <el-link
                   type="primary"
                   :underline="false"
+                  class="mr10"
                   @click="requestUtil.download(scope.row.url)"
                   >下载</el-link
                 >
@@ -127,6 +136,7 @@
                   type="primary"
                   :underline="false"
                   class="mr10"
+                  style="margin-left: 0"
                   v-if="isPic(scope.row)"
                   @click="getCss(scope.row)"
                   >复制样式</el-link
@@ -230,11 +240,25 @@ const clickPath = (index) => {
   getList();
 };
 
-// 多选
+// 多选，目前只能选择文件，不能选择目录
 const selected = ref([]);
 const handleSelectionChange = (selection) => {
   if (selection.every((item) => item.type !== "dir")) {
     selected.value = selection;
+  }
+};
+// 批量操作
+const batchCommand = (command) => {
+  const actions = {
+    download: downloadMulti,
+    delete: deleteMulti,
+    copy: async () => {
+      requestUtil.copy(selected.value.map((item) => item.url).join("\n"));
+      //   ElMessage.success("批量复制地址成功");
+    },
+  };
+  if (actions[command]) {
+    actions[command]();
   }
 };
 

@@ -18,9 +18,9 @@
         <el-button type="danger" @click="deleteMulti">批量删除</el-button>
         <el-button type="primary" @click="downloadMulti">批量下载</el-button>
       </template>
-      <el-button type="primary" @click="visible.history = true"
+      <!-- <el-button type="primary" @click="visible.history = true"
         >上传历史</el-button
-      >
+      > -->
       <div class="path ml20 flexalign-center">
         <template v-if="breadcrumb.length">
           <el-icon @click="clickPath(-1)" class="curp" :size="16">
@@ -367,7 +367,6 @@ const getCss = (item) => {
   };
 };
 const backToHome = () => {
-  console.log("点击返回首页");
   router.push("/");
 };
 </script>

@@ -56,7 +56,7 @@ export default class {
   async deleteFile(id: number, path: string | string[]): Promise<void> {
     const { app, config } = await this.getMatches(id);
     await app.deleteFile(path, config);
-    await this.removeHistory(path);
+    // await this.removeHistory(path);
   }
   async getSetting(id: number) {
     const { config } = await this.getMatches(id);

@@ -167,11 +167,7 @@
     <template #footer>
       <el-button
         type="primary"
-        @click="
-          request('open-in-browser', {
-            url: previewUrl,
-          })
-        "
+        @click="requestUtil.open('web', previewUrl)"
         >在浏览器打开</el-button
       >
     </template>

@@ -13,14 +13,18 @@ export interface Database {
     platform?: number;
     name?: string;
     domain?: string;
-    setting?: {
-      shortcut: string;
+    homeUrl?: string;
+    isDefaultAccount?: boolean;
+  }[];
+  setting: [
+    {
+      id: number;
+      accountId: number;
       pixel: 1 | 2;
       platform: 1 | 2;
-      previewType: 1 | 2;
-      fasterEnter: 0 | 1;
-    };
-  }[];
+      openPreview: boolean;
+    }
+  ];
   history: {
     path: string;
     createTime: string;

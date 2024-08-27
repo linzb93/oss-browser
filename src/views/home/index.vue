@@ -1,6 +1,6 @@
 <template>
   <template v-if="list.length">
-    <el-button type="primary" @click="add">添加应用</el-button>
+    <el-button type="primary" @click="add">添加账号</el-button>
     <el-table :data="list">
       <el-table-column label="ID" prop="id"></el-table-column>
       <el-table-column label="名称" prop="name"></el-table-column>
@@ -17,6 +17,26 @@
           <el-link type="primary" :underline="false" @click="edit(scope.row)"
             >编辑</el-link
           >
+          <el-dropdown
+            @command="(cmd) => handleCommand(scope.row, cmd)"
+            @visible-change="(show) => handleVisibleChange(scope.row, show)"
+          >
+            <el-link type="primary">
+              <span>更多操作</span>
+              <el-icon :size="14">
+                <arrow-down v-if="!scope.row.expanded" />
+                <arrow-up v-else />
+              </el-icon>
+            </el-link>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="copy">复制</el-dropdown-item>
+                <el-dropdown-item command="delete"
+                  ><el-text type="danger">移除</el-text></el-dropdown-item
+                >
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
           <el-link
             type="primary"
             :underline="false"
@@ -34,58 +54,22 @@
       <template #description>
         <span></span>
       </template>
-      <el-button type="primary" @click="add">添加您的第一个应用</el-button>
+      <el-button type="primary" @click="add">添加您的第一个账号</el-button>
     </el-empty>
   </div>
-  <el-dialog
-    v-model="visible"
-    :title="`${form.id ? '编辑' : '添加'}项目`"
-    width="400"
-    @close="close"
-  >
-    <el-form :model="form" label-suffix=":" label-width="130px">
-      <el-form-item label="名称">
-        <el-input v-model="form.name" />
-      </el-form-item>
-      <el-form-item label="平台">
-        <el-select v-model="form.platform">
-          <el-option label="阿里云" :value="1" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="region">
-        <el-input v-model="form.region" />
-      </el-form-item>
-      <el-form-item label="accessKeyId">
-        <el-input v-model="form.accessKeyId" />
-      </el-form-item>
-      <el-form-item label="accessKeySecret">
-        <el-input v-model="form.accessKeySecret" />
-      </el-form-item>
-      <el-form-item label="bucket">
-        <el-input v-model="form.bucket" />
-      </el-form-item>
-      <el-form-item label="domain">
-        <el-input v-model="form.domain" />
-      </el-form-item>
-      <el-form-item label="快捷入口">
-        <el-input v-model="form.shortcut" />
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <el-button type="primary" @click="submit">提交</el-button>
-    </template>
-  </el-dialog>
+  <add-dialog :detail="form" v-model:visible="visible" />
 </template>
 
 <script setup>
 import { ref, shallowRef, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { omit } from "lodash-es";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { ArrowDown, ArrowUp } from "@element-plus/icons-vue";
 import request from "@/helpers/request";
 import DeleteConfirm from "@/components/DeleteConfirm.vue";
 import { useOssStore } from "@/store";
-
+import AddDialog from "./components/AddDialog.vue";
 const router = useRouter();
 const ossStore = useOssStore();
 
@@ -102,7 +86,7 @@ onMounted(async () => {
 // 如果有设置快捷进入的客户端，就直接进入文件列表页面
 const jumpIfFastEnterSetted = () => {
   const accounts = list.value;
-  const matchAccount = accounts.find((account) => !!account.fastEnter);
+  const matchAccount = accounts.find((account) => !!account.isDefaultAccount);
   if (!matchAccount) {
     return;
   }
@@ -110,7 +94,6 @@ const jumpIfFastEnterSetted = () => {
     path: "/fileList",
     query: {
       id: matchAccount.id,
-      shortcut: matchAccount.shortcut,
     },
   });
 };
@@ -120,18 +103,10 @@ const add = () => {
 };
 const edit = (item) => {
   visible.value = true;
-  form.value = omit(item, ["fastEnter", "shortcut"]);
+  form.value = item;
 };
 const form = ref({});
-const close = () => {
-  visible.value = false;
-};
-const submit = async () => {
-  await request("home-create", form.value);
-  ElMessage.success(form.value.id ? "编辑成功" : "添加成功");
-  close();
-  getList();
-};
+
 const getPlatformName = (type) => {
   if (type === 1) {
     return "阿里云";
@@ -144,16 +119,30 @@ const jump = (item) => {
     path: "/fileList/",
     query: {
       id: item.id,
-      shortcut: item.shortcut,
     },
   });
 };
-const remove = async (item) => {
-  await request("home-removeAccount", {
-    id: item.id,
-  });
-  ElMessage.success("移除成功");
-  getList();
+
+const handleCommand = (row, cmd) => {
+  if (cmd === "copy") {
+    edit(omit(row, ["id"]));
+    return;
+  }
+  if (cmd === "delete") {
+    ElMessageBox.confirm(`确认删除账号【${row.name}】？`, "温馨提醒", {
+      confirmButtonText: "删除",
+    })
+      .then(async () => {
+        await request("home-removeAccount", {
+          id: row.id,
+        });
+        ElMessage.success("移除成功");
+        getList();
+      })
+      .catch(() => {
+        //
+      });
+  }
 };
 </script>
 <style lang="scss" scoped>

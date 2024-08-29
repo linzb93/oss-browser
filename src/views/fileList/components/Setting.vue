@@ -6,9 +6,6 @@
     @close="close"
   >
     <el-form label-suffix="：">
-      <el-form-item label="快捷访问">
-        <el-input v-model="form.shortcut" />
-      </el-form-item>
       <el-form-item label="倍数">
         <el-radio-group v-model="form.pixel">
           <el-radio :value="2">二倍图</el-radio>
@@ -25,12 +22,6 @@
         <el-radio-group v-model="form.previewType">
           <el-radio :value="1">无</el-radio>
           <el-radio :value="2">缩略图</el-radio>
-        </el-radio-group>
-      </el-form-item>
-      <el-form-item label="直接进入OSS客户端">
-        <el-radio-group v-model="form.fasterEnter">
-          <el-radio :value="1">是</el-radio>
-          <el-radio :value="0">否</el-radio>
         </el-radio-group>
       </el-form-item>
     </el-form>

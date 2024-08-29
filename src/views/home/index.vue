@@ -11,17 +11,18 @@
       </el-table-column>
       <el-table-column label="操作">
         <template #default="scope">
-          <el-link type="primary" :underline="false" @click="jump(scope.row)"
+          <div class="flexalign-center">
+            <el-link type="primary" :underline="false" @click="jump(scope.row)"
             >进入</el-link
           >
-          <el-link type="primary" :underline="false" @click="edit(scope.row)"
+          <el-link type="primary" :underline="false" class="mr10" @click="edit(scope.row)"
             >编辑</el-link
           >
           <el-dropdown
             @command="(cmd) => handleCommand(scope.row, cmd)"
-            @visible-change="(show) => handleVisibleChange(scope.row, show)"
+            class="more-dropdown"
           >
-            <el-link type="primary">
+            <el-link type="primary" :underline="false">
               <span>更多操作</span>
               <el-icon :size="14">
                 <arrow-down v-if="!scope.row.expanded" />
@@ -37,14 +38,7 @@
               </el-dropdown-menu>
             </template>
           </el-dropdown>
-          <el-link
-            type="primary"
-            :underline="false"
-            class="mr10"
-            @click="edit(omit(scope.row, ['id']))"
-            >复制</el-link
-          >
-          <delete-confirm delete-text="移除" @confirm="remove(scope.row)" />
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -67,9 +61,9 @@ import { omit } from "lodash-es";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { ArrowDown, ArrowUp } from "@element-plus/icons-vue";
 import request from "@/helpers/request";
-import DeleteConfirm from "@/components/DeleteConfirm.vue";
 import { useOssStore } from "@/store";
 import AddDialog from "./components/AddDialog.vue";
+
 const router = useRouter();
 const ossStore = useOssStore();
 
@@ -148,5 +142,9 @@ const handleCommand = (row, cmd) => {
 <style lang="scss" scoped>
 .el-link + .el-link {
   margin-left: 10px;
+}
+.more-dropdown {
+  position: relative;
+  top: -1px;
 }
 </style>

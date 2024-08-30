@@ -4,6 +4,7 @@
     :class="{ active: active }"
     @dragover.prevent="setDragState(true)"
     @drop="dropFile"
+    @dragleave="setDragState(false)"
   >
     <div class="layer flex-center" @keyup="setDragState(false)">
       <p class="tips">请将需要上传的文件拖拽至此</p>
@@ -165,9 +166,7 @@
       <img :src="previewUrl" class="img-dialog-preview" />
     </div>
     <template #footer>
-      <el-button
-        type="primary"
-        @click="requestUtil.open('web', previewUrl)"
+      <el-button type="primary" @click="requestUtil.open('web', previewUrl)"
         >在浏览器打开</el-button
       >
     </template>
@@ -243,14 +242,27 @@ const handleSelectionChange = (selection) => {
     selected.value = selection;
   }
 };
+
+// 确认是否有多选
+const checkMultiSelect = () => {
+  if (selected.value.length) {
+    return true;
+  }
+  ElMessage.error("请选择至少一个");
+  return false;
+};
+
 // 批量操作
 const batchCommand = (command) => {
   const actions = {
     download: downloadMulti,
     delete: deleteMulti,
     copy: async () => {
+      if (!checkMultiSelect()) {
+        return;
+      }
       requestUtil.copy(selected.value.map((item) => item.url).join("\n"));
-      //   ElMessage.success("批量复制地址成功");
+        ElMessage.success("批量复制地址成功");
     },
   };
   if (actions[command]) {
@@ -271,6 +283,9 @@ const del = async (item) => {
 
 // 批量删除
 const deleteMulti = () => {
+  if (!checkMultiSelect()) {
+    return;
+  }
   ElMessageBox({
     message: h(MsgBoxFileList, {
       list: selected.value.map((item) => item.name),
@@ -312,6 +327,9 @@ const jumpInner = (item) => {
 
 // 批量下载
 const downloadMulti = async () => {
+  if (!checkMultiSelect()) {
+    return;
+  }
   await requestUtil.download(selected.value.map((item) => item.url));
   selected.value = [];
 };
@@ -420,7 +438,7 @@ const backToHome = () => {
   &.active {
     .layer {
       display: flex;
-      position: absolute;
+      position: fixed;
       left: 0;
       top: 0;
       bottom: 0;

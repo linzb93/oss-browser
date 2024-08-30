@@ -1,5 +1,5 @@
 <template>
-  <div class="cont mt10 full-height">
+  <div class="cont full-height">
     <router-view />
   </div>
 </template>

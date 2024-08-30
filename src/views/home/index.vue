@@ -51,11 +51,11 @@
       <el-button type="primary" @click="add">添加您的第一个账号</el-button>
     </el-empty>
   </div>
-  <add-dialog :detail="form" v-model:visible="visible" />
+  <add-dialog :detail="form" v-model:visible="visible" @submit="getList" />
 </template>
 
 <script setup>
-import { ref, shallowRef, onMounted } from "vue";
+import { ref, shallowRef, onMounted, } from "vue";
 import { useRouter } from "vue-router";
 import { omit } from "lodash-es";
 import { ElMessage, ElMessageBox } from "element-plus";

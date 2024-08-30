@@ -37,9 +37,8 @@
 </template>
 
 <script setup>
-import { ref, readonly } from "vue";
+import { ref, readonly,watch } from "vue";
 import { ElMessage } from "element-plus";
-import { cloneDeep } from "lodash-es";
 import request from "@/helpers/request";
 
 const props = defineProps({
@@ -47,7 +46,13 @@ const props = defineProps({
   detail: Object,
 });
 const emit = defineEmits(["update:visible", "submit"]);
-const form = ref(cloneDeep(props.detail));
+const form = ref({});
+watch(props, ({visible}) => {
+  if (!visible) {
+    return;
+  }
+  form.value = props.detail;
+})
 const rules = readonly({});
 const submit = async () => {
   await request("home-create", form.value);

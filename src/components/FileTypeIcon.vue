@@ -96,7 +96,7 @@ const getExtIcon = (extName) => {
   if (extName === "tsx") {
     return "jsx";
   }
-  if (["ttf", "woff"].includes(extName)) {
+  if (["ttf", "woff", "otf"].includes(extName)) {
     return "font";
   }
   return "file";

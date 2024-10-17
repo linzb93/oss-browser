@@ -13,31 +13,35 @@
         <template #default="scope">
           <div class="flexalign-center">
             <el-link type="primary" :underline="false" @click="jump(scope.row)"
-            >进入</el-link
-          >
-          <el-link type="primary" :underline="false" class="mr10" @click="edit(scope.row)"
-            >编辑</el-link
-          >
-          <el-dropdown
-            @command="(cmd) => handleCommand(scope.row, cmd)"
-            class="more-dropdown"
-          >
-            <el-link type="primary" :underline="false">
-              <span>更多操作</span>
-              <el-icon :size="14">
-                <arrow-down v-if="!scope.row.expanded" />
-                <arrow-up v-else />
-              </el-icon>
-            </el-link>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item command="copy">复制</el-dropdown-item>
-                <el-dropdown-item command="delete"
-                  ><el-text type="danger">移除</el-text></el-dropdown-item
-                >
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
+              >进入</el-link
+            >
+            <el-link
+              type="primary"
+              :underline="false"
+              class="mr10"
+              @click="edit(scope.row)"
+              >编辑</el-link
+            >
+            <el-dropdown
+              @command="(cmd) => handleCommand(scope.row, cmd)"
+              class="more-dropdown"
+            >
+              <el-link type="primary" :underline="false">
+                <span>更多操作</span>
+                <el-icon :size="14">
+                  <arrow-down v-if="!scope.row.expanded" />
+                  <arrow-up v-else />
+                </el-icon>
+              </el-link>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="copy">复制</el-dropdown-item>
+                  <el-dropdown-item command="delete"
+                    ><el-text type="danger">移除</el-text></el-dropdown-item
+                  >
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </div>
         </template>
       </el-table-column>
@@ -55,7 +59,7 @@
 </template>
 
 <script setup>
-import { ref, shallowRef, onMounted, } from "vue";
+import { ref, shallowRef, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { omit } from "lodash-es";
 import { ElMessage, ElMessageBox } from "element-plus";
@@ -73,8 +77,14 @@ const getList = async () => {
   list.value = data.list;
 };
 onMounted(async () => {
-  await getList();
-  jumpIfFastEnterSetted();
+  // await getList();
+  // jumpIfFastEnterSetted();
+  router.push({
+    path: "/fileList",
+    query: {
+      id: 1,
+    },
+  });
 });
 
 // 如果有设置快捷进入的客户端，就直接进入文件列表页面

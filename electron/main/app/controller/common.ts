@@ -1,5 +1,6 @@
 import { join, basename } from "node:path";
 import http from "node:http";
+import https from "node:https";
 import fs from "node:fs";
 import { clipboard, dialog, shell } from "electron";
 import { Application } from "@linzb93/event-router";
@@ -53,13 +54,23 @@ export default async (app: Application) => {
       return {};
     }
     await new Promise((resolve) => {
-      http.get(url, (resp) => {
-        if (resp.statusCode === 200) {
-          resp
-            .pipe(fs.createWriteStream(result.filePath))
-            .on("finish", resolve);
-        }
-      });
+      if (url.startsWith("https://")) {
+        https.get(url, (resp) => {
+          if (resp.statusCode === 200) {
+            resp
+              .pipe(fs.createWriteStream(result.filePath))
+              .on("finish", resolve);
+          }
+        });
+      } else {
+        http.get(url, (resp) => {
+          if (resp.statusCode === 200) {
+            resp
+              .pipe(fs.createWriteStream(result.filePath))
+              .on("finish", resolve);
+          }
+        });
+      }
     });
   });
   // 打开网页或本地目录、VSCode项目

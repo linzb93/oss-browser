@@ -10,23 +10,45 @@
       <p class="tips">请将需要上传的文件拖拽至此</p>
     </div>
     <div class="flexalign-center">
-      <el-icon :size="16" class="curp mr10" @click="backToHome"
-        ><Back
-      /></el-icon>
-      <el-button type="primary" @click="createDir">创建文件夹</el-button>
-      <el-button type="primary" @click="visible.setting = true">设置</el-button>
-      <el-dropdown class="ml10" @command="batchCommand">
-        <el-button type="primary">批量操作</el-button>
+      <div class="flexitem-1">
+        <el-button type="primary" @click="createDir">创建文件夹</el-button>
+        <el-dropdown class="ml10" @command="batchCommand">
+          <el-button type="primary">
+            <span>批量操作</span>
+            <el-icon :size="14" class="dropdown-icon"><arrow-down /></el-icon>
+          </el-button>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item command="copy">批量复制地址</el-dropdown-item>
+              <el-dropdown-item command="download">批量下载</el-dropdown-item>
+              <el-dropdown-item command="delete"
+                ><el-text type="danger">批量删除</el-text></el-dropdown-item
+              >
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </div>
+      <el-dropdown @command="moreCommand">
+        <el-button type="primary">
+          <span>更多功能</span>
+          <el-icon :size="14" class="dropdown-icon"><arrow-down /></el-icon>
+        </el-button>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item command="copy">批量复制地址</el-dropdown-item>
-            <el-dropdown-item command="download">批量下载</el-dropdown-item>
-            <el-dropdown-item command="delete"
-              ><el-text type="danger">批量删除</el-text></el-dropdown-item
+            <el-dropdown-item command="setting">设置</el-dropdown-item>
+            <el-dropdown-item command="see-collect"
+              >查看收藏夹</el-dropdown-item
             >
+            <el-dropdown-item command="collect">收藏</el-dropdown-item>
+            <el-dropdown-item command="home-page">设为首页</el-dropdown-item>
+            <el-dropdown-item command="upload-history"
+              >上传历史</el-dropdown-item
+            >
+            <el-dropdown-item command="back-login">返回登录</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
+
       <!-- <el-button type="primary" @click="visible.history = true"
         >上传历史</el-button
       > -->
@@ -178,7 +200,12 @@ import { ref, shallowRef, shallowReactive, onMounted, computed, h } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { ElMessageBox, ElMessage } from "element-plus";
 import dayjs from "dayjs";
-import { Folder, ArrowRight, HomeFilled, Back } from "@element-plus/icons-vue";
+import {
+  Folder,
+  ArrowRight,
+  HomeFilled,
+  ArrowDown,
+} from "@element-plus/icons-vue";
 import { getSize } from "@/helpers/size";
 import useUpload from "./hooks/useUpload";
 import pathUtil from "@/helpers/path";
@@ -209,6 +236,8 @@ const visible = shallowReactive({
 const loading = shallowRef(true);
 loading.value = true;
 
+const userInfo = ref({});
+
 // 获取文件列表
 const getList = async () => {
   const data = await request("file-getFileList", {
@@ -222,11 +251,12 @@ const getList = async () => {
   scrollTo(0, 800);
 };
 onMounted(async () => {
-  const { shortcut } = route.query;
-  if (shortcut) {
-    breadcrumb.value.push(shortcut);
+  userInfo.value = await request("login-get");
+  if (!userInfo.value.id) {
+    router.push("/login");
+  } else {
+    getList();
   }
-  getList();
 });
 
 // 点击面包屑
@@ -262,7 +292,7 @@ const batchCommand = (command) => {
         return;
       }
       requestUtil.copy(selected.value.map((item) => item.url).join("\n"));
-        ElMessage.success("批量复制地址成功");
+      ElMessage.success("批量复制地址成功");
     },
   };
   if (actions[command]) {
@@ -365,6 +395,35 @@ const createDir = () => {
     });
 };
 
+// 更多功能
+const moreCommand = (cmd) => {
+  if (cmd === "setting") {
+    visible.setting = true;
+    return;
+  }
+  if (cmd === "see-collect") {
+    ElMessage.info("功能开发中，敬请期待");
+    return;
+  }
+  if (cmd === "collect") {
+    ElMessage.info("功能开发中，敬请期待");
+    return;
+  }
+  if (cmd === "home-page") {
+    ElMessage.info("功能开发中，敬请期待");
+    return;
+  }
+  if (cmd === "upload-history") {
+    ElMessage.info("功能开发中，敬请期待");
+    return;
+  }
+  if (cmd === "back-login") {
+    router.push("/login");
+    return;
+  }
+  ElMessage.error("没有这个命令");
+};
+
 const onSelectHistory = (filePath) => {
   const { pathname } = new URL(filePath);
   breadcrumb.value = pathname.split("/").slice(1, -1);
@@ -404,9 +463,6 @@ const getCss = (item) => {
     requestUtil.copy(text);
   };
 };
-const backToHome = () => {
-  router.push("/");
-};
 </script>
 <style lang="scss" scoped>
 @import "@/styles/mixin.scss";
@@ -431,6 +487,10 @@ const backToHome = () => {
   bottom: 10px;
   left: 0;
   width: 100%;
+}
+.dropdown-icon {
+  margin-left: 5px;
+  color: #fff;
 }
 .wrap {
   min-height: 100%;

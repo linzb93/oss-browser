@@ -8,14 +8,12 @@ export interface Request<T = AnyObject> {
 }
 
 export interface Database {
-  accounts: {
+  account: {
     id: number;
     platform?: number;
     name?: string;
     domain?: string;
-    homeUrl?: string;
-    isDefaultAccount?: boolean;
-  }[];
+  };
   setting: [
     {
       id: number;

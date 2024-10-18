@@ -16,13 +16,12 @@ export default class {
    * 获取匹配的App和OSS Config
    */
   private async getMatches(id: number): Promise<{ app: App; config: any }> {
-    const account = await sql((db) => db.accounts);
-    const matchAccount = account.find((account) => account.id === id);
-    const { platform } = matchAccount;
+    const account = await sql((db) => db.account);
+    const { platform } = account;
     const matchApp = this.apps.find((app) => app.platformId === platform);
     return {
       app: matchApp,
-      config: matchAccount,
+      config: account,
     };
   }
   /**
@@ -60,14 +59,12 @@ export default class {
   }
   async getSetting(id: number) {
     const setting = await sql((db) => db.setting);
-    const match = setting.find((item) => item.accountId === id);
-    return match || {};
+    return setting || {};
   }
   async saveSetting(data: any) {
     const { id, ...setting } = data;
     await sql((db) => {
-      const matchIndex = db.setting.findIndex((item) => item.id === id);
-      db.setting[matchIndex] = setting;
+      db.setting = setting;
     });
   }
   async getHistory({

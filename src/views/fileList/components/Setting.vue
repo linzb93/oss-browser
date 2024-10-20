@@ -12,12 +12,6 @@
           <el-radio :value="1">原图</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="平台">
-        <el-radio-group v-model="form.platform">
-          <el-radio :value="1">移动端</el-radio>
-          <el-radio :value="2">PC端</el-radio>
-        </el-radio-group>
-      </el-form-item>
       <el-form-item label="预览模式">
         <el-radio-group v-model="form.previewType">
           <el-radio :value="1">无</el-radio>
@@ -32,38 +26,31 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import request from "@/helpers/request";
-import { useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
-const route = useRoute();
+import { cloneDeep } from "lodash-es";
 
 const props = defineProps({
   visible: Boolean,
+  setting: Object,
 });
 const emit = defineEmits(["update:visible", "submit"]);
-const form = ref({
-  pixel: 2,
-  platform: 1,
-  previewType: 1,
-  fasterEnter: 0,
-  shortcut: "",
+
+watch(props, ({ visible }) => {
+  if (!visible) {
+    return;
+  }
+  form.value = cloneDeep(props.setting);
 });
 
-const getSetting = async () => {
-  const data = await request("file-getSetting", {
-    id: Number(route.query.id),
-  });
-  form.value = data;
-  emit("submit", form.value);
-};
-getSetting();
+const form = ref({
+  pixel: 2,
+  openPreview: false,
+});
 
 const save = async () => {
-  await request("file-saveSetting", {
-    id: Number(route.query.id),
-    ...form.value,
-  });
+  await request("file-saveSetting", form.value);
   ElMessage.success("保存成功");
   emit("submit", form.value);
   close();

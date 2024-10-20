@@ -8,25 +8,21 @@ const service = new Service();
 service.add(AliOss);
 
 // 获取文件/目录列表
-route.handle(
-  "getFileList",
-  async (req: Request<{ id: number; config: { prefix: string } }>) => {
-    const { id, config } = req.params;
-    return await service.getFileList(id, config.prefix);
-  }
-);
+route.handle("getFileList", async (req: Request<{ prefix: string }>) => {
+  const { prefix } = req.params;
+  return await service.getFileList(prefix);
+});
 
 // 删除文件
 route.handle(
   "deleteFile",
   async (
     req: Request<{
-      id: number;
       path: string | string[];
     }>
   ) => {
-    const { id, path } = req.params;
-    return await service.deleteFile(id, path);
+    const { path } = req.params;
+    return await service.deleteFile(path);
   }
 );
 
@@ -35,14 +31,12 @@ route.handle(
   "createDirectory",
   async (
     req: Request<{
-      id: number;
       path: string;
       name: string;
     }>
   ) => {
-    const { id, path: uploadPath, name } = req.params;
+    const { path: uploadPath, name } = req.params;
     await service.addPath({
-      id,
       prefix: uploadPath,
       name,
       type: "directory",
@@ -55,14 +49,12 @@ route.handle(
   "upload",
   async (
     req: Request<{
-      id: number;
       path: string;
       files: string[];
     }>
   ) => {
-    const { id, path: uploadPath, files } = req.params;
+    const { path: uploadPath, files } = req.params;
     await service.addPath({
-      id,
       prefix: uploadPath,
       name: files,
       type: "file",
@@ -70,15 +62,53 @@ route.handle(
   }
 );
 
+// 设置为首页
+route.handle(
+  "setHome",
+  async (
+    req: Request<{
+      path: string;
+    }>
+  ) => {
+    const { path } = req.params;
+    await service.saveSetting({
+      homePath: path,
+    });
+  }
+);
+
 // 读取CSS代码设置
-route.handle("getSetting", async (req: Request) => {
-  const { id } = req.params;
-  return await service.getSetting(id);
+route.handle("getSetting", async () => {
+  return await service.getSetting();
 });
 // 修改CSS代码设置
 route.handle("saveSetting", async (req: Request) => {
   await service.saveSetting(req.params);
 });
+
+// 获取收藏夹
+route.handle("getCollect", async () => {
+  return await service.getCollect();
+});
+// 添加收藏夹
+route.handle("addCollect", async (req: Request<string>) => {
+  await service.addCollect(req.params);
+});
+// 编辑收藏夹
+route.handle(
+  "saveCollect",
+  async (
+    req: Request<
+      {
+        name: string;
+        path: string;
+        id: string;
+      }[]
+    >
+  ) => {
+    await service.saveCollect(req.params);
+  }
+);
 
 // 获取上传记录
 route.handle(

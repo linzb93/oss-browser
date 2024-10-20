@@ -14,15 +14,28 @@ export interface Database {
     name?: string;
     domain?: string;
   };
-  setting: [
-    {
-      id: number;
-      accountId: number;
-      pixel: 1 | 2;
-      platform: 1 | 2;
-      openPreview: boolean;
-    }
-  ];
+  collect: {
+    id: string;
+    name: string;
+    path: string;
+  }[];
+  setting: {
+    id: number;
+    accountId: number;
+    /**
+     * 1: 一倍图；2: 两倍图
+     */
+    pixel: 1 | 2;
+    /**
+     * 是否显示图片预览
+     * @default false
+     */
+    openPreview: boolean;
+    /**
+     * 首页地址
+     */
+    homePath: string;
+  };
   history: {
     path: string;
     createTime: string;

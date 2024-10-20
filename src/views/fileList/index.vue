@@ -40,18 +40,16 @@
               >查看收藏夹</el-dropdown-item
             >
             <el-dropdown-item command="collect">收藏</el-dropdown-item>
-            <el-dropdown-item command="home-page">设为首页</el-dropdown-item>
-            <el-dropdown-item command="upload-history"
+            <el-dropdown-item command="home-page" disabled
+              >设为首页</el-dropdown-item
+            >
+            <el-dropdown-item command="upload-history" disabled
               >上传历史</el-dropdown-item
             >
             <el-dropdown-item command="back-login">返回登录</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
-
-      <!-- <el-button type="primary" @click="visible.history = true"
-        >上传历史</el-button
-      > -->
       <div class="path ml20 flexalign-center">
         <template v-if="breadcrumb.length">
           <el-icon @click="clickPath(-1)" class="curp" :size="16">
@@ -93,7 +91,11 @@
           v-loading="loading"
           @selection-change="handleSelectionChange"
         >
-          <el-table-column type="selection" width="55" />
+          <el-table-column
+            type="selection"
+            :selectable="(row) => row.type !== 'dir'"
+            width="55"
+          />
           <el-table-column label="名称">
             <template #default="scope">
               <div class="flexalign-center">
@@ -179,9 +181,17 @@
     :path="fullPath"
     @refresh="getList"
   />
+  <collect-pane v-model:visible="visible.collect" />
   <setting-dialog
     v-model:visible="visible.setting"
-    @submit="(data) => (setting = data)"
+    :setting="setting"
+    @submit="
+      (data) =>
+        (setting = {
+          ...setting,
+          ...data,
+        })
+    "
   />
   <el-dialog v-model="visible.preview" title="图片预览" :width="`450px`">
     <div class="center">
@@ -197,7 +207,7 @@
 
 <script setup>
 import { ref, shallowRef, shallowReactive, onMounted, computed, h } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 import { ElMessageBox, ElMessage } from "element-plus";
 import dayjs from "dayjs";
 import {
@@ -218,8 +228,8 @@ import ProgressDrawer from "./components/Progress.vue";
 import MsgBoxFileList from "./components/FileList.vue";
 import SettingDialog from "./components/Setting.vue";
 import UploadHistory from "./components/UploadHistory.vue";
+import CollectPane from "./components/CollectPane.vue";
 
-const route = useRoute();
 const router = useRouter();
 
 const tableList = shallowRef([]);
@@ -232,32 +242,38 @@ const visible = shallowReactive({
   preview: false,
   setting: false,
   history: false,
+  collect: false,
 });
 const loading = shallowRef(true);
 loading.value = true;
 
-const userInfo = ref({});
-
 // 获取文件列表
 const getList = async () => {
   const data = await request("file-getFileList", {
-    id: Number(route.query.id),
-    config: {
-      prefix: fullPath.value,
-    },
+    prefix: fullPath.value,
   });
   loading.value = false;
   tableList.value = data.list;
   scrollTo(0, 800);
 };
 onMounted(async () => {
-  userInfo.value = await request("login-get");
-  if (!userInfo.value.id) {
+  const userInfo = await request("login-get");
+  if (!userInfo.id) {
     router.push("/login");
   } else {
-    getList();
+    getSetting().then(() => {
+      getList();
+    });
   }
 });
+
+// 获取设置
+const getSetting = async () => {
+  setting.value = await request("file-getSetting");
+  if (setting.value.homePath) {
+    fullPath.value = setting.value.homePath;
+  }
+};
 
 // 点击面包屑
 const clickPath = (index) => {
@@ -268,9 +284,7 @@ const clickPath = (index) => {
 // 多选，目前只能选择文件，不能选择目录
 const selected = ref([]);
 const handleSelectionChange = (selection) => {
-  if (selection.every((item) => item.type !== "dir")) {
-    selected.value = selection;
-  }
+  selected.value = selection.filter((item) => item.type !== "dir");
 };
 
 // 确认是否有多选
@@ -285,8 +299,35 @@ const checkMultiSelect = () => {
 // 批量操作
 const batchCommand = (command) => {
   const actions = {
-    download: downloadMulti,
-    delete: deleteMulti,
+    download: async () => {
+      if (!checkMultiSelect()) {
+        return;
+      }
+      await requestUtil.download(selected.value.map((item) => item.url));
+      selected.value = [];
+    },
+    delete: () => {
+      if (!checkMultiSelect()) {
+        return;
+      }
+      ElMessageBox({
+        message: h(MsgBoxFileList, {
+          list: selected.value.map((item) => item.name),
+          tips: "确认删除以下文件：",
+        }),
+        title: "温馨提醒",
+        showCancelButton: true,
+        confirmButtonText: "删除",
+        cancelButtonText: "取消",
+      }).then(async () => {
+        await request("file-deleteFile", {
+          paths: selected.value.map((item) => `${fullPath.value}${item.name}`),
+        });
+        ElMessage.success("删除成功");
+        selected.value = [];
+        getList();
+      });
+    },
     copy: async () => {
       if (!checkMultiSelect()) {
         return;
@@ -304,36 +345,10 @@ const batchCommand = (command) => {
 const del = async (item) => {
   const name = item.type === "dir" ? `${item.name}/` : item.name;
   await request("file-deleteFile", {
-    id: Number(route.query.id),
     path: `${fullPath.value}${name}`,
   });
   ElMessage.success("删除成功");
   getList();
-};
-
-// 批量删除
-const deleteMulti = () => {
-  if (!checkMultiSelect()) {
-    return;
-  }
-  ElMessageBox({
-    message: h(MsgBoxFileList, {
-      list: selected.value.map((item) => item.name),
-      tips: "确认删除以下文件：",
-    }),
-    title: "温馨提醒",
-    showCancelButton: true,
-    confirmButtonText: "删除",
-    cancelButtonText: "取消",
-  }).then(async () => {
-    await request("file-deleteFile", {
-      id: Number(route.query.id),
-      paths: selected.value.map((item) => `${fullPath.value}${item.name}`),
-    });
-    ElMessage.success("删除成功");
-    selected.value = [];
-    getList();
-  });
 };
 
 // 图片预览
@@ -355,15 +370,6 @@ const jumpInner = (item) => {
   getList();
 };
 
-// 批量下载
-const downloadMulti = async () => {
-  if (!checkMultiSelect()) {
-    return;
-  }
-  await requestUtil.download(selected.value.map((item) => item.url));
-  selected.value = [];
-};
-
 // 创建文件夹
 const createDir = () => {
   ElMessageBox.prompt("请输入文件夹名称", "温馨提醒", {
@@ -383,7 +389,6 @@ const createDir = () => {
         return;
       }
       await request("file-createDirectory", {
-        id: Number(route.query.id),
         path: fullPath.value,
         name: value,
       });
@@ -396,21 +401,23 @@ const createDir = () => {
 };
 
 // 更多功能
-const moreCommand = (cmd) => {
+const moreCommand = async (cmd) => {
   if (cmd === "setting") {
     visible.setting = true;
     return;
   }
   if (cmd === "see-collect") {
-    ElMessage.info("功能开发中，敬请期待");
+    visible.collect = true;
     return;
   }
   if (cmd === "collect") {
-    ElMessage.info("功能开发中，敬请期待");
+    await request("file-addCollect", fullPath.value);
+    ElMessage.success("添加成功");
     return;
   }
   if (cmd === "home-page") {
-    ElMessage.info("功能开发中，敬请期待");
+    await request("file-setHome", fullPath.value);
+    ElMessage.success("设置成功");
     return;
   }
   if (cmd === "upload-history") {

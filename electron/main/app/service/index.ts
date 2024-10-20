@@ -15,7 +15,7 @@ export default class {
   /**
    * 获取匹配的App和OSS Config
    */
-  private async getMatches(id: number): Promise<{ app: App; config: any }> {
+  private async getMatches(): Promise<{ app: App; config: any }> {
     const account = await sql((db) => db.account);
     const { platform } = account;
     const matchApp = this.apps.find((app) => app.platformId === platform);
@@ -26,45 +26,67 @@ export default class {
   }
   /**
    * 获取文件列表
-   * @param id 账号ID
    * @param prefix 目录前缀
    */
-  async getFileList(
-    id: number,
-    prefix: string
-  ): Promise<{
+  async getFileList(prefix: string): Promise<{
     list: FileItem[];
   }> {
-    const { app, config } = await this.getMatches(id);
+    const { app, config } = await this.getMatches();
     return {
       list: await app.getFileList(prefix, config),
     };
   }
   async addPath(params: {
-    id: number;
     prefix: string;
     name: string | string[];
     type: "directory" | "file";
   }): Promise<void> {
-    const { app, config } = await this.getMatches(params.id);
+    const { app, config } = await this.getMatches();
     return await app.addPath({
-      ...omit(params, ["id"]),
+      ...params,
       config,
     });
   }
-  async deleteFile(id: number, path: string | string[]): Promise<void> {
-    const { app, config } = await this.getMatches(id);
+  async deleteFile(path: string | string[]): Promise<void> {
+    const { app, config } = await this.getMatches();
     await app.deleteFile(path, config);
     // await this.removeHistory(path);
   }
-  async getSetting(id: number) {
+  async getSetting() {
     const setting = await sql((db) => db.setting);
     return setting || {};
   }
   async saveSetting(data: any) {
-    const { id, ...setting } = data;
     await sql((db) => {
-      db.setting = setting;
+      db.setting = data;
+    });
+  }
+  async getCollect() {
+    return await sql((db) => db.collect || []);
+  }
+  async addCollect(data: string) {
+    await sql((db) => {
+      const obj = {
+        id: Date.now().toString(),
+        name: data,
+        path: data,
+      };
+      if (!db.collect) {
+        db.collect = [obj];
+      } else {
+        db.collect.push(obj);
+      }
+    });
+  }
+  async saveCollect(
+    list: {
+      name: string;
+      path: string;
+      id: string;
+    }[]
+  ) {
+    await sql((db) => {
+      db.collect = list;
     });
   }
   async getHistory({

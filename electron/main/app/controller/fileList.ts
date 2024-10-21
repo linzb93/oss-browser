@@ -2,6 +2,7 @@ import { Route } from "@linzb93/event-router";
 import { Request } from "../types/api";
 import Service from "../service";
 import AliOss from "../service/AliOss";
+import { HTTP_STATUS } from "../helper/constant";
 
 const route = Route();
 const service = new Service();
@@ -10,7 +11,15 @@ service.add(AliOss);
 // 获取文件/目录列表
 route.handle("getFileList", async (req: Request<{ prefix: string }>) => {
   const { prefix } = req.params;
-  return await service.getFileList(prefix);
+  try {
+    return await service.getFileList(prefix);
+  } catch (error) {
+    console.log(error);
+    return {
+      code: HTTP_STATUS.INTERNAL_SERVER_ERROR,
+      message: "OSS接口故障，请稍后再试",
+    };
+  }
 });
 
 // 删除文件

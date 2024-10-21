@@ -181,7 +181,7 @@
     :path="fullPath"
     @refresh="getList"
   />
-  <collect-pane v-model:visible="visible.collect" />
+  <collect-pane v-model:visible="visible.collect" @enter="jumpFast" />
   <setting-dialog
     v-model:visible="visible.setting"
     :setting="setting"
@@ -249,12 +249,16 @@ loading.value = true;
 
 // 获取文件列表
 const getList = async () => {
-  const data = await request("file-getFileList", {
-    prefix: fullPath.value,
-  });
-  loading.value = false;
-  tableList.value = data.list;
-  scrollTo(0, 800);
+  try {
+    const data = await request("file-getFileList", {
+      prefix: fullPath.value,
+    });
+    loading.value = false;
+    tableList.value = data.list;
+    scrollTo(0, 800);
+  } catch (error) {
+    ElMessage.error("接口故障，请稍后再试");
+  }
 };
 onMounted(async () => {
   const userInfo = await request("login-get");
@@ -367,6 +371,11 @@ const jumpInner = (item) => {
     return;
   }
   breadcrumb.value.push(item.name);
+  getList();
+};
+
+const jumpFast = (path) => {
+  breadcrumb.value = path.split("/").filter((item) => !!item);
   getList();
 };
 

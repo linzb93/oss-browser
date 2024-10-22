@@ -1,4 +1,3 @@
-
 import Css from "./Css.vue";
 import File from "./File.vue";
 import Font from "./Font.vue";
@@ -16,6 +15,7 @@ import Video from "./Video.vue";
 import Zip from "./Zip.vue";
 import Mp3 from "./Mp3.vue";
 import Excel from "./Excel.vue";
+import Pdf from "./Pdf.vue";
 import App from "./App.vue";
 export {
   App,
@@ -26,6 +26,7 @@ export {
   File,
   Font,
   Json,
+  Pdf,
   Jsx,
   Markdown,
   Pic,

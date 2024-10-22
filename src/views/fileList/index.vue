@@ -40,9 +40,7 @@
               >查看收藏夹</el-dropdown-item
             >
             <el-dropdown-item command="collect">收藏</el-dropdown-item>
-            <el-dropdown-item command="home-page" disabled
-              >设为首页</el-dropdown-item
-            >
+            <el-dropdown-item command="home-page">设为首页</el-dropdown-item>
             <el-dropdown-item command="upload-history" disabled
               >上传历史</el-dropdown-item
             >
@@ -430,7 +428,7 @@ const moreCommand = async (cmd) => {
     return;
   }
   if (cmd === "upload-history") {
-    ElMessage.info("功能开发中，敬请期待");
+    visible.history = true;
     return;
   }
   if (cmd === "back-login") {

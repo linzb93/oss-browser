@@ -1,4 +1,5 @@
 import { omit } from "lodash-es";
+import dayjs from "dayjs";
 import App from "./BaseOss";
 import { FileItem } from "../types/vo";
 import sql from "../helper/sql";
@@ -68,7 +69,10 @@ export default class {
     await sql((db) => {
       const obj = {
         id: Date.now().toString(),
-        name: data,
+        name: data
+          .split("/")
+          .filter((item) => !!item)
+          .at(-1),
         path: data,
       };
       if (!db.collect) {
@@ -110,6 +114,29 @@ export default class {
       list,
       totalCount: history.length,
     };
+  }
+  private async addHistory(filePath: string | string[]) {
+    await sql((db) => {
+      const { history } = db;
+
+      const realPath = Array.isArray(filePath) ? filePath : [filePath];
+      const now = dayjs().format("YYYY-MM-DD HH:mm:ss");
+      if (!history) {
+        db.history = [
+          {
+            path: realPath[0],
+            createTime: now,
+          },
+        ];
+        return;
+      }
+      db.history.concat(
+        realPath.map((item) => ({
+          path: item,
+          createTime: now,
+        }))
+      );
+    });
   }
   private async removeHistory(filePath: string | string[]) {
     await sql((db) => {

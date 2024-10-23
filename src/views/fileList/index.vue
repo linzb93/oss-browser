@@ -303,7 +303,6 @@ const batchCommand = (command) => {
                 return;
             }
             requestUtil.copy(selected.value.map((item) => item.url).join('\n'));
-            ElMessage.success('批量复制地址成功');
         },
     };
     if (actions[command]) {

@@ -139,7 +139,6 @@ export default class {
                 db.history = [];
                 return;
             }
-            console.log(filePath);
             if (Array.isArray(filePath)) {
                 db.history = history.filter((item) => filePath.includes(item.path));
             } else {

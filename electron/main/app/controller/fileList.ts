@@ -79,9 +79,10 @@ route.handle(
       path: string;
     }>
   ) => {
-    const { path } = req.params;
+    // const { path } = req.params;
+    console.log(req.params);
     await service.saveSetting({
-      homePath: path,
+      homePath: req.params,
     });
   }
 );

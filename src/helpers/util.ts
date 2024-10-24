@@ -2,7 +2,7 @@ import { ElLoading } from "element-plus";
 
 /**
  * 处理来自主进程的请求
- * @param receiveMethod 请求名称 
+ * @param receiveMethod 请求名称
  * @param callback 回调函数
  */
 export const handleMainPost = (receiveMethod: string, callback: Function) => {

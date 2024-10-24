@@ -259,6 +259,7 @@ const getList = async () => {
     tableList.value = data.list;
     scrollTo(0, 800);
   } catch (error) {
+    loading.value = false;
     ElMessage.error("接口故障，请稍后再试");
   }
 };

@@ -14,7 +14,7 @@ route.handle("getFileList", async (req: Request<{ prefix: string }>) => {
   try {
     return await service.getFileList(prefix);
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     return {
       code: HTTP_STATUS.INTERNAL_SERVER_ERROR,
       message: "OSS接口故障，请稍后再试",

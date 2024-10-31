@@ -19,6 +19,11 @@ export interface Database {
     name: string;
     path: string;
   }[];
+  templates: {
+    name: string;
+    content: string;
+    id: number;
+  }[];
   setting: {
     id: number;
     accountId: number;

@@ -81,14 +81,17 @@ onUnmounted(() => {
 .context-menu {
   position: fixed;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-  width: 100px;
+  width: 150px;
   background: #fff;
   z-index: 10;
+  padding: 5px;
+  border-radius: 4px;
   li {
     height: 30px;
     padding: 0 6px;
     font-size: 14px;
     line-height: 30px;
+    border-radius: 2px;
     cursor: pointer;
     &:hover {
       background: #e1e1e1;

@@ -92,7 +92,7 @@
           <el-table-column
             type="selection"
             :selectable="(row) => row.type !== 'dir'"
-            width="55"
+            width="35"
           />
           <el-table-column label="名称">
             <template #default="scope">
@@ -392,12 +392,19 @@ const jumpFast = (path) => {
 const createDir = () => {
   ElMessageBox.prompt("请输入文件夹名称", "温馨提醒", {
     confirmButtonText: "创建",
-  })
-    .then(async ({ value }) => {
-      if (!value) {
+    beforeClose: (action, instance, done) => {
+      if (action !== "confirm") {
+        done();
+        return;
+      }
+      if (!instance.inputValue) {
         ElMessage.error("请输入文件夹名称");
         return;
       }
+      done();
+    },
+  })
+    .then(async ({ value }) => {
       if (
         tableList.value.some(
           (file) => file.type === "dir" && file.name === value

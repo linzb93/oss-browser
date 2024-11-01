@@ -14,7 +14,6 @@ route.handle("getFileList", async (req: Request<{ prefix: string }>) => {
   try {
     return await service.getFileList(prefix);
   } catch (error) {
-    // console.log(error);
     return {
       code: HTTP_STATUS.INTERNAL_SERVER_ERROR,
       message: "OSS接口故障，请稍后再试",
@@ -132,4 +131,43 @@ route.handle(
     return await service.getHistory(req.params);
   }
 );
+
+// 获取模板列表
+route.handle("getTemplate", async () => {
+  return await service.getTemplate();
+});
+route.handle(
+  "addTemplate",
+  async (
+    req: Request<{
+      name: string;
+      content: string;
+    }>
+  ) => {
+    return await service.addTemplate(req.params);
+  }
+);
+route.handle(
+  "addTemplate",
+  async (
+    req: Request<{
+      name: string;
+      content: string;
+      id: number;
+    }>
+  ) => {
+    return await service.addTemplate(req.params);
+  }
+);
+route.handle(
+  "addTemplate",
+  async (
+    req: Request<{
+      id: number;
+    }>
+  ) => {
+    return await service.addTemplate(req.params);
+  }
+);
+
 export default route;

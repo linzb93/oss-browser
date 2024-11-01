@@ -1,5 +1,6 @@
 import http from 'node:http';
 import https from 'node:https';
+import { join, basename } from 'node:path';
 import { createWriteStream } from 'node:fs';
 import { clipboard, dialog, shell } from 'electron';
 import pMap from 'p-map';
@@ -24,24 +25,24 @@ export class UtilService {
         if (result.canceled) {
             return {};
         }
-        await pMap(pathList, (url: string) => this.downloadOne(url), { concurrency: 4 });
+        await pMap(pathList, (url: string) => this.downloadOne(url, result.filePaths[0]), { concurrency: 4 });
     }
     /**
      * 下载单个文件
      * @param path - 文件地址
      * @returns
      */
-    private async downloadOne(path: string) {
+    private async downloadOne(url: string, savedPath: string) {
         return await new Promise((resolve) => {
             const callback = (resp: http.IncomingMessage) => {
                 if (resp.statusCode === 200) {
-                    resp.pipe(createWriteStream(path)).on('finish', resolve);
+                    resp.pipe(createWriteStream(join(savedPath, basename(url)))).on('finish', resolve);
                 }
             };
-            if (path.startsWith('https://')) {
-                https.get(path, callback);
+            if (url.startsWith('https://')) {
+                https.get(url, callback);
             } else {
-                http.get(path, callback);
+                http.get(url, callback);
             }
         });
     }

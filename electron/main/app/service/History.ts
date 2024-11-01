@@ -1,11 +1,8 @@
 import dayjs from 'dayjs';
 import sql from '../helper/sql';
-import { Database } from '../types/api';
 import { castArray } from 'lodash-es';
-interface IPage {
-    pageIndex: number;
-    pageSize: number;
-}
+import { IPage } from '../types/vo';
+
 export class HistoryService {
     async get(param: IPage) {
         const { pageIndex, pageSize } = param;
@@ -27,16 +24,13 @@ export class HistoryService {
     async add(data: string) {
         await sql((db) => {
             const { history } = db;
-
             const realPath = castArray(data.split(','));
             const now = dayjs().format('YYYY-MM-DD HH:mm:ss');
             if (!history) {
-                db.history = [
-                    {
-                        path: realPath[0],
-                        createTime: now,
-                    },
-                ];
+                db.history = realPath.map((item) => ({
+                    path: item,
+                    createTime: now,
+                }));
                 return;
             }
             db.history = db.history.concat(
@@ -51,7 +45,7 @@ export class HistoryService {
         await sql((db) => {
             const { history } = db;
             const realPath = castArray(data.split(','));
-            db.history = history.filter((item) => realPath.includes(item.path));
+            db.history = history.filter((item) => !realPath.includes(item.path));
         });
     }
 }

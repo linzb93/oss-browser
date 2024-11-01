@@ -1,4 +1,4 @@
-import { FileItem } from "../types/vo";
+import { FileItem } from "../../types/vo";
 
 export default abstract class {
   /**

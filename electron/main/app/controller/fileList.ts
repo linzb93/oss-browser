@@ -1,7 +1,7 @@
 import { Route } from "@linzb93/event-router";
 import { Request } from "../types/api";
-import Service from "../service";
-import AliOss from "../service/AliOss";
+import Service from "../service/OSS";
+import AliOss from "../service/OSSAdapter/Ali";
 import { HTTP_STATUS } from "../helper/constant";
 
 const route = Route();

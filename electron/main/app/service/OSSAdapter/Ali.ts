@@ -1,7 +1,7 @@
 import { basename } from "node:path";
 import OSS, { OssConfig } from "ali-oss";
-import BaseOss from "./BaseOss";
-import { FileItem } from "../types/vo";
+import BaseOss from "./Base";
+import { FileItem } from "../../types/vo";
 import pMap from "p-map";
 export default class extends BaseOss {
   readonly platformId = 1;

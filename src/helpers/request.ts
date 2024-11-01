@@ -58,7 +58,9 @@ export const requestUtil = {
      * @param {string} text 复制的文本
      */
     copy(text: string) {
-        doRequest('copy', text);
+        doRequest('copy', {
+            content: text,
+        });
         ElMessage.success('复制成功');
     },
 
@@ -69,7 +71,9 @@ export const requestUtil = {
      */
     async download(url: string | string[]) {
         try {
-            await doRequest('download', url);
+            await doRequest('download', {
+                url,
+            });
         } catch (error) {
             return;
         }

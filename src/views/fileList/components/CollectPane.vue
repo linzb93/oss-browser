@@ -43,7 +43,7 @@ watch(props, async ({ visible }) => {
     if (!visible) {
         return;
     }
-    const list = await request('file-getCollect');
+    const list = await request('get-collect');
     collectList.value = list.map((item) => ({
         ...item,
         isEdit: false,
@@ -59,7 +59,7 @@ const enter = (target) => {
 };
 const save = async () => {
     await request(
-        'file-saveCollect',
+        'set-collect',
         collectList.value.map((item) => omit(item, ['isEdit']))
     );
     ElMessage.success('保存成功');

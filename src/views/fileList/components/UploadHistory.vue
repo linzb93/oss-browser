@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import { ref, shallowRef, reactive, shallowReactive, watch } from 'vue';
+import { shallowRef, shallowReactive, watch } from 'vue';
 import request from '@/helpers/request';
 import pathUtil from '@/helpers/path';
 const props = defineProps({
@@ -39,6 +39,7 @@ watch(props, ({ visible }) => {
     if (!visible) {
         return;
     }
+    console.log(props.domain);
     getList();
 });
 const query = shallowReactive({
@@ -48,7 +49,7 @@ const query = shallowReactive({
 const totalCount = shallowRef(0);
 
 const getList = async () => {
-    const result = await request('file-getHistory', query);
+    const result = await request('get-history', query);
     totalCount.value = result.totalCount;
     list.value = result.list;
 };

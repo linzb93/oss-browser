@@ -7,7 +7,18 @@ export class SettingService {
     }
     async set(data: Database['setting']) {
         await sql((db) => {
-            db.setting = data;
+            db.setting = {
+                ...db.setting,
+                ...data,
+            };
+        });
+    }
+    async setHome(url: string) {
+        await sql((db) => {
+            db.setting = {
+                ...db.setting,
+                homePath: url,
+            };
         });
     }
 }

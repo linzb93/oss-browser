@@ -69,7 +69,13 @@
                 </template>
             </el-dropdown>
         </div>
-        <div class="other-wrap">
+        <div
+            class="other-wrap"
+            :infinite-scroll-immediate="false"
+            :infinite-scroll-disabled="disabled"
+            :infinite-scroll-distance="200"
+            v-infinite-scroll="() => getList(true)"
+        >
             <context-menu
                 :menus="[
                     {
@@ -80,7 +86,7 @@
                     },
                 ]"
             >
-                <el-table :data="tableList" v-loading="loading" @selection-change="handleSelectionChange">
+                <el-table :data="tableList" @selection-change="handleSelectionChange">
                     <el-table-column type="selection" :selectable="(row) => row.type !== 'dir'" width="35" />
                     <el-table-column label="名称">
                         <template #default="scope">
@@ -153,7 +159,7 @@
         v-model:visible="progressVisible"
         :upload-list="uploadingList"
         :path="fullPath"
-        @refresh="getList"
+        @refresh="getList()"
     />
     <collect-pane v-model:visible="visible.collect" @enter="jumpFast" />
     <setting-dialog
@@ -210,19 +216,29 @@ const visible = shallowReactive({
     collect: false,
 });
 const loading = shallowRef(true);
-loading.value = true;
-
+const finished = shallowRef(false);
+const disabled = computed(() => loading.value || finished.value);
 // 获取文件列表
-const getList = async () => {
+const getList = async (isConcat) => {
+    loading.value = true;
+    if (!isConcat) {
+        finished.value = false;
+        scrollTo(0, 800, '.other-wrap');
+    }
     try {
         const data = await request('oss-get-list', {
             prefix: fullPath.value,
         });
         loading.value = false;
-        tableList.value = data.list;
-        scrollTo(0, 800);
+        if (isConcat) {
+            tableList.value = tableList.value.concat(data.list);
+        } else {
+            tableList.value = data.list;
+        }
+        finished.value = !data.token;
     } catch (error) {
         loading.value = false;
+        finished.value = true;
         ElMessage.error('接口故障，请稍后再试');
     }
 };
@@ -449,6 +465,7 @@ const getCss = (item) => {
 const setting = ref({
     pixel: 2,
     previewType: 1,
+    homePath: '',
     copyTemplateId: null,
 });
 </script>
@@ -475,6 +492,7 @@ const setting = ref({
     bottom: 10px;
     left: 0;
     width: 100%;
+    overflow: auto;
 }
 .dropdown-icon {
     margin-left: 5px;

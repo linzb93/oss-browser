@@ -41,9 +41,7 @@ export class OSSService {
         list: FileItem[];
     }> {
         const { app, config } = await this.getMatches();
-        return {
-            list: await app.getFileList(prefix, config),
-        };
+        return await app.getFileList(prefix, config);
     }
     async addPath(params: AddOptions): Promise<void> {
         const { app, config } = await this.getMatches();

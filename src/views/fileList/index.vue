@@ -427,9 +427,29 @@ const onSelectHistory = (filePath) => {
 // 拖拽上传
 const { visible: progressVisible, active, setDragState, dropFile, uploadingList } = useUpload(tableList.value);
 
+const getCss = (item) => {
+    const img = new Image();
+    img.src = item.url;
+    img.onload = function () {
+        const { width, height } = this;
+        request('copy-template', {
+            width,
+            height,
+            url: item.url,
+        })
+            .then(() => {
+                ElMessage.success('复制成功');
+            })
+            .catch((e) => {
+                ElMessage.error(e.message);
+            });
+    };
+};
+
 const setting = ref({
     pixel: 2,
     previewType: 1,
+    copyTemplateId: null,
 });
 </script>
 <style lang="scss" scoped>

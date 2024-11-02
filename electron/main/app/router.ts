@@ -86,7 +86,10 @@ export default (win: BrowserWindow) => {
         const data = JSON.parse(dataStr) as {
             id: number;
         };
-        return templateService.get(data.id);
+        return response(async () => await templateService.getDetail(data.id));
+    });
+    ipcMain.handle('get-template-list', () => {
+        return response(async () => await templateService.getList());
     });
     ipcMain.handle('add-template', (_, dataStr) => {
         const data = JSON.parse(dataStr) as Database['templates'][number];
@@ -99,6 +102,14 @@ export default (win: BrowserWindow) => {
     ipcMain.handle('remove-template', (_, dataStr) => {
         const data = JSON.parse(dataStr) as Database['templates'][number];
         return response(async () => await templateService.remove(data));
+    });
+    ipcMain.handle('copy-template', (_, dataStr) => {
+        const data = JSON.parse(dataStr) as {
+            width: number;
+            height: number;
+            url: string;
+        };
+        return response(async () => await templateService.copy(data));
     });
     // 通用
     ipcMain.handle('copy', (_, dataStr: string) => {

@@ -1,5 +1,5 @@
 <template>
-    <el-dialog :model-value="visible" width="500px" title="复制样式" @close="close">
+    <el-dialog :model-value="visible" width="500px" title="复制样式" @close="close" @closed="closed">
         <el-form label-suffix="：">
             <el-form-item label="倍数">
                 <el-radio-group v-model="form.pixel">
@@ -14,15 +14,29 @@
                 </el-radio-group>
             </el-form-item>
             <el-form-item label="复制模板">
-                <el-radio-group v-model="form.templateType">
-                    <el-radio v-for="item in templates" :key="item.id" style="display: block">
-                        <span>{{ item.title }}</span>
-                        <el-icon :size="14" @click="addTemplate(item)"><edit /></el-icon>
-                        <el-icon :size="14" @click="removeTemplate(item)"><remove /></el-icon>
-                    </el-radio>
-                </el-radio-group>
                 <div>
-                    <el-button size="small" @click="addTemplate()">添加</el-button>
+                    <div v-if="!isTemplateEditMode">
+                        <el-radio-group v-model="form.copyTemplateId">
+                            <el-radio v-for="item in templates" :key="item.id" :value="item.id">
+                                {{ item.name }}
+                            </el-radio>
+                        </el-radio-group>
+                    </div>
+                    <div v-else>
+                        <ul>
+                            <li v-for="item in templates" :key="item.id" :value="item.id" style="display: block">
+                                <span>{{ item.name }}</span>
+                                <el-icon :size="14" class="ml10" @click="addTemplate(item)"><edit /></el-icon>
+                                <el-icon :size="14" class="ml10" @click="removeTemplate(item)"><remove /></el-icon>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <el-button size="small" type="primary" @click="addTemplate()">添加</el-button>
+                        <el-button size="small" type="primary" @click="isTemplateEditMode = !isTemplateEditMode">{{
+                            isTemplateEditMode ? '退出编辑' : '编辑'
+                        }}</el-button>
+                    </div>
                 </div>
             </el-form-item>
         </el-form>
@@ -31,7 +45,7 @@
             <el-button type="primary" @click="save">保存</el-button>
         </template>
     </el-dialog>
-    <template-editor v-model:visible="isShowTemplateEdit" :detail="currentTemplate" />
+    <template-editor v-model:visible="isShowTemplateDialog" :detail="currentTemplate" @submit="getTemplates" />
 </template>
 
 <script setup>
@@ -53,22 +67,27 @@ watch(props, ({ visible }) => {
         return;
     }
     form.value = cloneDeep(props.setting);
-    // request("get-template").then((res) => {
-    //   templates.value = res;
-    // });
+    getTemplates();
 });
 
 const form = ref({
     pixel: 2,
-    openPreview: false,
+    previewType: false,
+    copyTemplateId: null,
 });
 
 const templates = ref([]);
-const isShowTemplateEdit = shallowRef(false);
+const isShowTemplateDialog = shallowRef(false);
+const isTemplateEditMode = shallowRef(false);
 const currentTemplate = ref({});
+const getTemplates = () => {
+    request('get-template-list').then((list) => {
+        templates.value = list;
+    });
+};
 const addTemplate = (item) => {
     currentTemplate.value = item || {};
-    isShowTemplateEdit.value = true;
+    isShowTemplateDialog.value = true;
 };
 const removeTemplate = (item) => {
     ElMessageBox.confirm('确认删除？', '温馨提醒', {
@@ -81,12 +100,23 @@ const removeTemplate = (item) => {
 };
 const save = async () => {
     await request('save-setting', form.value);
-    ElMessage.success('保存成功');
-    emit('submit', form.value);
-    close();
+    ElMessage.success({
+        message: '保存成功',
+        onClose: () => {
+            emit('submit', form.value);
+            close();
+        },
+    });
 };
 const close = () => {
     emit('update:visible', false);
+};
+const closed = () => {
+    form.value = {
+        pixel: 2,
+        previewType: false,
+        copyTemplateId: null,
+    };
 };
 </script>
 <style lang="scss" scoped>

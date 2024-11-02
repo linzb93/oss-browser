@@ -90,6 +90,8 @@ app.whenReady().then(() => {
                         shell.openPath(root);
                     },
                 },
+                { role: 'copy' },
+                { role: 'paste' },
             ],
         },
     ]);

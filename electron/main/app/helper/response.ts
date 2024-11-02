@@ -10,7 +10,7 @@ export default async (callback: Function) => {
         return {
             code: HTTP_STATUS.INTERNAL_SERVER_ERROR,
             result: null,
-            message: 'SERVER_ERROR',
+            message: error.message || 'SERVER_ERROR',
         };
     }
 };

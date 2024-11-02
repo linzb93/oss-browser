@@ -2,8 +2,16 @@ import sql from '../helper/sql';
 import { Database } from '../types/api';
 
 export class SettingService {
-    async get() {
-        return await sql((db) => db.setting || {});
+    async get(): Promise<Database['setting']> {
+        return await sql(
+            (db) =>
+                db.setting || {
+                    pixel: 1,
+                    openPreview: false,
+                    copyTemplateId: 1,
+                    homePath: '',
+                }
+        );
     }
     async set(data: Database['setting']) {
         await sql((db) => {

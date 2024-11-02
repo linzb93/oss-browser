@@ -1,8 +1,24 @@
+import { omit } from 'lodash-es';
 import { Database } from '../types/api';
 import sql from '../helper/sql';
+import { SettingService } from './Setting';
+import { UtilService } from './Util';
 export class TemplateService {
-    async get(id: number) {
+    private setting = new SettingService();
+    private util = new UtilService();
+    async getList() {
         return await sql((db) => {
+            if (!db.templates) {
+                return [];
+            }
+            return db.templates.map((item) => omit(item, ['content']));
+        });
+    }
+    async getDetail(id: number) {
+        return await sql((db) => {
+            if (!db.templates) {
+                return null;
+            }
             const match = db.templates.find((item) => item.id === id);
             return match || null;
         });
@@ -40,5 +56,19 @@ export class TemplateService {
         await sql((db) => {
             db.templates = db.templates.filter((item) => item.id !== id);
         });
+    }
+    async copy(data: { width: number; height: number; url: string }) {
+        const userSetting = await this.setting.get();
+        const templateObj = await this.getDetail(userSetting.copyTemplateId);
+        if (!templateObj) {
+            throw new Error('未添加复制模板');
+        }
+        const width = userSetting.pixel === 2 ? parseInt((data.width / 2).toString()) : data.width;
+        const height = userSetting.pixel === 2 ? parseInt((data.height / 2).toString()) : data.height;
+        const result = templateObj.content
+            .replace('${width}', width.toString())
+            .replace('${height}', height.toString())
+            .replace('${url}', data.url);
+        this.util.copy(result);
     }
 }

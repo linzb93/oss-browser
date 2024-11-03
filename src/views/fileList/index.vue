@@ -11,7 +11,16 @@
         </div>
         <div class="path mb10 flexalign-center">
             <template v-if="breadcrumb.length">
-                <el-icon @click="clickPath(-1)" class="curp" :size="16">
+                <el-icon
+                    :size="16"
+                    class="mr10 curp"
+                    @click="
+                        popBreadCrumb();
+                        getList();
+                    "
+                    ><back
+                /></el-icon>
+                <el-icon @click="setBreadCrumb(-1)" class="curp" :size="16">
                     <home-filled />
                 </el-icon>
                 <el-icon class="mr10" :size="16">
@@ -22,7 +31,7 @@
                 class="path-item flexalign-center curp"
                 v-for="(item, index) in breadcrumb"
                 :key="item"
-                @click="clickPath(index)"
+                @click="setBreadCrumb(index)"
             >
                 <el-icon :size="16">
                     <folder />
@@ -161,7 +170,7 @@
         :path="fullPath"
         @refresh="getList()"
     />
-    <collect-pane v-model:visible="visible.collect" @enter="jumpFast" />
+    <collect-pane v-model:visible="visible.collect" @enter="initBreadCrumb" />
     <setting-dialog
         v-model:visible="visible.setting"
         :setting="setting"
@@ -188,9 +197,10 @@ import { ref, shallowRef, shallowReactive, onMounted, computed, h } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import dayjs from 'dayjs';
-import { Folder, ArrowRight, HomeFilled, ArrowDown } from '@element-plus/icons-vue';
+import { Folder, ArrowRight, HomeFilled, ArrowDown, Back } from '@element-plus/icons-vue';
 import { getSize } from '@/helpers/size';
 import useUpload from './hooks/useUpload';
+import useBreadcrumb from './hooks/useBreadcrumb';
 import pathUtil from '@/helpers/path';
 import { scrollTo } from '@/helpers/scroll-to';
 import request, { requestUtil } from '@/helpers/request';
@@ -206,8 +216,14 @@ import CollectPane from './components/CollectPane.vue';
 const router = useRouter();
 
 const tableList = shallowRef([]);
-const breadcrumb = ref([]);
-const fullPath = computed(() => breadcrumb.value.map((item) => `${item}/`).join(''));
+const {
+    breadcrumb,
+    fullPath,
+    init: initBreadCrumb,
+    push: pushBreadCrumb,
+    pop: popBreadCrumb,
+    set: setBreadCrumb,
+} = useBreadcrumb();
 const visible = shallowReactive({
     progress: false,
     preview: false,
@@ -262,14 +278,8 @@ const getSetting = async () => {
         ...data,
     };
     if (setting.value.homePath) {
-        breadcrumb.value = setting.value.homePath.split('/').filter((item) => !!item);
+        initBreadCrumb(setting.value.homePath);
     }
-};
-
-// 点击面包屑
-const clickPath = (index) => {
-    breadcrumb.value = breadcrumb.value.slice(0, index + 1);
-    getList();
 };
 
 // 多选，目前只能选择文件，不能选择目录
@@ -356,12 +366,7 @@ const jumpInner = (item) => {
         }
         return;
     }
-    breadcrumb.value.push(item.name);
-    getList();
-};
-
-const jumpFast = (path) => {
-    breadcrumb.value = path.split('/').filter((item) => !!item);
+    pushBreadCrumb(item.name);
     getList();
 };
 

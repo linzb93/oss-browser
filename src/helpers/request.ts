@@ -66,10 +66,10 @@ export const requestUtil = {
 
     /**
      * 下载文件，支持单个或批量下载
-     * @param {string | string[]} url 下载地址
+     * @param {string} url 下载地址
      * @returns
      */
-    async download(url: string | string[]) {
+    async download(url: string) {
         try {
             await doRequest('download', {
                 url,
@@ -83,7 +83,7 @@ export const requestUtil = {
      * 打开网站或者文件
      * @param url 网址或者本地文件地址
      */
-    open(type: 'vscode' | 'path' | 'web', url: string | string[]) {
+    open(type: 'vscode' | 'path' | 'web', url: string) {
         doRequest('open', {
             type,
             url,

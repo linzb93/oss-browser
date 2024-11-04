@@ -12,7 +12,11 @@ export interface Database {
         id: number;
         platform?: number;
         name?: string;
-        domain?: string;
+        domain: string;
+        region: string;
+        accessKeyId: string;
+        accessKeySecret: string;
+        bucket: string;
     };
     collect: {
         id: string;

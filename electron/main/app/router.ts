@@ -40,7 +40,7 @@ export default (win: BrowserWindow) => {
     });
     ipcMain.handle('oss-delete', (_, dataStr) => {
         const data = JSON.parse(dataStr) as {
-            path: string | string[];
+            path: string;
         };
         return response(async () => await ossService.deleteFile(data.path));
     });

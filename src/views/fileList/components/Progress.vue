@@ -70,7 +70,7 @@ const list = ref([]);
 const startUpload = async () => {
     await request('oss-add-path', {
         prefix: props.path,
-        name: list.value.map((item) => item.path),
+        name: list.value.map((item) => item.path).join(','),
         type: 'file',
     });
     ElMessage.success('上传成功');

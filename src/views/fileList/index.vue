@@ -304,7 +304,7 @@ const batchCommand = (command) => {
             if (!checkMultiSelect()) {
                 return;
             }
-            await requestUtil.download(selected.value.map((item) => item.url));
+            await requestUtil.download(selected.value.map((item) => item.url).join(','));
             selected.value = [];
         },
         delete: () => {
@@ -322,7 +322,7 @@ const batchCommand = (command) => {
                 cancelButtonText: '取消',
             }).then(async () => {
                 await request('oss-delete', {
-                    path: selected.value.map((item) => `${fullPath.value}${item.name}`),
+                    path: selected.value.map((item) => `${fullPath.value}${item.name}`).join(','),
                 });
                 ElMessage.success('删除成功');
                 selected.value = [];
@@ -354,7 +354,7 @@ const del = async (item) => {
 // 图片预览
 const previewUrl = shallowRef('');
 const isPic = (item) => {
-    return ['jpg', 'png', 'gif'].includes(pathUtil.extname(item.name));
+    return ['jpg', 'png', 'jpeg', 'gif'].includes(pathUtil.extname(item.name));
 };
 // 进入文件夹内层
 const jumpInner = (item) => {

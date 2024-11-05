@@ -49,6 +49,10 @@ export default (win: BrowserWindow) => {
         const data = JSON.parse(dataStr) as OSSAddOptions;
         return response(async () => await ossService.addPath(data));
     });
+    ipcMain.handle('oss-upload', (_, dataStr) => {
+        const data = JSON.parse(dataStr) as OSSAddOptions;
+        return response(async () => await ossService.addPath(data));
+    });
     // 设置
     ipcMain.handle('get-setting', () => {
         return response(async () => await settingService.get());

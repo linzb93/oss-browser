@@ -1,19 +1,17 @@
 import { app, BrowserWindow, shell, Menu, dialog } from 'electron';
-import { fileURLToPath } from 'node:url';
-import path from 'node:path';
+import { join } from 'node:path';
 import registerRoute from './app/router';
 import unhandled from 'electron-unhandled';
-import { root } from './app/helper/constant';
+import { root, __dirname } from './app/helper/constant';
 unhandled();
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-process.env.APP_ROOT = path.join(__dirname, '../..');
+process.env.APP_ROOT = join(__dirname, '../..');
 
-export const MAIN_DIST = path.join(process.env.APP_ROOT, 'dist-electron');
-export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist');
+export const MAIN_DIST = join(process.env.APP_ROOT, 'dist-electron');
+export const RENDERER_DIST = join(process.env.APP_ROOT, 'dist');
 export const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
 
-process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 'public') : RENDERER_DIST;
+process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? join(process.env.APP_ROOT, 'public') : RENDERER_DIST;
 
 const isMac = process.platform === 'darwin';
 
@@ -26,8 +24,8 @@ if (!app.requestSingleInstanceLock()) {
 }
 
 let win: BrowserWindow | null = null;
-const preload = path.join(__dirname, '../preload/index.mjs');
-const indexHtml = path.join(RENDERER_DIST, 'index.html');
+const preload = join(__dirname, '../preload/index.mjs');
+const indexHtml = join(RENDERER_DIST, 'index.html');
 
 async function createWindow() {
     win = new BrowserWindow({

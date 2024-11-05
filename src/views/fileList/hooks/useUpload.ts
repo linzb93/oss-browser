@@ -9,7 +9,7 @@ const setDragState = (state: boolean) => {
     active.value = state;
 };
 
-const visible = shallowRef(false);
+const progressVisible = shallowRef(false);
 const uploadingList = ref<TableItem[]>([]);
 
 interface TableItem {
@@ -21,7 +21,6 @@ interface TableItem {
 export default function useUpload(tableList: TableItem[]) {
     const dropFile = async (event: InputEvent) => {
         active.value = false;
-
         const upOriginList = Array.from(event.dataTransfer?.files as unknown as TableItem[]);
         const resolveList: TableItem[] = await new Promise((resolve) => {
             // 过滤重名文件，其他正常上传
@@ -54,13 +53,13 @@ export default function useUpload(tableList: TableItem[]) {
                 path: item.path,
                 size: getSize(item),
             }));
-            visible.value = true;
+            progressVisible.value = true;
         } else {
             ElMessage.warning('没有文件需要上传');
         }
     };
     return {
-        visible,
+        progressVisible,
         active,
         setDragState,
         dropFile,

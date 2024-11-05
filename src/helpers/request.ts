@@ -37,6 +37,25 @@ export default async function doRequest(path: string, params?: any, options?: Op
     return res.result;
 }
 
+doRequest.send = (path: string, params: any) => {
+    window.ipcRenderer.send(path, params);
+    let receiveCallback: Function;
+    const fn = (_: any, args: any) => {
+        if (typeof receiveCallback === 'function') {
+            receiveCallback(args);
+        }
+    };
+    window.ipcRenderer.on(`${path}-receiver`, fn);
+    return {
+        listener(callback: Function) {
+            receiveCallback = callback;
+        },
+        removeListener() {
+            window.ipcRenderer.off(`${path}-receiver`, fn);
+        },
+    };
+};
+
 // hook
 export function useRequest<T = any>(path: string, params?: any, options?: Option) {
     const loaded = shallowRef(false);

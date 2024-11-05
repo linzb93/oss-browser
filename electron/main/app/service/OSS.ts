@@ -1,7 +1,11 @@
+import { join } from 'node:path';
+import { utilityProcess, BrowserWindow } from 'electron';
 import App from './OSSAdapter/Base';
 import { HistoryService } from './History';
 import { FileItem } from '../types/vo';
+import { BrowserService } from './Browser';
 import sql from '../helper/sql';
+import { __dirname } from '../helper/constant';
 
 export interface AddOptions {
     prefix: string;
@@ -13,6 +17,10 @@ export class OSSService {
     private apps: App[] = [];
     private historyService = new HistoryService();
     private app: App;
+    private win: BrowserWindow;
+    constructor() {
+        this.win = BrowserService.win;
+    }
     /**
      * 添加OSS App
      * @param app OSS App适配器
@@ -50,5 +58,15 @@ export class OSSService {
     async deleteFile(path: string): Promise<void> {
         await this.app.deleteFile(path);
         await this.historyService.remove(path);
+    }
+    async upload(path: string) {
+        const child = utilityProcess.fork(join(__dirname, 'upload-process.js'), [`--paths=${path}`]);
+        child.on('message', (message: any) => {
+            const { type } = message;
+            this.win.webContents.send('oss-add-path-receiver', message);
+            if (type === 'upload-finished') {
+                child.kill();
+            }
+        });
     }
 }

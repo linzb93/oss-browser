@@ -66,13 +66,27 @@ const props = defineProps({
 const emit = defineEmits(['update:visible', 'refresh']);
 
 const list = ref([]);
+let removeEvt = () => {};
 
-const startUpload = async () => {
-    await request('oss-add-path', {
+const startUpload = () => {
+    const { listener, removeListener } = request.send('oss-add-path', {
         prefix: props.path,
         name: list.value.map((item) => item.path).join(','),
         type: 'file',
     });
+    listener((data) => {
+        const { type, name, progress } = data;
+        if (type === 'uploading') {
+            /**
+             * 还在上传。
+             * 对比现有列表，如果不存在，就补充在最后，否则更新进度
+             */
+        } else if (type === 'upload-finished') {
+            // 上传完成，显示批量操作按钮
+            removeEvt();
+        }
+    });
+    removeEvt = removeListener;
     ElMessage.success('上传成功');
     emit('refresh');
     list.value = list.value.map((item) => ({ ...item, success: true }));
@@ -104,6 +118,7 @@ const close = () => {
 };
 const closed = () => {
     list.value = [];
+    removeEvt();
 };
 </script>
 <style scoped lang="scss">

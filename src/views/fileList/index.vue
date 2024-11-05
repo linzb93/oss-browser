@@ -466,7 +466,7 @@ const onSelectHistory = (filePath) => {
 };
 
 // 拖拽上传
-const { visible: progressVisible, active, setDragState, dropFile, uploadingList } = useUpload(tableList.value);
+const { progressVisible, active, setDragState, dropFile, uploadingList } = useUpload(tableList.value);
 
 const getCss = (item) => {
     const img = new Image();

@@ -1,6 +1,6 @@
-import { join } from "node:path";
-import { app } from "electron";
-
+import { join, dirname } from 'node:path';
+import { app } from 'electron';
+import { fileURLToPath } from 'node:url';
 export const HTTP_STATUS = {
     SUCCESS: 200, // 请求成功
     BAD_REQUEST: 400, // 请求参数有误
@@ -20,6 +20,7 @@ export const HTTP_STATUS = {
 };
 
 export const root = join(app.getPath('userData'), 'UserData');
-export const tempPath = join(root, ".temp");
-export const serverStaticPath = join(root, "pages");
-export const publicPath = join(app.getAppPath(), "./public");
+export const tempPath = join(root, '.temp');
+export const serverStaticPath = join(root, 'pages');
+export const publicPath = join(app.getAppPath(), './public');
+export const __dirname = dirname(fileURLToPath(import.meta.url));

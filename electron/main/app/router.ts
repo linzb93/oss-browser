@@ -35,8 +35,9 @@ export default (win: BrowserWindow) => {
     ipcMain.handle('oss-get-list', (_, dataStr) => {
         const data = JSON.parse(dataStr) as {
             prefix: string;
+            useToken: boolean;
         };
-        return response(async () => await ossService.getFileList(data.prefix));
+        return response(async () => await ossService.getFileList(data));
     });
     ipcMain.handle('oss-delete', (_, dataStr) => {
         const data = JSON.parse(dataStr) as {

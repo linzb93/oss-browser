@@ -20,7 +20,14 @@
                     "
                     ><back
                 /></el-icon>
-                <el-icon @click="setBreadCrumb(-1)" class="curp" :size="16">
+                <el-icon
+                    @click="
+                        setBreadCrumb(-1);
+                        getList();
+                    "
+                    class="curp"
+                    :size="16"
+                >
                     <home-filled />
                 </el-icon>
                 <el-icon class="mr10" :size="16">
@@ -31,7 +38,10 @@
                 class="path-item flexalign-center curp"
                 v-for="(item, index) in breadcrumb"
                 :key="item"
-                @click="setBreadCrumb(index)"
+                @click="
+                    setBreadCrumb(index);
+                    getList();
+                "
             >
                 <el-icon :size="16">
                     <folder />
@@ -155,8 +165,9 @@
                                     @click="getCss(scope.row)"
                                     >复制样式</el-link
                                 >
+                                <delete-confirm @confirm="del(scope.row)"></delete-confirm>
                             </template>
-                            <delete-confirm @confirm="del(scope.row)"></delete-confirm>
+                            <span v-else>-</span>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -170,7 +181,15 @@
         :path="fullPath"
         @refresh="getList()"
     />
-    <collect-pane v-model:visible="visible.collect" @enter="initBreadCrumb" />
+    <collect-pane
+        v-model:visible="visible.collect"
+        @enter="
+            (path) => {
+                initBreadCrumb(path);
+                getList();
+            }
+        "
+    />
     <setting-dialog
         v-model:visible="visible.setting"
         :setting="setting"
@@ -244,6 +263,7 @@ const getList = async (isConcat) => {
     try {
         const data = await request('oss-get-list', {
             prefix: fullPath.value,
+            useToken: isConcat,
         });
         loading.value = false;
         if (isConcat) {

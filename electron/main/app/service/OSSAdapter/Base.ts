@@ -8,7 +8,7 @@ export default abstract class {
     /**
      * 读取文件
      */
-    abstract getFileList(prefix: string): Promise<{
+    abstract getFileList(data: { prefix: string; useToken: boolean }): Promise<{
         list: FileItem[];
         token?: string;
     }>;

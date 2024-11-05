@@ -1,4 +1,4 @@
-import { basename } from 'node:path';
+import { basename, extname } from 'node:path';
 import { omit } from 'lodash-es';
 import OSS from 'ali-oss';
 import pMap from 'p-map';
@@ -26,23 +26,23 @@ export default class extends BaseOss {
             this.domain = db.account.domain;
         });
     }
-    async getFileList(prefix: string): Promise<{
+    async getFileList(data: { prefix: string; useToken: boolean }): Promise<{
         list: FileItem[];
         token: string;
     }> {
         // https://help.aliyun.com/zh/oss/developer-reference/list-objects-5?spm=a2c4g.11186623.0.i2
         const { client } = this;
         let restParams = {} as any;
-        if (prefix === this.prevFilePrefix) {
+        if (data.prefix === this.prevFilePrefix && data.useToken) {
             restParams['continuation-token'] = this.nextContinuationToken;
         }
         const result = await client.listV2({
-            prefix,
+            'prefix': data.prefix,
             'delimiter': '/',
             'max-keys': 40,
             ...restParams,
         });
-        this.prevFilePrefix = prefix;
+        this.prevFilePrefix = data.prefix;
         this.nextContinuationToken = result.nextContinuationToken;
 
         /**
@@ -86,8 +86,12 @@ export default class extends BaseOss {
     async deleteFile(pathStr: string): Promise<void> {
         const { client } = this;
         const pathList = pathStr.split(',');
-        await pMap(pathList, (path) => client.delete(path), {
-            concurrency: 4,
-        });
+        try {
+            await pMap(pathList, (path) => client.delete(path), {
+                concurrency: 4,
+            });
+        } catch (error) {
+            console.log(error);
+        }
     }
 }

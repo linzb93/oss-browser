@@ -36,10 +36,10 @@ export class OSSService {
      * 获取文件列表
      * @param prefix 目录前缀
      */
-    async getFileList(prefix: string): Promise<{
+    async getFileList(data: { prefix: string; useToken: boolean }): Promise<{
         list: FileItem[];
     }> {
-        return await this.app.getFileList(prefix);
+        return await this.app.getFileList(data);
     }
     async addPath(params: AddOptions): Promise<void> {
         await this.app.addPath({

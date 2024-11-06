@@ -26,6 +26,7 @@
         "husky": "^9.0.11",
         "lodash-es": "^4.17.21",
         "pinia": "^2.1.7",
+        "rxjs": "^7.8.1",
         "sass": "^1.74.1",
         "typescript": "^5.4.2",
         "vite": "^5.1.5",
@@ -39,7 +40,9 @@
     "dependencies": {
         "@linzb93/event-router": "^1.0.3",
         "@linzb93/utils": "^0.0.14",
+        "@types/bytes": "^3.1.4",
         "ali-oss": "^6.20.0",
+        "bytes": "^3.1.2",
         "electron-is-dev": "^3.0.1",
         "electron-unhandled": "^4.0.1",
         "execa": "^9.3.1",

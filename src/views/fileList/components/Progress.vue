@@ -71,7 +71,7 @@ let removeEvt = () => {};
 const startUpload = () => {
     const { listener, removeListener } = request.send('oss-add-path', {
         prefix: props.path,
-        name: list.value.map((item) => item.path).join(','),
+        name: props.uploadList.map((item) => item.path).join(','),
         type: 'file',
     });
     listener((data) => {
@@ -95,12 +95,6 @@ watch(props, ({ visible }) => {
     if (!visible) {
         return;
     }
-    list.value = cloneDeep(
-        props.uploadList.map((item) => ({
-            ...item,
-            success: false,
-        }))
-    );
     startUpload();
 });
 

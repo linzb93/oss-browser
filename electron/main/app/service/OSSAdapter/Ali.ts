@@ -1,15 +1,26 @@
-import { basename, extname } from 'node:path';
+import { basename, join } from 'node:path';
 import { omit } from 'lodash-es';
+import bytes from 'bytes';
 import OSS from 'ali-oss';
+import fs from 'fs-extra';
+import { createReadStream } from 'node:fs';
 import pMap from 'p-map';
 import BaseOss from './Base';
 import { FileItem } from '../../types/vo';
 import sql from '../../helper/sql';
 
+type uploadProgressCallback = (path: string, progress: number) => void;
+
 export default class extends BaseOss {
     readonly platformId = 1;
     private client: OSS;
     private domain: string;
+    private uploadCallback: uploadProgressCallback;
+
+    private sizeMap = {
+        large: '',
+        small: '',
+    };
     /**
      * 分页加载用的，根据这个token获取下一批数据
      */
@@ -26,11 +37,16 @@ export default class extends BaseOss {
             this.domain = db.account.domain;
         });
     }
+    /**
+     * 获取文件列表
+     * @param data
+     * @returns
+     * @see https://help.aliyun.com/zh/oss/developer-reference/list-objects-5?spm=a2c4g.11186623.0.i2
+     */
     async getFileList(data: { prefix: string; useToken: boolean }): Promise<{
         list: FileItem[];
         token: string;
     }> {
-        // https://help.aliyun.com/zh/oss/developer-reference/list-objects-5?spm=a2c4g.11186623.0.i2
         const { client } = this;
         let restParams = {} as any;
         if (data.prefix === this.prevFilePrefix && data.useToken) {
@@ -92,6 +108,30 @@ export default class extends BaseOss {
             });
         } catch (error) {
             console.log(error);
+        }
+    }
+    setUploadFileSizeEdge(map: { large: string; small: string }): void {
+        this.sizeMap = map;
+    }
+    async upload(prefix: string, path: string) {
+        const fileStats = await fs.stat(path);
+        const { size } = fileStats;
+        if (size < bytes(this.sizeMap.small)) {
+            await this.addPath({
+                type: 'file',
+                prefix,
+                name: path,
+            });
+            this.postUploadProgress(join(prefix, path), 100);
+        } else {
+        }
+    }
+    addUploadListener(callback: uploadProgressCallback): void {
+        this.uploadCallback = callback;
+    }
+    private postUploadProgress(path: string, progress: number) {
+        if (typeof this.uploadCallback === 'function') {
+            this.uploadCallback(path, progress);
         }
     }
 }

@@ -42,8 +42,7 @@ export default defineConfig(({ command }) => {
                 main: {
                     // Shortcut of `build.lib.entry`
                     entry: {
-                        'index': 'electron/main/index.ts',
-                        'upload-process': 'electron/main/app/child-process/upload.ts',
+                        index: 'electron/main/index.ts',
                     },
                     onstart({ startup }) {
                         if (process.env.VSCODE_DEBUG) {

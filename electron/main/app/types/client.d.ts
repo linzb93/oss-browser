@@ -1,4 +1,5 @@
 declare module 'ali-oss' {
+    import { Readable } from 'node:stream';
     interface OssConfig {
         region: string;
         accessKeyId: string;
@@ -44,6 +45,16 @@ declare module 'ali-oss' {
         ): Promise<{
             name: string;
         }>;
+        putStream(path: string, stream: Readable): void;
+        multipartUpload(
+            prefix: string,
+            path: string,
+            {
+                progress,
+            }: {
+                progress: (percent: number) => void;
+            }
+        ): Promise<string>;
         listV2(obj: { 'prefix': string; 'delimiter': string; 'max-keys': number }): Promise<OSSObject>;
         /**
          *

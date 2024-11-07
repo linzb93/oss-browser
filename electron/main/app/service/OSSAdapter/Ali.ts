@@ -3,7 +3,6 @@ import { omit } from 'lodash-es';
 import bytes from 'bytes';
 import OSS from 'ali-oss';
 import fs from 'fs-extra';
-import { createReadStream } from 'node:fs';
 import pMap from 'p-map';
 import BaseOss from './Base';
 import { FileItem } from '../../types/vo';
@@ -11,10 +10,23 @@ import sql from '../../helper/sql';
 
 type uploadProgressCallback = (path: string, progress: number) => void;
 
+/**
+ * @class
+ * @see https://help.aliyun.com/zh/oss/developer-reference/list-objects-5?spm=a2c4g.11186623.0.i2
+ */
 export default class extends BaseOss {
     readonly platformId = 1;
+    /**
+     * 阿里oss客户端实例
+     */
     private client: OSS;
+    /**
+     * 同setting.domain。因为用处多了需要单独存放。
+     */
     private domain: string;
+    /**
+     * 上传事件回调
+     */
     private uploadCallback: uploadProgressCallback;
 
     private sizeMap = {
@@ -30,6 +42,7 @@ export default class extends BaseOss {
      * 否则不用这个token，并清空prevFilePrefix
      */
     private prevFilePrefix: string;
+
     constructor() {
         super();
         sql((db) => {
@@ -37,12 +50,6 @@ export default class extends BaseOss {
             this.domain = db.account.domain;
         });
     }
-    /**
-     * 获取文件列表
-     * @param data
-     * @returns
-     * @see https://help.aliyun.com/zh/oss/developer-reference/list-objects-5?spm=a2c4g.11186623.0.i2
-     */
     async getFileList(data: { prefix: string; useToken: boolean }): Promise<{
         list: FileItem[];
         token: string;

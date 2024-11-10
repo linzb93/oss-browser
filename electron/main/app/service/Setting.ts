@@ -1,5 +1,5 @@
 import sql from '../helper/sql';
-import { Database } from '../types/api';
+import { type Database } from '../types/api';
 
 export class SettingService {
     async get(): Promise<Database['setting']> {

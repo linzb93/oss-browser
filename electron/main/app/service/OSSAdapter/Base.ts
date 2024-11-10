@@ -17,9 +17,9 @@ export default abstract class {
     }>;
     /**
      * 删除文件
-     * @param {string} path - 完整的，不含http的地址
+     * @param {string} url - 在线地址
      */
-    abstract deleteFile(path: string): Promise<void>;
+    abstract deleteFile(url: string): Promise<void>;
     /**
      * 创建文件或目录
      */

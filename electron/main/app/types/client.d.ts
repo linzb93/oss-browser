@@ -14,13 +14,10 @@ declare module 'ali-oss' {
              */
             size: number;
             /**
-             * 不含http的地址，从bucket下的根目录开始，一直到文件名称及拓展名
+             * 绝对地址
              */
             name?: string;
             type: string;
-            /**
-             * 含http的完整地址
-             */
             url: string;
         }[];
         /**
@@ -36,7 +33,7 @@ declare module 'ali-oss' {
         constructor(config: OssConfig);
         /**
          * 上传文件，或者创建目录
-         * @param {string} uploadName - 不含http的完整地址
+         * @param {string} uploadName - 绝对地址
          * @param {string | Buffer} localPath - 本地文件的地址，或者是Buffer
          */
         put(
@@ -58,7 +55,7 @@ declare module 'ali-oss' {
         listV2(obj: { 'prefix': string; 'delimiter': string; 'max-keys': number }): Promise<OSSObject>;
         /**
          *
-         * @param {string} file - 不含http的完整地址
+         * @param {string} file - 绝对路径
          */
         delete(
             obj:

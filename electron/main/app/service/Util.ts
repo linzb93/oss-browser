@@ -2,10 +2,10 @@ import http from 'node:http';
 import https from 'node:https';
 import { join, basename } from 'node:path';
 import { createWriteStream } from 'node:fs';
-import { BrowserService } from './Browser';
 import { clipboard, dialog, shell, type BrowserWindow } from 'electron';
 import pMap from 'p-map';
 import { castArray } from 'lodash-es';
+import { BrowserService } from './Browser';
 
 export class UtilService {
     private win: BrowserWindow;
@@ -34,11 +34,11 @@ export class UtilService {
     }
     /**
      * 下载单个文件
+     * 不使用`win.webContents.downloadURL 方法是因为存在批量下载，不可能每个文件都选择一次下载目录。
      * @param path - 文件地址
-     * @returns
      */
-    private async downloadOne(url: string, savedPath: string) {
-        return await new Promise((resolve) => {
+    private downloadOne(url: string, savedPath: string) {
+        return new Promise((resolve) => {
             const callback = (resp: http.IncomingMessage) => {
                 if (resp.statusCode === 200) {
                     resp.pipe(createWriteStream(join(savedPath, basename(url)))).on('finish', resolve);

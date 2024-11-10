@@ -1,12 +1,11 @@
+import { join, basename } from 'node:path';
 import { interval, Subject, takeUntil, map } from 'rxjs';
 import { type IpcMainEvent } from 'electron';
-import App from './OSSAdapter/Base';
-import { join, basename } from 'node:path';
-import { HistoryService } from './History';
-import { FileItem } from '../types/vo';
-import sql from '../helper/sql';
-import { __dirname } from '../helper/constant';
 import { cloneDeep } from 'lodash-es';
+import App from './OSSAdapter/Base';
+import { HistoryService } from './History';
+import { type FileItem } from '../types/vo';
+import { __dirname } from '../helper/constant';
 
 export interface AddOptions {
     prefix: string;

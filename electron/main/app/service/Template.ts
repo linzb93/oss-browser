@@ -3,6 +3,7 @@ import { Database } from '../types/api';
 import sql from '../helper/sql';
 import { SettingService } from './Setting';
 import { UtilService } from './Util';
+
 export class TemplateService {
     private setting = new SettingService();
     private util = new UtilService();

@@ -49,8 +49,7 @@ export default (win: BrowserWindow) => {
         const data = JSON.parse(dataStr) as OSSAddOptions;
         return response(async () => await ossService.addPath(data));
     });
-    ipcMain.on('oss-upload', (e, dataStr) => {
-        const data = JSON.parse(dataStr) as OSSAddOptions;
+    ipcMain.on('oss-upload', (e, data) => {
         ossService.upload(e, data);
     });
     // 设置

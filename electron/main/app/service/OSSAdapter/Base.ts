@@ -34,14 +34,14 @@ export default abstract class {
     /**
      * 监听上传进度
      */
-    abstract addUploadListener(callback: (path: string, progress: number) => void): void;
+    abstract addUploadListener(callback: (data: { name: string; progress: number; size: number }) => void): void;
     /**
      * @description
      * 设置文件上传的边界。
      * small: 小文件，直接上传；
      * large: 大文件，用分片上传
      */
-    setUploadFileSizeEdge(map: { large: string; small: string }) {
+    setUploadFileSizeEdge(_: { large: string; small: string }) {
         throw new Error('Please set this size edge');
     }
 }

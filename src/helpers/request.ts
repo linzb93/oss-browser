@@ -51,6 +51,7 @@ doRequest.send = (path: string, params: any) => {
             receiveCallback = callback;
         },
         removeListener() {
+            receiveCallback = () => {};
             window.ipcRenderer.off(`${path}-receiver`, fn);
         },
     };

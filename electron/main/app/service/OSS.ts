@@ -1,10 +1,9 @@
-import { join } from 'node:path';
-import { interval, Subject, takeUntil } from 'rxjs';
-import { IpcMainEvent, BrowserWindow } from 'electron';
+import { interval, Subject, takeUntil, map } from 'rxjs';
+import { type IpcMainEvent } from 'electron';
 import App from './OSSAdapter/Base';
+import { join, basename } from 'node:path';
 import { HistoryService } from './History';
 import { FileItem } from '../types/vo';
-import { BrowserService } from './Browser';
 import sql from '../helper/sql';
 import { __dirname } from '../helper/constant';
 import { cloneDeep } from 'lodash-es';
@@ -19,10 +18,6 @@ export class OSSService {
     private apps: App[] = [];
     private historyService = new HistoryService();
     private app: App;
-    private win: BrowserWindow;
-    constructor() {
-        this.win = BrowserService.win;
-    }
     /**
      * 添加OSS App
      * @param app OSS App适配器
@@ -33,18 +28,6 @@ export class OSSService {
             large: '20MB',
             small: '10MB',
         });
-    }
-    /**
-     * 获取匹配的App和OSS Config
-     */
-    private async getMatches(): Promise<{ app: App; config: any }> {
-        const account = await sql((db) => db.account);
-        const { platform } = account;
-        const matchApp = this.apps.find((app) => app.platformId === platform);
-        return {
-            app: matchApp,
-            config: account,
-        };
     }
     /**
      * 获取文件列表
@@ -71,27 +54,26 @@ export class OSSService {
         const task$ = new Subject();
         let statusList = list.map((item) => {
             return {
-                name: item,
+                name: join(prefix, basename(item)),
                 finished: false,
             };
         });
-        let queue = [];
-        this.app.addUploadListener((path, progress) => {
-            queue.push({
-                path,
-                progress,
-            });
+        this.app.addUploadListener((data) => {
+            const { name: path, progress, size } = data;
             // 更新statusList
             statusList = statusList.map((item) => {
                 if (item.name === path) {
                     return {
                         ...item,
+                        progress,
+                        size,
                         finished: progress === 100,
                     };
                 }
                 return item;
             });
             if (statusList.every((item) => item.finished)) {
+                task$.next(null);
                 task$.complete();
             }
         });
@@ -99,18 +81,21 @@ export class OSSService {
             this.app.upload(prefix, item);
         });
 
-        const timer$ = interval(2000).pipe(takeUntil(task$));
+        const timer$ = interval(2000).pipe(
+            map((data) => `已经经过了${data}秒`),
+            takeUntil(task$)
+        );
         timer$.subscribe({
             next() {
-                e.sender.send(`oss-add-path-receiver`, {
+                e.sender.send(`oss-upload-receiver`, {
                     type: 'uploading',
-                    data: cloneDeep(queue),
+                    data: cloneDeep(statusList),
                 });
-                queue.length = 0;
             },
             complete() {
-                e.sender.send(`oss-add-path-receiver`, {
+                e.sender.send(`oss-upload-receiver`, {
                     type: 'upload-finished',
+                    data: cloneDeep(statusList),
                 });
             },
         });

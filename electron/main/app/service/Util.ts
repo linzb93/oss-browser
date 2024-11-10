@@ -2,11 +2,16 @@ import http from 'node:http';
 import https from 'node:https';
 import { join, basename } from 'node:path';
 import { createWriteStream } from 'node:fs';
-import { clipboard, dialog, shell } from 'electron';
+import { BrowserService } from './Browser';
+import { clipboard, dialog, shell, type BrowserWindow } from 'electron';
 import pMap from 'p-map';
 import { castArray } from 'lodash-es';
 
 export class UtilService {
+    private win: BrowserWindow;
+    constructor() {
+        this.win = BrowserService.win;
+    }
     /**
      * 复制文本
      * @param content 复制的内容

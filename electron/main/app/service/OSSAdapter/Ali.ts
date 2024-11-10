@@ -7,8 +7,9 @@ import pMap from 'p-map';
 import BaseOss from './Base';
 import { FileItem } from '../../types/vo';
 import sql from '../../helper/sql';
+// import { sleep } from '@linzb93/utils';
 
-type uploadProgressCallback = (path: string, progress: number) => void;
+type uploadProgressCallback = (data: { name: string; progress: number; size: number }) => void;
 
 /**
  * @class
@@ -129,16 +130,29 @@ export default class extends BaseOss {
                 prefix,
                 name: path,
             });
-            this.postUploadProgress(join(prefix, path), 100);
+            this.postUploadProgress({
+                name: join(prefix, basename(path)),
+                progress: 100,
+                size,
+            });
         } else {
+            this.client.multipartUpload(join(prefix, basename(path)), path, {
+                progress: (percent) => {
+                    this.postUploadProgress({
+                        name: join(prefix, basename(path)),
+                        progress: percent * 100,
+                        size,
+                    });
+                },
+            });
         }
     }
     addUploadListener(callback: uploadProgressCallback): void {
         this.uploadCallback = callback;
     }
-    private postUploadProgress(path: string, progress: number) {
+    private postUploadProgress(data: { name: string; progress: number; size: number }) {
         if (typeof this.uploadCallback === 'function') {
-            this.uploadCallback(path, progress);
+            this.uploadCallback(data);
         }
     }
 }

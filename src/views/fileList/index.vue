@@ -88,7 +88,7 @@
                 ]"
             >
                 <el-table :data="tableList" @selection-change="handleSelectionChange">
-                    <el-table-column type="selection" :selectable="(row) => row.type !== 'dir'" width="35" />
+                    <el-table-column type="selection" :selectable="(row: FileItem) => row.type !== 'dir'" width="35" />
                     <el-table-column label="名称">
                         <template #default="scope">
                             <div class="flexalign-center">
@@ -161,7 +161,7 @@
         v-model:visible="progressVisible"
         :upload-list="uploadingList"
         :path="fullPath"
-        @refresh="getList()"
+        @refresh="getList(false)"
     />
     <collect-pane v-model:visible="visible.collect" @enter="initBreadcrumb" />
     <setting-dialog
@@ -185,7 +185,7 @@
     </el-dialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, shallowRef, shallowReactive, onMounted, computed, h } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessageBox, ElMessage } from 'element-plus';
@@ -208,7 +208,13 @@ import CollectPane from './components/CollectPane.vue';
 
 const router = useRouter();
 
-const tableList = shallowRef([]);
+interface FileItem {
+    type: string;
+    url: string;
+    name: string;
+    size: number;
+}
+const tableList = ref<FileItem[]>([]);
 const {
     breadcrumb,
     fullPath,
@@ -219,7 +225,7 @@ const {
     onChange: onChangeBreadcrumb,
 } = useBreadcrumb();
 onChangeBreadcrumb(() => {
-    getList();
+    getList(false);
 });
 const visible = shallowReactive({
     progress: false,
@@ -232,7 +238,7 @@ const loading = shallowRef(true);
 const finished = shallowRef(false);
 const disabled = computed(() => loading.value || finished.value);
 // 获取文件列表
-const getList = async (isConcat) => {
+const getList = async (isConcat: boolean) => {
     loading.value = true;
     if (!isConcat) {
         finished.value = false;
@@ -256,7 +262,13 @@ const getList = async (isConcat) => {
         ElMessage.error('接口故障，请稍后再试');
     }
 };
-const userInfo = ref({});
+const userInfo = ref<{
+    id: number | string;
+    domain: string;
+}>({
+    id: '',
+    domain: '',
+});
 onMounted(async () => {
     userInfo.value = await request('login-get');
     if (!userInfo.value.id) {
@@ -279,8 +291,9 @@ const getSetting = async () => {
 };
 
 // 多选，目前只能选择文件，不能选择目录
-const selected = ref([]);
-const handleSelectionChange = (selection) => {
+
+const selected = ref<FileItem[]>([]);
+const handleSelectionChange = (selection: FileItem[]) => {
     selected.value = selection.filter((item) => item.type !== 'dir');
 };
 
@@ -294,7 +307,7 @@ const checkMultiSelect = () => {
 };
 
 // 批量操作
-const batchCommand = (command) => {
+const batchCommand = (command: 'download' | 'delete' | 'copy') => {
     const actions = {
         download: async () => {
             if (!checkMultiSelect()) {
@@ -322,7 +335,7 @@ const batchCommand = (command) => {
                 });
                 ElMessage.success('删除成功');
                 selected.value = [];
-                getList();
+                getList(false);
             });
         },
         copy: async () => {
@@ -338,22 +351,22 @@ const batchCommand = (command) => {
 };
 
 // 删除文件
-const del = async (item) => {
+const del = async (item: FileItem) => {
     const name = item.type === 'dir' ? `${item.name}/` : item.name;
     await request('oss-delete', {
         path: `${fullPath.value}${name}`,
     });
     ElMessage.success('删除成功');
-    getList();
+    getList(false);
 };
 
 // 图片预览
 const previewUrl = shallowRef('');
-const isPic = (item) => {
+const isPic = (item: FileItem) => {
     return ['jpg', 'png', 'jpeg', 'gif'].includes(pathUtil.extname(item.name));
 };
 // 进入文件夹内层
-const jumpInner = (item) => {
+const jumpInner = (item: FileItem) => {
     if (item.size > 0) {
         // 是图片
         if (isPic(item)) {
@@ -392,7 +405,7 @@ const createDir = () => {
                 type: 'directory',
             });
             ElMessage.success('创建成功');
-            getList();
+            getList(false);
         })
         .catch(() => {
             //
@@ -400,7 +413,7 @@ const createDir = () => {
 };
 
 // 更多功能
-const moreCommand = async (cmd) => {
+const moreCommand = async (cmd: string) => {
     if (cmd === 'setting') {
         visible.setting = true;
         return;
@@ -434,10 +447,10 @@ const moreCommand = async (cmd) => {
     ElMessage.error('没有这个命令');
 };
 
-const onSelectHistory = (filePath) => {
+const onSelectHistory = (filePath: string) => {
     const { pathname } = new URL(`${userInfo.value.domain}/${filePath}`);
     breadcrumb.value = pathname.split('/').slice(1, -1);
-    getList();
+    getList(false);
 };
 
 // 拖拽上传

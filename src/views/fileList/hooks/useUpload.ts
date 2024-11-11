@@ -12,14 +12,17 @@ const setDragState = (state: boolean) => {
 const progressVisible = shallowRef(false);
 const uploadingList = ref<TableItem[]>([]);
 
-interface TableItem {
+export interface TableItem {
     name: string;
     path: string;
-    size: string;
+    size: number;
+    sizeFormat: string;
+    url: string;
+    type?: string;
 }
 
 export default function useUpload(tableList: TableItem[]) {
-    const dropFile = async (event: InputEvent) => {
+    const dropFile = async (event: DragEvent) => {
         active.value = false;
         const upOriginList = Array.from(event.dataTransfer?.files as unknown as TableItem[]);
         const resolveList: TableItem[] = await new Promise((resolve) => {
@@ -49,9 +52,8 @@ export default function useUpload(tableList: TableItem[]) {
         });
         if (resolveList.length) {
             uploadingList.value = resolveList.map((item) => ({
-                name: item.name,
-                path: item.path,
-                size: getSize(item),
+                ...item,
+                sizeFormat: getSize(item),
             }));
             progressVisible.value = true;
         } else {

@@ -64,7 +64,7 @@
     </el-drawer>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, shallowRef, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { Check } from '@element-plus/icons-vue';
@@ -74,14 +74,18 @@ import pathUtils from '@/helpers/path';
 import { getSize } from '@/helpers/size';
 
 const ossStore = useOssStore();
-const props = defineProps({
-    visible: Boolean,
-    uploadList: Array,
-    path: String,
-});
+const props = defineProps<{
+    visible: boolean;
+    path: string;
+    uploadList: any[];
+}>();
 const emit = defineEmits(['update:visible', 'refresh']);
 
-const list = ref([]);
+interface ListItem {
+    name: string;
+}
+
+const list = ref<ListItem[]>([]);
 const finished = shallowRef(false);
 let removeEvt = () => {};
 
@@ -91,7 +95,7 @@ const startUpload = () => {
         name: props.uploadList.map((item) => item.path).join(','),
         type: 'file',
     });
-    listener((obj) => {
+    listener((obj: { data: any; type: 'upload-finished' | 'uploading' }) => {
         const { type, data } = obj;
         if (type === 'upload-finished') {
             // 上传完成，显示批量操作按钮
@@ -112,7 +116,7 @@ watch(props, ({ visible }) => {
 });
 
 // 撤销
-const redo = async (item) => {
+const redo = async (item: ListItem) => {
     await request('oss-delete', {
         path: `${props.path}${item.name}`,
     });

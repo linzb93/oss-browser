@@ -1,12 +1,20 @@
-import { defineStore } from "pinia";
+import { defineStore } from 'pinia';
 
-export const useOssStore = defineStore("oss", {
-  state: () => ({
-    platform: {},
-  }),
-  actions: {
-    savePlatform(payload: any) {
-      this.platform = payload;
+interface PlatformInfo {
+    domain: string;
+}
+
+export const useOssStore = defineStore('oss', {
+    state: () => {
+        return {
+            platform: {},
+        } as {
+            platform: PlatformInfo;
+        };
     },
-  },
+    actions: {
+        savePlatform(payload: PlatformInfo) {
+            this.platform = payload;
+        },
+    },
 });

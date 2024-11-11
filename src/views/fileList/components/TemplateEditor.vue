@@ -22,14 +22,14 @@
     </el-dialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ElMessage } from 'element-plus';
-import { readonly, ref, watch } from 'vue';
+import { readonly, ref, watch, VueElement } from 'vue';
 import request from '@/helpers/request';
-const props = defineProps({
-    visible: Boolean,
-    detail: Object,
-});
+const props = defineProps<{
+    visible: boolean;
+    detail: TemplateItem;
+}>();
 const emit = defineEmits(['update:visible', 'submit']);
 const form = ref({
     id: '',
@@ -38,6 +38,12 @@ const form = ref({
 });
 const rules = readonly({});
 const formRef = ref(null);
+
+export interface TemplateItem {
+    id: number;
+    name: string;
+}
+
 watch(props, ({ visible }) => {
     if (!visible) {
         return;
@@ -61,6 +67,7 @@ watch(props, ({ visible }) => {
     }
 });
 const save = () => {
+    //@ts-ignore
     formRef.value
         .validate()
         .then(() => {
@@ -82,6 +89,7 @@ const close = () => {
     emit('update:visible', false);
 };
 const closed = () => {
+    //@ts-ignore
     formRef.value.clearValidate();
     form.value = {
         id: '',

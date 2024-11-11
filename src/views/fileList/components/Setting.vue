@@ -48,18 +48,25 @@
     <template-editor v-model:visible="isShowTemplateDialog" :detail="currentTemplate" @submit="getTemplates" />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, shallowRef, watch } from 'vue';
 import request from '@/helpers/request';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { cloneDeep } from 'lodash-es';
 import { Edit, Remove } from '@element-plus/icons-vue';
-import TemplateEditor from './TemplateEditor.vue';
+import TemplateEditor, { TemplateItem } from './TemplateEditor.vue';
 
-const props = defineProps({
-    visible: Boolean,
-    setting: Object,
-});
+export interface SettingInfo {
+    pixel: number;
+    previewType: 1 | 2;
+    copyTemplateId: number;
+    homePath: string;
+}
+
+const props = defineProps<{
+    visible: boolean;
+    setting: SettingInfo;
+}>();
 const emit = defineEmits(['update:visible', 'submit']);
 
 watch(props, ({ visible }) => {
@@ -70,26 +77,30 @@ watch(props, ({ visible }) => {
     getTemplates();
 });
 
-const form = ref({
+const form = ref<SettingInfo>({
     pixel: 2,
-    previewType: false,
-    copyTemplateId: null,
+    previewType: 1,
+    copyTemplateId: 0,
+    homePath: '',
 });
 
-const templates = ref([]);
+const templates = ref<TemplateItem[]>([]);
 const isShowTemplateDialog = shallowRef(false);
 const isTemplateEditMode = shallowRef(false);
-const currentTemplate = ref({});
+const currentTemplate = ref<TemplateItem>({
+    id: 0,
+    name: '',
+});
 const getTemplates = () => {
     request('get-template-list').then((list) => {
         templates.value = list;
     });
 };
-const addTemplate = (item) => {
-    currentTemplate.value = item || {};
+const addTemplate = (item?: TemplateItem) => {
+    currentTemplate.value = (item as TemplateItem) || {};
     isShowTemplateDialog.value = true;
 };
-const removeTemplate = (item) => {
+const removeTemplate = (item: TemplateItem) => {
     ElMessageBox.confirm('确认删除？', '温馨提醒', {
         confirmButtonText: '删除',
     }).then(() => {
@@ -114,8 +125,9 @@ const close = () => {
 const closed = () => {
     form.value = {
         pixel: 2,
-        previewType: false,
-        copyTemplateId: null,
+        previewType: 1,
+        copyTemplateId: 0,
+        homePath: '',
     };
 };
 </script>

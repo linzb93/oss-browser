@@ -192,7 +192,7 @@ import { ElMessageBox, ElMessage } from 'element-plus';
 import dayjs from 'dayjs';
 import { Folder, ArrowRight, HomeFilled, ArrowDown, Back } from '@element-plus/icons-vue';
 import { getSize } from '@/helpers/size';
-import useUpload from './hooks/useUpload';
+import useUpload, { type TableItem as FileItem } from './hooks/useUpload';
 import useBreadcrumb from './hooks/useBreadcrumb';
 import pathUtil from '@/helpers/path';
 import { scrollTo } from '@/helpers/scroll-to';
@@ -202,18 +202,12 @@ import DeleteConfirm from '@/components/DeleteConfirm.vue';
 import ContextMenu from '@/components/ContextMenu.vue';
 import ProgressDrawer from './components/Progress.vue';
 import MsgBoxFileList from './components/FileList.vue';
-import SettingDialog from './components/Setting.vue';
+import SettingDialog, { type SettingInfo } from './components/Setting.vue';
 import UploadHistory from './components/UploadHistory.vue';
 import CollectPane from './components/CollectPane.vue';
 
 const router = useRouter();
 
-interface FileItem {
-    type: string;
-    url: string;
-    name: string;
-    size: number;
-}
 const tableList = ref<FileItem[]>([]);
 const {
     breadcrumb,
@@ -456,11 +450,11 @@ const onSelectHistory = (filePath: string) => {
 // 拖拽上传
 const { progressVisible, active, setDragState, dropFile, uploadingList } = useUpload(tableList.value);
 
-const getCss = (item) => {
+const getCss = (item: FileItem) => {
     const img = new Image();
     img.src = item.url;
     img.onload = function () {
-        const { width, height } = this;
+        const { width, height } = img;
         request('copy-template', {
             width,
             height,
@@ -475,11 +469,11 @@ const getCss = (item) => {
     };
 };
 
-const setting = ref({
+const setting = ref<SettingInfo>({
     pixel: 2,
     previewType: 1,
     homePath: '',
-    copyTemplateId: null,
+    copyTemplateId: 0,
 });
 </script>
 <style lang="scss" scoped>

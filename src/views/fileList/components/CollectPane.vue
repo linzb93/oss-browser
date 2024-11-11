@@ -26,7 +26,7 @@
     </el-dialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch } from 'vue';
 import request from '@/helpers/request';
 import { omit } from 'lodash-es';
@@ -37,23 +37,30 @@ const props = defineProps({
 });
 const emit = defineEmits(['update:visible', 'enter']);
 
-const collectList = ref([]);
+interface CollectItem {
+    id: string;
+    name: string;
+    path: string;
+    isEdit: boolean;
+}
+
+const collectList = ref<CollectItem[]>([]);
 
 watch(props, async ({ visible }) => {
     if (!visible) {
         return;
     }
-    const list = await request('get-collect');
+    const list = (await request('get-collect')) as Omit<CollectItem, 'isEdit'>[];
     collectList.value = list.map((item) => ({
         ...item,
         isEdit: false,
     }));
 });
 
-const deleteItem = (target) => {
+const deleteItem = (target: CollectItem) => {
     collectList.value = collectList.value.filter((item) => item.id !== target.id);
 };
-const enter = (target) => {
+const enter = (target: CollectItem) => {
     emit('enter', target.path);
     close();
 };

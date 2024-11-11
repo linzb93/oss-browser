@@ -26,7 +26,7 @@
     </el-drawer>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { shallowRef, shallowReactive, watch } from 'vue';
 import request from '@/helpers/request';
 import pathUtil from '@/helpers/path';
@@ -35,11 +35,15 @@ const props = defineProps({
     domain: String,
 });
 const emit = defineEmits(['update:visible', 'select']);
+
+interface HistoryItem {
+    path: string;
+}
+
 watch(props, ({ visible }) => {
     if (!visible) {
         return;
     }
-    console.log(props.domain);
     getList();
 });
 const query = shallowReactive({
@@ -55,7 +59,7 @@ const getList = async () => {
 };
 
 const list = shallowRef([]);
-const gotoFile = (row) => {
+const gotoFile = (row: HistoryItem) => {
     close();
     emit('select', row.path);
 };

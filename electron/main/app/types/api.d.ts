@@ -41,9 +41,9 @@ export interface Database {
         pixel: 1 | 2;
         /**
          * 是否显示图片预览
-         * @default false
+         * 1: 否；2: 是
          */
-        openPreview: boolean;
+        previewType: 1 | 2;
         /**
          * 首页地址
          */

@@ -11,23 +11,8 @@
         </div>
         <div class="path mb10 flexalign-center">
             <template v-if="breadcrumb.length">
-                <el-icon
-                    :size="16"
-                    class="mr10 curp"
-                    @click="
-                        popBreadCrumb();
-                        getList();
-                    "
-                    ><back
-                /></el-icon>
-                <el-icon
-                    @click="
-                        setBreadCrumb(-1);
-                        getList();
-                    "
-                    class="curp"
-                    :size="16"
-                >
+                <el-icon :size="16" class="mr10 curp" @click="popBreadcrumb()"><back /></el-icon>
+                <el-icon @click="setBreadcrumb(-1)" class="curp" :size="16">
                     <home-filled />
                 </el-icon>
                 <el-icon class="mr10" :size="16">
@@ -38,10 +23,7 @@
                 class="path-item flexalign-center curp"
                 v-for="(item, index) in breadcrumb"
                 :key="item"
-                @click="
-                    setBreadCrumb(index);
-                    getList();
-                "
+                @click="setBreadcrumb(index)"
             >
                 <el-icon :size="16">
                     <folder />
@@ -181,15 +163,7 @@
         :path="fullPath"
         @refresh="getList()"
     />
-    <collect-pane
-        v-model:visible="visible.collect"
-        @enter="
-            (path) => {
-                initBreadCrumb(path);
-                getList();
-            }
-        "
-    />
+    <collect-pane v-model:visible="visible.collect" @enter="initBreadcrumb" />
     <setting-dialog
         v-model:visible="visible.setting"
         :setting="setting"
@@ -238,11 +212,15 @@ const tableList = shallowRef([]);
 const {
     breadcrumb,
     fullPath,
-    init: initBreadCrumb,
-    push: pushBreadCrumb,
-    pop: popBreadCrumb,
-    set: setBreadCrumb,
+    init: initBreadcrumb,
+    push: pushBreadcrumb,
+    pop: popBreadcrumb,
+    set: setBreadcrumb,
+    onChange: onChangeBreadcrumb,
 } = useBreadcrumb();
+onChangeBreadcrumb(() => {
+    getList();
+});
 const visible = shallowReactive({
     progress: false,
     preview: false,
@@ -284,9 +262,7 @@ onMounted(async () => {
     if (!userInfo.value.id) {
         router.push('/login');
     } else {
-        getSetting().then(() => {
-            getList();
-        });
+        getSetting();
     }
 });
 
@@ -298,7 +274,7 @@ const getSetting = async () => {
         ...data,
     };
     if (setting.value.homePath) {
-        initBreadCrumb(setting.value.homePath);
+        initBreadcrumb(setting.value.homePath);
     }
 };
 
@@ -386,8 +362,7 @@ const jumpInner = (item) => {
         }
         return;
     }
-    pushBreadCrumb(item.name);
-    getList();
+    pushBreadcrumb(item.name);
 };
 
 // 创建文件夹

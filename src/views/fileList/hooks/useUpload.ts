@@ -52,7 +52,10 @@ export default function useUpload(tableList: TableItem[]) {
         });
         if (resolveList.length) {
             uploadingList.value = resolveList.map((item) => ({
-                ...item,
+                name: item.name,
+                path: item.path,
+                size: item.size,
+                url: '',
                 sizeFormat: getSize(item),
             }));
             progressVisible.value = true;

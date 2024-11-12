@@ -281,6 +281,8 @@ const getSetting = async () => {
     };
     if (setting.value.homePath) {
         initBreadcrumb(setting.value.homePath);
+    } else {
+        getList(false);
     }
 };
 

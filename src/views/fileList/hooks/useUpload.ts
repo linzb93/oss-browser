@@ -1,7 +1,9 @@
-import { shallowRef, ref, h } from 'vue';
+import { shallowRef, ref, h, Ref } from 'vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import MsgBoxFileList from '../components/FileList.vue';
 import { getSize } from '@/helpers/size';
+import { type TableItem } from '../shared/types';
+export { type TableItem };
 
 const active = shallowRef(false);
 
@@ -12,22 +14,21 @@ const setDragState = (state: boolean) => {
 const progressVisible = shallowRef(false);
 const uploadingList = ref<TableItem[]>([]);
 
-export interface TableItem {
-    name: string;
-    path: string;
-    size: number;
-    sizeFormat: string;
-    url: string;
-    type?: string;
-}
+type getTableListCallbackType = () => Ref<TableItem[]>;
 
-export default function useUpload(tableList: TableItem[]) {
+export default function useUpload() {
+    const list = ref<TableItem[]>([]);
+    let getTableListCallback: getTableListCallbackType;
+    const setTableList = (cb: getTableListCallbackType) => {
+        getTableListCallback = cb;
+    };
     const dropFile = async (event: DragEvent) => {
         active.value = false;
         const upOriginList = Array.from(event.dataTransfer?.files as unknown as TableItem[]);
+        const list = getTableListCallback();
         const resolveList: TableItem[] = await new Promise((resolve) => {
             // 过滤重名文件，其他正常上传
-            const duplicateFiles = upOriginList.filter((item) => tableList.find((sub) => sub.name === item.name));
+            const duplicateFiles = upOriginList.filter((item) => list.value.find((sub) => sub.name === item.name));
             if (duplicateFiles.length) {
                 ElMessageBox({
                     message: h(MsgBoxFileList, {
@@ -64,6 +65,7 @@ export default function useUpload(tableList: TableItem[]) {
         }
     };
     return {
+        setTableList,
         progressVisible,
         active,
         setDragState,

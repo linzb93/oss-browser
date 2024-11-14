@@ -32,6 +32,7 @@ import { ref, readonly, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import request from '@/helpers/request';
 import { useRouter } from 'vue-router';
+import { getInfo, doLogin } from '@/api/login';
 const router = useRouter();
 const form = ref({
     name: '',
@@ -44,11 +45,11 @@ const form = ref({
 });
 const rules = readonly({});
 onMounted(async () => {
-    form.value = await request('login-get');
+    form.value = await getInfo();
 });
 
 const login = async () => {
-    await request('login-save', form.value);
+    await doLogin(form.value);
     ElMessage.success({
         message: '添加成功',
         duration: 1500,

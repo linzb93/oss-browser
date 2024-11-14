@@ -96,7 +96,7 @@
                                     <folder />
                                 </el-icon>
                                 <file-type-icon :type="pathUtil.extname(scope.row.name)" v-else />
-                                <span class="file-name" @click="jumpInner(scope.row)">{{ scope.row.name }}</span>
+                                <span class="file-name" @click="clickPath(scope.row)">{{ scope.row.name }}</span>
                             </div>
                         </template>
                     </el-table-column>
@@ -106,7 +106,7 @@
                                 v-if="isPic(scope.row)"
                                 class="table-preview-img curp"
                                 :src="scope.row.url"
-                                @click="jumpInner(scope.row)"
+                                @click="clickPath(scope.row)"
                             />
                         </template>
                     </el-table-column>
@@ -144,7 +144,7 @@
                                     class="mr10"
                                     style="margin-left: 0"
                                     v-if="isPic(scope.row)"
-                                    @click="getCss(scope.row)"
+                                    @click="getStyle(scope.row)"
                                     >复制样式</el-link
                                 >
                                 <delete-confirm @confirm="del(scope.row)"></delete-confirm>
@@ -175,7 +175,7 @@
                 })
         "
     />
-    <el-dialog v-model="visible.preview" title="图片预览" :width="`450px`">
+    <el-dialog v-model="previewVisible" title="图片预览" :width="`450px`">
         <div class="center">
             <img :src="previewUrl" class="img-dialog-preview" />
         </div>
@@ -186,7 +186,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef, shallowReactive, onMounted, computed, h } from 'vue';
+import { ref, shallowRef, shallowReactive, onMounted, h } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import dayjs from 'dayjs';
@@ -195,7 +195,6 @@ import { getSize } from '@/helpers/size';
 import useUpload, { type TableItem as FileItem } from './hooks/useUpload';
 import useBreadcrumb from './hooks/useBreadcrumb';
 import pathUtil from '@/helpers/path';
-import { scrollTo } from '@/helpers/scroll-to';
 import request, { requestUtil } from '@/helpers/request';
 import FileTypeIcon from '@/components/FileTypeIcon.vue';
 import DeleteConfirm from '@/components/DeleteConfirm.vue';
@@ -205,15 +204,15 @@ import MsgBoxFileList from './components/FileList.vue';
 import SettingDialog, { type SettingInfo } from './components/Setting.vue';
 import UploadHistory from './components/UploadHistory.vue';
 import CollectPane from './components/CollectPane.vue';
+import useTable from './hooks/useTable';
+import useTableItem from './hooks/useTableItem';
 
 const router = useRouter();
 
-const tableList = ref<FileItem[]>([]);
 const {
     breadcrumb,
     fullPath,
     init: initBreadcrumb,
-    push: pushBreadcrumb,
     pop: popBreadcrumb,
     set: setBreadcrumb,
     onChange: onChangeBreadcrumb,
@@ -223,39 +222,20 @@ onChangeBreadcrumb(() => {
 });
 const visible = shallowReactive({
     progress: false,
-    preview: false,
     setting: false,
     history: false,
     collect: false,
 });
-const loading = shallowRef(true);
-const finished = shallowRef(false);
-const disabled = computed(() => loading.value || finished.value);
-// 获取文件列表
-const getList = async (isConcat: boolean) => {
-    loading.value = true;
-    if (!isConcat) {
-        finished.value = false;
-        scrollTo(0, 800, '.other-wrap');
-    }
-    try {
-        const data = await request('oss-get-list', {
-            prefix: fullPath.value,
-            useToken: isConcat,
-        });
-        loading.value = false;
-        if (isConcat) {
-            tableList.value = tableList.value.concat(data.list);
-        } else {
-            tableList.value = data.list;
-        }
-        finished.value = !data.token;
-    } catch (error) {
-        loading.value = false;
-        finished.value = true;
-        ElMessage.error('接口故障，请稍后再试');
-    }
-};
+const { tableList, disabled, getList } = useTable();
+const {
+    previewUrl,
+    visible: previewVisible,
+    selected,
+    clickPath,
+    handleSelectionChange,
+    getStyle,
+    isPic,
+} = useTableItem();
 const userInfo = ref<{
     id: number | string;
     domain: string;
@@ -284,13 +264,6 @@ const getSetting = async () => {
     } else {
         getList(false);
     }
-};
-
-// 多选，目前只能选择文件，不能选择目录
-
-const selected = ref<FileItem[]>([]);
-const handleSelectionChange = (selection: FileItem[]) => {
-    selected.value = selection.filter((item) => item.type !== 'dir');
 };
 
 // 确认是否有多选
@@ -354,24 +327,6 @@ const del = async (item: FileItem) => {
     });
     ElMessage.success('删除成功');
     getList(false);
-};
-
-// 图片预览
-const previewUrl = shallowRef('');
-const isPic = (item: FileItem) => {
-    return ['jpg', 'png', 'jpeg', 'gif'].includes(pathUtil.extname(item.name));
-};
-// 进入文件夹内层
-const jumpInner = (item: FileItem) => {
-    if (item.size > 0) {
-        // 是图片
-        if (isPic(item)) {
-            previewUrl.value = item.url;
-            visible.preview = true;
-        }
-        return;
-    }
-    pushBreadcrumb(item.name);
 };
 
 // 创建文件夹
@@ -450,26 +405,10 @@ const onSelectHistory = (filePath: string) => {
 };
 
 // 拖拽上传
-const { progressVisible, active, setDragState, dropFile, uploadingList } = useUpload(tableList.value);
-
-const getCss = (item: FileItem) => {
-    const img = new Image();
-    img.src = item.url;
-    img.onload = function () {
-        const { width, height } = img;
-        request('copy-template', {
-            width,
-            height,
-            url: item.url,
-        })
-            .then(() => {
-                ElMessage.success('复制成功');
-            })
-            .catch((e) => {
-                ElMessage.error(e.message);
-            });
-    };
-};
+const { progressVisible, active, setDragState, dropFile, uploadingList, setTableList } = useUpload();
+onMounted(() => {
+    setTableList(() => tableList);
+});
 
 const setting = ref<SettingInfo>({
     pixel: 2,

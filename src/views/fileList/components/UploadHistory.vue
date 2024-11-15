@@ -27,9 +27,9 @@
 </template>
 
 <script setup lang="ts">
-import { shallowRef, shallowReactive, watch } from 'vue';
-import request from '@/helpers/request';
+import { watch } from 'vue';
 import pathUtil from '@/helpers/path';
+import useHistory from '../hooks/useHistory';
 const props = defineProps({
     visible: Boolean,
     domain: String,
@@ -46,19 +46,9 @@ watch(props, ({ visible }) => {
     }
     getList();
 });
-const query = shallowReactive({
-    pageSize: 10,
-    pageIndex: 1,
-});
-const totalCount = shallowRef(0);
 
-const getList = async () => {
-    const result = await request('get-history', query);
-    totalCount.value = result.totalCount;
-    list.value = result.list;
-};
+const { getList, pageQuery: query, totalCount, list } = useHistory();
 
-const list = shallowRef([]);
 const gotoFile = (row: HistoryItem) => {
     close();
     emit('select', row.path);
@@ -67,7 +57,7 @@ const close = () => {
     emit('update:visible', false);
 };
 const closed = () => {
-    query.pageIndex = 1;
+    query.value.pageIndex = 1;
     list.value = [];
     totalCount.value = 0;
 };

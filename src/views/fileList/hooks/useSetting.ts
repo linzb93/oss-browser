@@ -14,6 +14,7 @@ export default () => {
     const { init: initBreadcrumb } = useBreadcrumb();
     const { getList } = useTable();
     return {
+        setting,
         async getSetting() {
             const data = await request('get-setting');
             setting.value = {
@@ -26,14 +27,16 @@ export default () => {
                 getList(false);
             }
         },
-        async saveSetting(data: any) {
-            await request('save-setting', data);
-            ElMessage.success({
-                message: '保存成功',
-                onClose: () => {
-                    // emit('submit', data);
-                    close();
-                },
+        saveSetting(data: any) {
+            return new Promise((resolve) => {
+                request('save-setting', data).then(() => {
+                    ElMessage.success({
+                        message: '保存成功',
+                        onClose: () => {
+                            resolve(null);
+                        },
+                    });
+                });
             });
         },
     };

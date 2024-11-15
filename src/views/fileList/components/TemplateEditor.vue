@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import { ElMessage } from 'element-plus';
-import { readonly, ref, watch, VueElement } from 'vue';
+import { readonly, ref, watch } from 'vue';
 import request from '@/helpers/request';
 const props = defineProps<{
     visible: boolean;

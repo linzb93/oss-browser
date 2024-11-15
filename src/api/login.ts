@@ -7,6 +7,7 @@ interface LoginParams {
     accessKeySecret: string;
     bucket: string;
     domain: string;
+    id: number | string;
 }
 
 export const doLogin = async (params: LoginParams) => {

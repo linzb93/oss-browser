@@ -156,7 +156,7 @@
             </context-menu>
         </div>
     </div>
-    <upload-history v-model:visible="visible.history" :domain="userInfo.domain" @select="onSelectHistory" />
+    <upload-history v-model:visible="historyVisible" :domain="userInfo.domain" @select="onSelectHistory" />
     <progress-drawer
         v-model:visible="progressVisible"
         :upload-list="uploadingList"
@@ -186,22 +186,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef, shallowReactive, onMounted, h } from 'vue';
+import { shallowReactive, onMounted, h } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import dayjs from 'dayjs';
+import useLogin from '@/views/login/hooks/useLogin';
 import { Folder, ArrowRight, HomeFilled, ArrowDown, Back } from '@element-plus/icons-vue';
 import { getSize } from '@/helpers/size';
 import useUpload, { type TableItem as FileItem } from './hooks/useUpload';
 import useBreadcrumb from './hooks/useBreadcrumb';
 import pathUtil from '@/helpers/path';
+import useHistory from './hooks/useHistory';
 import request, { requestUtil } from '@/helpers/request';
 import FileTypeIcon from '@/components/FileTypeIcon.vue';
 import DeleteConfirm from '@/components/DeleteConfirm.vue';
 import ContextMenu from '@/components/ContextMenu.vue';
 import ProgressDrawer from './components/Progress.vue';
 import MsgBoxFileList from './components/FileList.vue';
-import SettingDialog, { type SettingInfo } from './components/Setting.vue';
+import SettingDialog from './components/Setting.vue';
+import useSetting from './hooks/useSetting';
 import UploadHistory from './components/UploadHistory.vue';
 import CollectPane from './components/CollectPane.vue';
 import useTable from './hooks/useTable';
@@ -209,24 +212,14 @@ import useTableItem from './hooks/useTableItem';
 
 const router = useRouter();
 
-const {
-    breadcrumb,
-    fullPath,
-    init: initBreadcrumb,
-    pop: popBreadcrumb,
-    set: setBreadcrumb,
-    onChange: onChangeBreadcrumb,
-} = useBreadcrumb();
-onChangeBreadcrumb(() => {
-    getList(false);
-});
+const { breadcrumb, fullPath, init: initBreadcrumb, pop: popBreadcrumb, set: setBreadcrumb } = useBreadcrumb();
 const visible = shallowReactive({
     progress: false,
     setting: false,
     history: false,
     collect: false,
 });
-const { tableList, disabled, getList } = useTable();
+const { tableList, disabled, getList, del, createDir } = useTable();
 const {
     previewUrl,
     visible: previewVisible,
@@ -236,36 +229,15 @@ const {
     getStyle,
     isPic,
 } = useTableItem();
-const userInfo = ref<{
-    id: number | string;
-    domain: string;
-}>({
-    id: '',
-    domain: '',
-});
-onMounted(async () => {
-    userInfo.value = await request('login-get');
-    if (!userInfo.value.id) {
-        router.push('/login');
-    } else {
+
+const { userInfo, checkLogin } = useLogin(router);
+
+onMounted(() => {
+    checkLogin().then(() => {
         getSetting();
-    }
+    });
 });
-
-// 获取设置
-const getSetting = async () => {
-    const data = await request('get-setting');
-    setting.value = {
-        ...setting.value,
-        ...data,
-    };
-    if (setting.value.homePath) {
-        initBreadcrumb(setting.value.homePath);
-    } else {
-        getList(false);
-    }
-};
-
+const { setting, getSetting } = useSetting();
 // 确认是否有多选
 const checkMultiSelect = () => {
     if (selected.value.length) {
@@ -319,50 +291,6 @@ const batchCommand = (command: 'download' | 'delete' | 'copy') => {
     }
 };
 
-// 删除文件
-const del = async (item: FileItem) => {
-    const name = item.type === 'dir' ? `${item.name}/` : item.name;
-    await request('oss-delete', {
-        path: `${fullPath.value}${name}`,
-    });
-    ElMessage.success('删除成功');
-    getList(false);
-};
-
-// 创建文件夹
-const createDir = () => {
-    ElMessageBox.prompt('请输入文件夹名称', '温馨提醒', {
-        confirmButtonText: '创建',
-        beforeClose: (action, instance, done) => {
-            if (action !== 'confirm') {
-                done();
-                return;
-            }
-            if (!instance.inputValue) {
-                ElMessage.error('请输入文件夹名称');
-                return;
-            }
-            done();
-        },
-    })
-        .then(async ({ value }) => {
-            if (tableList.value.some((file) => file.type === 'dir' && file.name === value)) {
-                ElMessage.warning('存在同名文件夹，无需创建');
-                return;
-            }
-            await request('oss-add-path', {
-                prefix: fullPath.value,
-                name: value,
-                type: 'directory',
-            });
-            ElMessage.success('创建成功');
-            getList(false);
-        })
-        .catch(() => {
-            //
-        });
-};
-
 // 更多功能
 const moreCommand = async (cmd: string) => {
     if (cmd === 'setting') {
@@ -397,25 +325,10 @@ const moreCommand = async (cmd: string) => {
     }
     ElMessage.error('没有这个命令');
 };
-
-const onSelectHistory = (filePath: string) => {
-    const { pathname } = new URL(`${userInfo.value.domain}/${filePath}`);
-    breadcrumb.value = pathname.split('/').slice(1, -1);
-    getList(false);
-};
+const { onSelect: onSelectHistory, visible: historyVisible } = useHistory();
 
 // 拖拽上传
-const { progressVisible, active, setDragState, dropFile, uploadingList, setTableList } = useUpload();
-onMounted(() => {
-    setTableList(() => tableList);
-});
-
-const setting = ref<SettingInfo>({
-    pixel: 2,
-    previewType: 1,
-    homePath: '',
-    copyTemplateId: 0,
-});
+const { progressVisible, active, setDragState, dropFile, uploadingList } = useUpload();
 </script>
 <style lang="scss" scoped>
 @import '@/styles/mixin.scss';

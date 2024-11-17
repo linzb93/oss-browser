@@ -1,11 +1,10 @@
 <template>
     <el-dialog
-        :model-value="visible"
+        v-model="visible"
         :title="`${form.id ? '编辑' : '添加'}模板`"
         width="500px"
         append-to-body
         @close="close"
-        @closed="closed"
     >
         <el-form ref="formRef" :rules="rules" :model="form" label-suffix="：">
             <el-form-item label="名称">
@@ -23,79 +22,12 @@
 </template>
 
 <script setup lang="ts">
-import { ElMessage } from 'element-plus';
-import { readonly, ref, watch } from 'vue';
-import request from '@/helpers/request';
-const props = defineProps<{
-    visible: boolean;
-    detail: TemplateItem;
-}>();
+import { readonly, ref } from 'vue';
+import useTemplate from '../hooks/useTemplate';
+
 const emit = defineEmits(['update:visible', 'submit']);
-const form = ref({
-    id: '',
-    name: '',
-    content: '',
-});
+const { visible, currentItem: form, save, close } = useTemplate();
 const rules = readonly({});
 const formRef = ref(null);
-
-export interface TemplateItem {
-    id: number;
-    name: string;
-}
-
-watch(props, ({ visible }) => {
-    if (!visible) {
-        return;
-    }
-    if (props.detail.id) {
-        request('get-template', {
-            id: props.detail.id,
-        }).then((res) => {
-            form.value = res || {
-                id: '',
-                name: '',
-                content: '',
-            };
-        });
-    } else {
-        form.value = {
-            id: '',
-            name: '',
-            content: '',
-        };
-    }
-});
-const save = () => {
-    //@ts-ignore
-    formRef.value
-        .validate()
-        .then(() => {
-            const apiName = form.value.id ? 'edit-template' : 'add-template';
-            return request(apiName, form.value);
-        })
-        .then(() => {
-            ElMessage.success({
-                message: `${form.value.id ? '编辑' : '添加'}成功`,
-                onClose: () => {
-                    emit('submit');
-                    close();
-                },
-            });
-        })
-        .catch(() => {});
-};
-const close = () => {
-    emit('update:visible', false);
-};
-const closed = () => {
-    //@ts-ignore
-    formRef.value.clearValidate();
-    form.value = {
-        id: '',
-        name: '',
-        content: '',
-    };
-};
 </script>
 <style lang="scss" scoped></style>

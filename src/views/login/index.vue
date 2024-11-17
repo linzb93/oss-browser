@@ -28,36 +28,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, readonly, onMounted } from 'vue';
-import { ElMessage } from 'element-plus';
-import request from '@/helpers/request';
 import { useRouter } from 'vue-router';
-import { getInfo, doLogin } from '@/api/login';
-const router = useRouter();
-const form = ref({
-    name: '',
-    platform: 1,
-    region: '',
-    accessKeyId: '',
-    accessKeySecret: '',
-    bucket: '',
-    domain: '',
-});
-const rules = readonly({});
-onMounted(async () => {
-    form.value = await getInfo();
-});
+import useLogin from './hooks/useLogin';
 
-const login = async () => {
-    await doLogin(form.value);
-    ElMessage.success({
-        message: '添加成功',
-        duration: 1500,
-        onClose() {
-            router.push('/');
-        },
-    });
-};
+const router = useRouter();
+const { getFormData, login, form, rules } = useLogin(router);
+getFormData();
 </script>
 <style lang="scss" scoped>
 .login-page {

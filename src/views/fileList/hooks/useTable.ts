@@ -1,18 +1,37 @@
-/**
- * 列表相关的变量与方法。
- */
-import { ref, shallowRef, computed } from 'vue';
+import { ref, shallowRef, h, computed } from 'vue';
 import { scrollTo } from '@/helpers/scroll-to';
-import { getTableList, deleteItem, addPath } from '@/api/table';
+import request, { requestUtil } from '@/helpers/request';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import useBreadcrumb from './useBreadcrumb';
 import { type TableItem } from '../shared/types';
+import MsgBoxFileList from '../components/FileList.vue';
+interface ListParams {
+    prefix: string;
+    useToken: boolean;
+}
+
+const getTableList = async (params: ListParams) => {
+    return await request('oss-get-list', params);
+};
+interface AddParams {
+    prefix: string;
+    name: string;
+    type: 'directory' | 'files';
+}
+const addPath = async (params: AddParams) => {
+    request('oss-add-path', params);
+};
+
+const deleteItem = async (data: { path: string }) => {
+    await request('oss-delete', data);
+};
 
 const tableList = ref<TableItem[]>([]);
 export default () => {
     const finished = shallowRef(false);
-    const disabled = computed(() => loading.value || finished.value);
     const loading = shallowRef(true);
+    const disabled = computed(() => loading.value || finished.value);
+    const selected = ref<TableItem[]>([]);
     const { fullPath } = useBreadcrumb();
     async function getList(isConcat: boolean) {
         loading.value = true;
@@ -42,6 +61,24 @@ export default () => {
         tableList,
         disabled,
         getList,
+        checkMultiSelect() {
+            if (selected.value.length) {
+                return true;
+            }
+            ElMessage.error('请选择至少一个');
+            return false;
+        },
+        handleSelectionChange: (selection: TableItem[]) => {
+            selected.value = selection.filter((item) => item.type !== 'dir');
+        },
+        download() {},
+        async batchDownload() {
+            if (!this.checkMultiSelect()) {
+                return;
+            }
+            await requestUtil.download(selected.value.map((item) => item.url).join(','));
+            selected.value = [];
+        },
         async del(item: TableItem) {
             const name = item.type === 'dir' ? `${item.name}/` : item.name;
             await deleteItem({
@@ -49,6 +86,28 @@ export default () => {
             });
             ElMessage.success('删除成功');
             getList(false);
+        },
+        batchDelete() {
+            if (!this.checkMultiSelect()) {
+                return;
+            }
+            ElMessageBox({
+                message: h(MsgBoxFileList, {
+                    list: selected.value.map((item) => item.name),
+                    tips: '确认删除以下文件：',
+                }),
+                title: '温馨提醒',
+                showCancelButton: true,
+                confirmButtonText: '删除',
+                cancelButtonText: '取消',
+            }).then(async () => {
+                await request('oss-delete', {
+                    path: selected.value.map((item) => `${fullPath.value}${item.name}`).join(','),
+                });
+                ElMessage.success('删除成功');
+                selected.value = [];
+                getList(false);
+            });
         },
         createDir() {
             ElMessageBox.prompt('请输入文件夹名称', '温馨提醒', {
@@ -81,6 +140,12 @@ export default () => {
                 .catch(() => {
                     //
                 });
+        },
+        batchCopy() {
+            if (!this.checkMultiSelect()) {
+                return;
+            }
+            requestUtil.copy(selected.value.map((item) => item.url).join('\n'));
         },
     };
 };

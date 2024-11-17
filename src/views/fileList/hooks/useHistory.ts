@@ -1,8 +1,19 @@
-import { getHistoryList } from '@/api/history';
 import { ref, shallowRef } from 'vue';
 import useLogin from '@/views/login/hooks/useLogin';
+import request from '@/helpers/request';
 import useBreadcrumb from './useBreadcrumb';
 import useTable from './useTable';
+
+interface IPage {
+    pageIndex: number;
+    pageSize: number;
+}
+export interface HistoryItem {
+    path: string;
+}
+const getHistoryList = async (query: IPage) => {
+    return await request('get-history', query);
+};
 export default () => {
     const pageQuery = ref({
         pageSize: 10,
@@ -28,6 +39,12 @@ export default () => {
             const { pathname } = new URL(`${userInfo.value.domain}/${filePath}`);
             breadcrumb.value = pathname.split('/').slice(1, -1);
             getTableList(false);
+        },
+        show() {
+            visible.value = true;
+        },
+        close() {
+            visible.value = false;
         },
     };
 };

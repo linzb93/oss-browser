@@ -1,14 +1,14 @@
 <template>
-    <el-dialog :model-value="visible" width="500px" title="复制样式" @close="close" @closed="closed">
+    <el-dialog v-model="visible" width="500px" title="复制样式" @close="close">
         <el-form label-suffix="：">
             <el-form-item label="倍数">
-                <el-radio-group v-model="form.pixel">
+                <el-radio-group v-model="formSetting.pixel">
                     <el-radio :value="2">二倍图</el-radio>
                     <el-radio :value="1">原图</el-radio>
                 </el-radio-group>
             </el-form-item>
             <el-form-item label="预览模式">
-                <el-radio-group v-model="form.previewType">
+                <el-radio-group v-model="formSetting.previewType">
                     <el-radio :value="1">无</el-radio>
                     <el-radio :value="2">缩略图</el-radio>
                 </el-radio-group>
@@ -16,7 +16,7 @@
             <el-form-item label="复制模板">
                 <div>
                     <div v-if="!isTemplateEditMode">
-                        <el-radio-group v-model="form.copyTemplateId">
+                        <el-radio-group v-model="formSetting.copyTemplateId">
                             <el-radio v-for="item in templates" :key="item.id" :value="item.id">
                                 {{ item.name }}
                             </el-radio>
@@ -42,94 +42,27 @@
         </el-form>
         <template #footer>
             <el-button @click="close">取消</el-button>
-            <el-button type="primary" @click="save">保存</el-button>
+            <el-button type="primary" @click="saveSetting">保存</el-button>
         </template>
     </el-dialog>
-    <template-editor v-model:visible="isShowTemplateDialog" :detail="currentTemplate" @submit="getTemplates" />
+    <template-editor @submit="getTemplates" />
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef, watch } from 'vue';
-import request from '@/helpers/request';
-import { ElMessage, ElMessageBox } from 'element-plus';
-import { cloneDeep } from 'lodash-es';
+import { shallowRef } from 'vue';
 import { Edit, Remove } from '@element-plus/icons-vue';
-import TemplateEditor, { TemplateItem } from './TemplateEditor.vue';
+import TemplateEditor from './TemplateEditor.vue';
+import useTemplate from '../hooks/useTemplate';
+import useSetting from '../hooks/useSetting';
 
-export interface SettingInfo {
-    pixel: number;
-    previewType: 1 | 2;
-    copyTemplateId: number;
-    homePath: string;
-}
+const { getList: getTemplates, templates, openDialog: addTemplate, removeItem: removeTemplate } = useTemplate();
 
-const props = defineProps<{
-    visible: boolean;
-    setting: SettingInfo;
-}>();
+const { saveSetting, visible, formSetting, close, init } = useSetting();
 const emit = defineEmits(['update:visible', 'submit']);
 
-watch(props, ({ visible }) => {
-    if (!visible) {
-        return;
-    }
-    form.value = cloneDeep(props.setting);
-    getTemplates();
-});
+init(getTemplates);
 
-const form = ref<SettingInfo>({
-    pixel: 2,
-    previewType: 1,
-    copyTemplateId: 0,
-    homePath: '',
-});
-
-const templates = ref<TemplateItem[]>([]);
-const isShowTemplateDialog = shallowRef(false);
 const isTemplateEditMode = shallowRef(false);
-const currentTemplate = ref<TemplateItem>({
-    id: 0,
-    name: '',
-});
-const getTemplates = () => {
-    request('get-template-list').then((list) => {
-        templates.value = list;
-    });
-};
-const addTemplate = (item?: TemplateItem) => {
-    currentTemplate.value = (item as TemplateItem) || {};
-    isShowTemplateDialog.value = true;
-};
-const removeTemplate = (item: TemplateItem) => {
-    ElMessageBox.confirm('确认删除？', '温馨提醒', {
-        confirmButtonText: '删除',
-    }).then(() => {
-        return request('remove-template', {
-            id: item.id,
-        });
-    });
-};
-const save = async () => {
-    await request('save-setting', form.value);
-    ElMessage.success({
-        message: '保存成功',
-        onClose: () => {
-            emit('submit', form.value);
-            close();
-        },
-    });
-};
-const close = () => {
-    emit('update:visible', false);
-};
-const closed = () => {
-    form.value = {
-        pixel: 2,
-        previewType: 1,
-        copyTemplateId: 0,
-        homePath: '',
-    };
-};
 </script>
 <style lang="scss" scoped>
 .copy-con {

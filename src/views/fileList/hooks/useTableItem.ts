@@ -3,11 +3,11 @@ import { TableItem } from '../shared/types';
 import useBreadcrumb from './useBreadcrumb';
 import pathUtil from '@/helpers/path';
 import { ElMessage } from 'element-plus';
-import request from '@/api/shared/request';
+import useTemplate from './useTemplate';
 const isPic = (item: TableItem) => {
     return ['jpg', 'png', 'jpeg', 'gif'].includes(pathUtil.extname(item.name));
 };
-
+const { copyTemplate } = useTemplate();
 export default () => {
     const { push: pushBreadcrumb } = useBreadcrumb();
     const previewUrl = shallowRef('');
@@ -29,15 +29,12 @@ export default () => {
             }
             pushBreadcrumb(item.name);
         },
-        handleSelectionChange: (selection: TableItem[]) => {
-            selected.value = selection.filter((item) => item.type !== 'dir');
-        },
         getStyle(item: TableItem) {
             const img = new Image();
             img.src = item.url;
             img.onload = function () {
                 const { width, height } = img;
-                request('copy-template', {
+                copyTemplate({
                     width,
                     height,
                     url: item.url,

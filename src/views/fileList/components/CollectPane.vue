@@ -1,7 +1,7 @@
 <template>
-    <el-dialog title="收藏夹" width="600px" :model-value="visible" @close="close" @closed="closed">
-        <ul v-if="collectList.length">
-            <li class="flexalign-center" v-for="item in collectList" :key="item.path">
+    <el-dialog title="收藏夹" width="600px" :model-value="visible" @close="close">
+        <ul v-if="formList.length">
+            <li class="flexalign-center" v-for="item in formList" :key="item.path">
                 <span class="dot"></span>
                 <span class="name" v-if="!item.isEdit">{{ item.name }}</span>
                 <el-input
@@ -22,61 +22,15 @@
             </li>
         </ul>
         <el-empty v-else></el-empty>
-        <el-button class="mt30" type="primary" @click="save" v-if="collectList.length">保存</el-button>
+        <el-button class="mt30" type="primary" @click="save" v-if="formList.length">保存</el-button>
     </el-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import request from '@/helpers/request';
-import { omit } from 'lodash-es';
-import { ElMessage } from 'element-plus';
+import useCollect from '../hooks/useCollect';
 import { Edit, Delete, Right } from '@element-plus/icons-vue';
-const props = defineProps({
-    visible: Boolean,
-});
-const emit = defineEmits(['update:visible', 'enter']);
-
-interface CollectItem {
-    id: string;
-    name: string;
-    path: string;
-    isEdit: boolean;
-}
-
-const collectList = ref<CollectItem[]>([]);
-
-watch(props, async ({ visible }) => {
-    if (!visible) {
-        return;
-    }
-    const list = (await request('get-collect')) as Omit<CollectItem, 'isEdit'>[];
-    collectList.value = list.map((item) => ({
-        ...item,
-        isEdit: false,
-    }));
-});
-
-const deleteItem = (target: CollectItem) => {
-    collectList.value = collectList.value.filter((item) => item.id !== target.id);
-};
-const enter = (target: CollectItem) => {
-    emit('enter', target.path);
-    close();
-};
-const save = async () => {
-    await request(
-        'set-collect',
-        collectList.value.map((item) => omit(item, ['isEdit']))
-    );
-    ElMessage.success('保存成功');
-};
-const close = () => {
-    emit('update:visible', false);
-};
-const closed = () => {
-    collectList.value = [];
-};
+const { formList, save, deleteItem, visible, init, enter, close } = useCollect();
+init();
 </script>
 <style lang="scss" scoped>
 @import '@/styles/mixin';

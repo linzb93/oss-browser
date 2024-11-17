@@ -1,16 +1,16 @@
 <template>
-    <el-drawer :size="800" :model-value="visible" title="历史记录" @close="close" @closed="closed">
+    <el-drawer :size="800" v-model="visible" title="历史记录" @close="close" @closed="closed">
         <el-table :data="list">
             <el-table-column label="名称" prop="name">
                 <template #default="scope">
-                    <el-link type="primary" @click="gotoFile(scope.row)">{{
+                    <el-link type="primary" @click="onSelect(scope.row.path)">{{
                         pathUtil.basename(scope.row.path)
                     }}</el-link>
                 </template>
             </el-table-column>
             <el-table-column label="图片">
                 <template #default="scope">
-                    <el-image class="preview" :src="`${props.domain}/${scope.row.path}`" fit="cover" />
+                    <el-image class="preview" :src="`${userInfo.domain}/${scope.row.path}`" fit="cover" />
                 </template>
             </el-table-column>
         </el-table>
@@ -27,35 +27,15 @@
 </template>
 
 <script setup lang="ts">
-import { watch } from 'vue';
 import pathUtil from '@/helpers/path';
 import useHistory from '../hooks/useHistory';
-const props = defineProps({
-    visible: Boolean,
-    domain: String,
-});
+import useLogin from '@/views/login/hooks/useLogin';
+
 const emit = defineEmits(['update:visible', 'select']);
+const { userInfo } = useLogin();
 
-interface HistoryItem {
-    path: string;
-}
+const { getList, pageQuery: query, totalCount, list, onSelect, visible, close } = useHistory();
 
-watch(props, ({ visible }) => {
-    if (!visible) {
-        return;
-    }
-    getList();
-});
-
-const { getList, pageQuery: query, totalCount, list } = useHistory();
-
-const gotoFile = (row: HistoryItem) => {
-    close();
-    emit('select', row.path);
-};
-const close = () => {
-    emit('update:visible', false);
-};
 const closed = () => {
     query.value.pageIndex = 1;
     list.value = [];

@@ -156,7 +156,7 @@
             </context-menu>
         </div>
     </div>
-    <upload-history v-model:visible="historyVisible" :domain="userInfo.domain" @select="onSelectHistory" />
+    <upload-history :domain="userInfo.domain" @select="onSelectHistory" />
     <progress-drawer
         v-model:visible="progressVisible"
         :upload-list="uploadingList"
@@ -209,6 +209,7 @@ import UploadHistory from './components/UploadHistory.vue';
 import CollectPane from './components/CollectPane.vue';
 import useTable from './hooks/useTable';
 import useTableItem from './hooks/useTableItem';
+import useCollect from './hooks/useCollect';
 
 const router = useRouter();
 
@@ -219,72 +220,26 @@ const visible = shallowReactive({
     history: false,
     collect: false,
 });
-const { tableList, disabled, getList, del, createDir } = useTable();
-const {
-    previewUrl,
-    visible: previewVisible,
-    selected,
-    clickPath,
-    handleSelectionChange,
-    getStyle,
-    isPic,
-} = useTableItem();
+const { tableList, disabled, getList, del, createDir, handleSelectionChange, batchCopy, batchDelete, batchDownload } =
+    useTable();
+const { previewUrl, visible: previewVisible, selected, clickPath, getStyle, isPic } = useTableItem();
 
-const { userInfo, checkLogin } = useLogin(router);
+const { userInfo, checkLogin, logout } = useLogin(router);
 
 onMounted(() => {
     checkLogin().then(() => {
         getSetting();
     });
 });
-const { setting, getSetting } = useSetting();
-// 确认是否有多选
-const checkMultiSelect = () => {
-    if (selected.value.length) {
-        return true;
-    }
-    ElMessage.error('请选择至少一个');
-    return false;
-};
+const { setting, getSetting, setHome, show: showSettingDialog } = useSetting();
+const { add: addCollect, show: showCollectDialog } = useCollect();
 
 // 批量操作
 const batchCommand = (command: 'download' | 'delete' | 'copy') => {
     const actions = {
-        download: async () => {
-            if (!checkMultiSelect()) {
-                return;
-            }
-            await requestUtil.download(selected.value.map((item) => item.url).join(','));
-            selected.value = [];
-        },
-        delete: () => {
-            if (!checkMultiSelect()) {
-                return;
-            }
-            ElMessageBox({
-                message: h(MsgBoxFileList, {
-                    list: selected.value.map((item) => item.name),
-                    tips: '确认删除以下文件：',
-                }),
-                title: '温馨提醒',
-                showCancelButton: true,
-                confirmButtonText: '删除',
-                cancelButtonText: '取消',
-            }).then(async () => {
-                await request('oss-delete', {
-                    path: selected.value.map((item) => `${fullPath.value}${item.name}`).join(','),
-                });
-                ElMessage.success('删除成功');
-                selected.value = [];
-                getList(false);
-            });
-        },
-        copy: async () => {
-            if (!checkMultiSelect()) {
-                return;
-            }
-            requestUtil.copy(selected.value.map((item) => item.url).join('\n'));
-        },
+        download: batchDownload,
+        delete: batchDelete,
+        copy: batchCopy,
     };
     if (actions[command]) {
         actions[command]();
@@ -292,40 +247,24 @@ const batchCommand = (command: 'download' | 'delete' | 'copy') => {
 };
 
 // 更多功能
-const moreCommand = async (cmd: string) => {
-    if (cmd === 'setting') {
-        visible.setting = true;
-        return;
+const moreCommand = async (
+    cmd: 'setting' | 'see-collect' | 'collect' | 'home-page' | 'upload-history' | 'back-login'
+) => {
+    const actions = {
+        'setting': showSettingDialog,
+        'see-collect': showCollectDialog,
+        'collect': addCollect,
+        'home-page': setHome,
+        'upload-history': showHistoryDialog,
+        'back-login': logout,
+    };
+    if (actions[cmd]) {
+        actions[cmd]();
+    } else {
+        ElMessage.error('没有这个命令');
     }
-    if (cmd === 'see-collect') {
-        visible.collect = true;
-        return;
-    }
-    if (cmd === 'collect') {
-        await request('add-collect', {
-            path: fullPath.value,
-        });
-        ElMessage.success('添加成功');
-        return;
-    }
-    if (cmd === 'home-page') {
-        await request('set-home', {
-            path: fullPath.value.replace(/\/$/, ''),
-        });
-        ElMessage.success('设置成功');
-        return;
-    }
-    if (cmd === 'upload-history') {
-        visible.history = true;
-        return;
-    }
-    if (cmd === 'back-login') {
-        router.push('/login');
-        return;
-    }
-    ElMessage.error('没有这个命令');
 };
-const { onSelect: onSelectHistory, visible: historyVisible } = useHistory();
+const { onSelect: onSelectHistory, show: showHistoryDialog } = useHistory();
 
 // 拖拽上传
 const { progressVisible, active, setDragState, dropFile, uploadingList } = useUpload();

@@ -5,22 +5,36 @@ import { SettingInfo } from '../shared/types';
 import { cloneDeep } from 'lodash-es';
 import useTable from './useTable';
 import { ElMessage } from 'element-plus';
+const visible = shallowRef(false);
+const setting = ref<SettingInfo>({
+    pixel: 2,
+    previewType: 1,
+    homePath: '',
+    copyTemplateId: 0,
+});
+const formSetting = ref<SettingInfo>({
+    pixel: 2,
+    previewType: 1,
+    homePath: '',
+    copyTemplateId: 0,
+});
 export default () => {
-    const setting = ref<SettingInfo>({
-        pixel: 2,
-        previewType: 1,
-        homePath: '',
-        copyTemplateId: 0,
-    });
-    const formSetting = ref<SettingInfo>({
-        pixel: 2,
-        previewType: 1,
-        homePath: '',
-        copyTemplateId: 0,
-    });
-    const visible = shallowRef(false);
     const { init: initBreadcrumb, fullPath } = useBreadcrumb();
     const { getList } = useTable();
+    const close = () => {
+        visible.value = false;
+    };
+    async function getSetting() {
+        const data = await request('get-setting');
+        setting.value = {
+            ...setting.value,
+            ...data,
+        };
+        formSetting.value = {
+            ...setting.value,
+            ...data,
+        };
+    }
     return {
         setting,
         formSetting,
@@ -35,21 +49,11 @@ export default () => {
             });
         },
         show() {
-            visible.value = false;
+            visible.value = true;
         },
-        async getSetting() {
-            const data = await request('get-setting');
-            setting.value = {
-                ...setting.value,
-                ...data,
-            };
-            formSetting.value = {
-                ...setting.value,
-                ...data,
-            };
-        },
+        getSetting,
         async homeGetSetting() {
-            await this.getSetting();
+            await getSetting();
             if (setting.value.homePath) {
                 initBreadcrumb(setting.value.homePath);
             } else {
@@ -62,6 +66,7 @@ export default () => {
                     ElMessage.success({
                         message: '保存成功',
                         onClose: () => {
+                            close();
                             resolve(null);
                         },
                     });
@@ -74,8 +79,6 @@ export default () => {
             });
             ElMessage.success('设置成功');
         },
-        close() {
-            visible.value = false;
-        },
+        close,
     };
 };

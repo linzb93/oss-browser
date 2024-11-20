@@ -1,20 +1,15 @@
 import { ref, computed } from 'vue';
-import useTable from './useTable';
 
 /**
  * 面包屑列表
  */
 const breadcrumb = ref<string[]>([]);
-
-const { getList } = useTable();
+let onChangeCallback: Function = () => {};
+/**
+ * 面包屑列表拼接的字符串
+ */
+const fullPath = computed(() => breadcrumb.value.map((item) => `${item}/`).join(''));
 export default () => {
-    /**
-     * 面包屑列表拼接的字符串
-     */
-    const fullPath = computed(() => breadcrumb.value.map((item) => `${item}/`).join(''));
-    let onChangeCallback = () => {
-        getList(false);
-    };
     return {
         breadcrumb,
         fullPath,
@@ -39,6 +34,10 @@ export default () => {
         set(index: number) {
             breadcrumb.value = breadcrumb.value.slice(0, index + 1);
             onChangeCallback();
+        },
+        onChange(fn: Function) {
+            onChangeCallback = fn;
+            console.log(onChangeCallback);
         },
     };
 };

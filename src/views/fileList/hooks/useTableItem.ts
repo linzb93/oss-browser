@@ -7,12 +7,13 @@ import useTemplate from './useTemplate';
 const isPic = (item: TableItem) => {
     return ['jpg', 'png', 'jpeg', 'gif'].includes(pathUtil.extname(item.name));
 };
-const { copyTemplate } = useTemplate();
+const previewUrl = shallowRef('');
+const visible = shallowRef(false);
+const selected = ref<TableItem[]>([]);
 export default () => {
+    const { copyTemplate } = useTemplate();
     const { push: pushBreadcrumb } = useBreadcrumb();
-    const previewUrl = shallowRef('');
-    const visible = shallowRef(false);
-    const selected = ref<TableItem[]>([]);
+
     return {
         selected,
         previewUrl,

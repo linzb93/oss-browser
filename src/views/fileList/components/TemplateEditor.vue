@@ -25,7 +25,6 @@
 import { readonly, ref } from 'vue';
 import useTemplate from '../hooks/useTemplate';
 
-const emit = defineEmits(['update:visible', 'submit']);
 const { visible, currentItem: form, save, close } = useTemplate();
 const rules = readonly({});
 const formRef = ref(null);

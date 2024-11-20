@@ -57,8 +57,7 @@ import useSetting from '../hooks/useSetting';
 
 const { getList: getTemplates, templates, openDialog: addTemplate, removeItem: removeTemplate } = useTemplate();
 
-const { saveSetting, visible, formSetting, close, init } = useSetting();
-const emit = defineEmits(['update:visible', 'submit']);
+const { saveSetting, formSetting, visible, close, init } = useSetting();
 
 init(getTemplates);
 

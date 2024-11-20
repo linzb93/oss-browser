@@ -1,5 +1,5 @@
 <template>
-    <el-dialog title="收藏夹" width="600px" :model-value="visible" @close="close">
+    <el-dialog title="收藏夹" width="600px" v-model="visible" @close="close">
         <ul v-if="formList.length">
             <li class="flexalign-center" v-for="item in formList" :key="item.path">
                 <span class="dot"></span>

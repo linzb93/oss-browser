@@ -163,18 +163,8 @@
         :path="fullPath"
         @refresh="getList(false)"
     />
-    <collect-pane v-model:visible="visible.collect" @enter="initBreadcrumb" />
-    <setting-dialog
-        v-model:visible="visible.setting"
-        :setting="setting"
-        @submit="
-            (data) =>
-                (setting = {
-                    ...setting,
-                    ...data,
-                })
-        "
-    />
+    <collect-pane />
+    <setting-dialog />
     <el-dialog v-model="previewVisible" title="图片预览" :width="`450px`">
         <div class="center">
             <img :src="previewUrl" class="img-dialog-preview" />
@@ -188,7 +178,7 @@
 <script setup lang="ts">
 import { shallowReactive, onMounted, h } from 'vue';
 import { useRouter } from 'vue-router';
-import { ElMessageBox, ElMessage } from 'element-plus';
+import { ElMessage } from 'element-plus';
 import dayjs from 'dayjs';
 import useLogin from '@/views/login/hooks/useLogin';
 import { Folder, ArrowRight, HomeFilled, ArrowDown, Back } from '@element-plus/icons-vue';
@@ -197,12 +187,11 @@ import useUpload, { type TableItem as FileItem } from './hooks/useUpload';
 import useBreadcrumb from './hooks/useBreadcrumb';
 import pathUtil from '@/helpers/path';
 import useHistory from './hooks/useHistory';
-import request, { requestUtil } from '@/helpers/request';
+import { requestUtil } from '@/helpers/request';
 import FileTypeIcon from '@/components/FileTypeIcon.vue';
 import DeleteConfirm from '@/components/DeleteConfirm.vue';
 import ContextMenu from '@/components/ContextMenu.vue';
 import ProgressDrawer from './components/Progress.vue';
-import MsgBoxFileList from './components/FileList.vue';
 import SettingDialog from './components/Setting.vue';
 import useSetting from './hooks/useSetting';
 import UploadHistory from './components/UploadHistory.vue';
@@ -212,28 +201,35 @@ import useTableItem from './hooks/useTableItem';
 import useCollect from './hooks/useCollect';
 
 const router = useRouter();
-
-const { breadcrumb, fullPath, init: initBreadcrumb, pop: popBreadcrumb, set: setBreadcrumb } = useBreadcrumb();
-const visible = shallowReactive({
-    progress: false,
-    setting: false,
-    history: false,
-    collect: false,
-});
 const { tableList, disabled, getList, del, createDir, handleSelectionChange, batchCopy, batchDelete, batchDownload } =
     useTable();
-const { previewUrl, visible: previewVisible, selected, clickPath, getStyle, isPic } = useTableItem();
+const {
+    breadcrumb,
+    fullPath,
+    pop: popBreadcrumb,
+    set: setBreadcrumb,
+    init: initBreadcrumb,
+    onChange: onBreadcrumbChange,
+} = useBreadcrumb();
+
+const { previewUrl, visible: previewVisible, clickPath, getStyle, isPic } = useTableItem();
 
 const { userInfo, checkLogin, logout } = useLogin(router);
 
-onMounted(() => {
-    checkLogin().then(() => {
-        getSetting();
-    });
-});
 const { setting, getSetting, setHome, show: showSettingDialog } = useSetting();
 const { add: addCollect, show: showCollectDialog } = useCollect();
-
+onMounted(() => {
+    onBreadcrumbChange(() => {
+        getList(false);
+    });
+    checkLogin()
+        .then(() => {
+            return getSetting();
+        })
+        .then(() => {
+            initBreadcrumb(setting.value.homePath);
+        });
+});
 // 批量操作
 const batchCommand = (command: 'download' | 'delete' | 'copy') => {
     const actions = {

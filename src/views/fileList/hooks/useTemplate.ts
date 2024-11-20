@@ -8,30 +8,28 @@ interface TemplateItem {
     content: string;
 }
 
-const getTemplate = async (data: { id: number }): Promise<TemplateItem[]> => {
-    return await request('get-template', data);
-};
-
-const addTemplate = async (data: Omit<TemplateItem, 'id'>) => {
-    return await request('add-template', data);
-};
-
-const editTemplate = async (data: TemplateItem) => {
-    return await request('edit-template', data);
-};
-const removeTemplate = async (data: { id: number }) => {
-    return await request('remove-template', data);
-};
-
 const templates = ref<TemplateItem[]>([]);
-
+const visible = shallowRef(false);
 export default () => {
-    const visible = shallowRef(false);
     const currentItem = ref<TemplateItem>({
         id: 1,
         name: '',
         content: '',
     });
+    async function getItem(data: { id: number }) {
+        return await request('get-template', data);
+    }
+    async function addItem() {
+        await request('add-template', currentItem.value);
+        ElMessage.success('添加成功');
+    }
+    async function editItem() {
+        await request('edit-template', currentItem.value);
+        ElMessage.success('编辑成功');
+    }
+    function close() {
+        visible.value = false;
+    }
     return {
         visible,
         templates,
@@ -41,39 +39,31 @@ export default () => {
                 if (!vis) {
                     return;
                 }
-                this.getItem(currentItem.value);
+                getItem(currentItem.value);
             });
         },
         async getList() {
             templates.value = await request('get-template-list');
         },
-        async getItem(data: { id: number }) {
-            return await request('get-template', data);
-        },
+        getItem,
         async openDialog(item?: TemplateItem) {
             visible.value = true;
             if (item) {
                 currentItem.value = item;
             }
         },
-        async addItem() {
-            await request('add-template', currentItem.value);
-            ElMessage.success('添加成功');
-        },
-        async editItem() {
-            await request('edit-template', currentItem.value);
-            ElMessage.success('编辑成功');
-        },
+        addItem,
+        editItem,
         async save() {
             const action = () => {
                 if (currentItem.value.id) {
-                    return this.editItem();
+                    return editItem();
                 } else {
-                    return this.addItem();
+                    return addItem();
                 }
             };
             action().then(() => {
-                this.close();
+                close();
             });
         },
         removeItem(item: TemplateItem) {
@@ -96,8 +86,6 @@ export default () => {
                 url: data.url,
             });
         },
-        close() {
-            visible.value = false;
-        },
+        close,
     };
 };

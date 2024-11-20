@@ -14,14 +14,15 @@ export interface HistoryItem {
 const getHistoryList = async (query: IPage) => {
     return await request('get-history', query);
 };
+const visible = shallowRef(false);
+const pageQuery = ref({
+    pageSize: 10,
+    pageIndex: 1,
+});
+
+const totalCount = shallowRef(0);
+const list = ref([]);
 export default () => {
-    const pageQuery = ref({
-        pageSize: 10,
-        pageIndex: 1,
-    });
-    const visible = shallowRef(false);
-    const totalCount = shallowRef(0);
-    const list = ref([]);
     const { userInfo } = useLogin();
     const { breadcrumb } = useBreadcrumb();
     const { getList: getTableList } = useTable();
@@ -30,6 +31,11 @@ export default () => {
         totalCount,
         pageQuery,
         visible,
+        init() {
+            pageQuery.value.pageIndex = 1;
+            list.value = [];
+            totalCount.value = 0;
+        },
         async getList() {
             const result = await getHistoryList(pageQuery.value);
             totalCount.value = result.totalCount;

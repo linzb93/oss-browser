@@ -12,11 +12,10 @@ interface CollectItem {
 export interface FormCollectItem extends CollectItem {
     isEdit: boolean;
 }
-
+const list = ref<CollectItem[]>([]);
+const formList = ref<FormCollectItem[]>([]);
+const visible = shallowRef(false);
 export default () => {
-    const list = ref<CollectItem[]>([]);
-    const formList = ref<FormCollectItem[]>([]);
-    const visible = shallowRef(false);
     const { fullPath, init: initBreadcrumb } = useBreadcrumb();
     const getList = async () => {
         const data: CollectItem[] = await request('get-collect');
@@ -25,6 +24,9 @@ export default () => {
             ...item,
             isEdit: false,
         }));
+    };
+    const close = () => {
+        visible.value = false;
     };
     return {
         init() {
@@ -75,12 +77,10 @@ export default () => {
             formList.value = formList.value.filter((item) => item.id !== target.id);
         },
         enter(target: CollectItem) {
-            this.close();
+            close();
             initBreadcrumb(target.path);
         },
-        close() {
-            visible.value = false;
-        },
+        close,
         show() {
             visible.value = true;
         },

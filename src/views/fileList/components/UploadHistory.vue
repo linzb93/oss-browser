@@ -1,5 +1,5 @@
 <template>
-    <el-drawer :size="800" v-model="visible" title="历史记录" @close="close" @closed="closed">
+    <el-drawer :size="800" v-model="visible" title="历史记录" @close="close" @closed="init">
         <el-table :data="list">
             <el-table-column label="名称" prop="name">
                 <template #default="scope">
@@ -30,17 +30,9 @@
 import pathUtil from '@/helpers/path';
 import useHistory from '../hooks/useHistory';
 import useLogin from '@/views/login/hooks/useLogin';
-
-const emit = defineEmits(['update:visible', 'select']);
 const { userInfo } = useLogin();
 
-const { getList, pageQuery: query, totalCount, list, onSelect, visible, close } = useHistory();
-
-const closed = () => {
-    query.value.pageIndex = 1;
-    list.value = [];
-    totalCount.value = 0;
-};
+const { getList, pageQuery: query, totalCount, list, onSelect, visible, close, init } = useHistory();
 </script>
 <style lang="scss" scoped>
 .preview {

@@ -27,12 +27,13 @@ const deleteItem = async (data: { path: string }) => {
 };
 
 const tableList = ref<TableItem[]>([]);
+const finished = shallowRef(false);
+const loading = shallowRef(true);
+const disabled = computed(() => loading.value || finished.value);
+const selected = ref<TableItem[]>([]);
 export default () => {
-    const finished = shallowRef(false);
-    const loading = shallowRef(true);
-    const disabled = computed(() => loading.value || finished.value);
-    const selected = ref<TableItem[]>([]);
     const { fullPath } = useBreadcrumb();
+
     async function getList(isConcat: boolean) {
         loading.value = true;
         if (!isConcat) {
@@ -57,23 +58,23 @@ export default () => {
             ElMessage.error('接口故障，请稍后再试');
         }
     }
+    const checkMultiSelect = () => {
+        if (selected.value.length) {
+            return true;
+        }
+        ElMessage.error('请选择至少一个');
+        return false;
+    };
     return {
         tableList,
         disabled,
         getList,
-        checkMultiSelect() {
-            if (selected.value.length) {
-                return true;
-            }
-            ElMessage.error('请选择至少一个');
-            return false;
-        },
         handleSelectionChange: (selection: TableItem[]) => {
             selected.value = selection.filter((item) => item.type !== 'dir');
         },
         download() {},
         async batchDownload() {
-            if (!this.checkMultiSelect()) {
+            if (!checkMultiSelect()) {
                 return;
             }
             await requestUtil.download(selected.value.map((item) => item.url).join(','));
@@ -88,7 +89,7 @@ export default () => {
             getList(false);
         },
         batchDelete() {
-            if (!this.checkMultiSelect()) {
+            if (!checkMultiSelect()) {
                 return;
             }
             ElMessageBox({
@@ -142,7 +143,7 @@ export default () => {
                 });
         },
         batchCopy() {
-            if (!this.checkMultiSelect()) {
+            if (!checkMultiSelect()) {
                 return;
             }
             requestUtil.copy(selected.value.map((item) => item.url).join('\n'));

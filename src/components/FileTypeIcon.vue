@@ -62,13 +62,13 @@ const getExtIcon = (extName) => {
     if (['html', 'css', 'js', 'vue', 'md', 'jsx', 'vue', 'scss', 'svg', 'txt', 'ts', 'mp3', 'pdf'].includes(extName)) {
         return extName;
     }
-    if (['apk', 'ipa'].includes(extName)) {
+    if (['apk', 'ipa', 'exe', 'dmg'].includes(extName)) {
         return 'app';
     }
     if (['json', 'yml'].includes(extName)) {
         return 'json';
     }
-    if (['rar', 'zip', '7z', 'exe'].includes(extName)) {
+    if (['rar', 'zip', '7z'].includes(extName)) {
         return 'zip';
     }
     if (extName.startsWith('json')) {

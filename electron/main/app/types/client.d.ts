@@ -54,8 +54,7 @@ declare module 'ali-oss' {
         ): Promise<string>;
         listV2(obj: { 'prefix': string; 'delimiter': string; 'max-keys': number }): Promise<OSSObject>;
         /**
-         *
-         * @param {string} file - 绝对路径
+         * 删除文件或者目录
          */
         delete(
             obj:

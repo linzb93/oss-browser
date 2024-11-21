@@ -26,6 +26,9 @@ export default () => {
     const { userInfo } = useLogin();
     const { breadcrumb } = useBreadcrumb();
     const { getList: getTableList } = useTable();
+    const close = () => {
+        visible.value = false;
+    };
     return {
         list,
         totalCount,
@@ -44,13 +47,12 @@ export default () => {
         onSelect(filePath: string) {
             const { pathname } = new URL(`${userInfo.value.domain}/${filePath}`);
             breadcrumb.value = pathname.split('/').slice(1, -1);
+            close();
             getTableList(false);
         },
         show() {
             visible.value = true;
         },
-        close() {
-            visible.value = false;
-        },
+        close,
     };
 };

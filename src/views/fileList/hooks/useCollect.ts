@@ -13,6 +13,7 @@ export interface FormCollectItem extends CollectItem {
     isEdit: boolean;
 }
 const list = ref<CollectItem[]>([]);
+
 const formList = ref<FormCollectItem[]>([]);
 const visible = shallowRef(false);
 export default () => {
@@ -42,7 +43,7 @@ export default () => {
          */
         list,
         /**
-         * 用来编辑用的收藏列表
+         * 可编辑的，保存完成后会和list同步。
          */
         formList,
         /**
@@ -76,13 +77,17 @@ export default () => {
         async deleteItem(target: FormCollectItem) {
             formList.value = formList.value.filter((item) => item.id !== target.id);
         },
-        enter(target: CollectItem) {
+        /**
+         * 进入目录
+         * @param {CollectItem} item - 目录对象
+         */
+        enter(item: CollectItem) {
             close();
-            initBreadcrumb(target.path);
+            initBreadcrumb(item.path);
         },
-        close,
         show() {
             visible.value = true;
         },
+        close,
     };
 };

@@ -8,13 +8,18 @@ import { type FileItem } from '../types/vo';
 import { __dirname } from '../helper/constant';
 
 export interface AddOptions {
+    /**
+     * 上传目录
+     */
     prefix: string;
+    /**
+     * 上传文件在本机的地址,Windows系统下记得转换分隔符
+     */
     name: string;
     type: 'directory' | 'file';
 }
 
 export class OSSService {
-    private apps: App[] = [];
     private historyService = new HistoryService();
     private app: App;
     /**
@@ -49,7 +54,7 @@ export class OSSService {
     }
     async upload(e: IpcMainEvent, data: AddOptions) {
         const { name, prefix } = data;
-        const list = name.split(',');
+        const list = name.split(',').map((item) => item.replace(/\\/g, '/'));
         const task$ = new Subject();
         let statusList = list.map((item) => {
             return {

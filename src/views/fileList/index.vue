@@ -88,7 +88,7 @@
                 ]"
             >
                 <el-table :data="tableList" @selection-change="handleSelectionChange">
-                    <el-table-column type="selection" :selectable="(row: FileItem) => row.type !== 'dir'" width="35" />
+                    <el-table-column type="selection" :selectable="(row: TableItem) => row.type !== 'dir'" width="35" />
                     <el-table-column label="名称">
                         <template #default="scope">
                             <div class="flexalign-center">
@@ -183,7 +183,7 @@ import dayjs from 'dayjs';
 import useLogin from '@/views/login/hooks/useLogin';
 import { Folder, ArrowRight, HomeFilled, ArrowDown, Back } from '@element-plus/icons-vue';
 import { getSize } from '@/helpers/size';
-import useUpload, { type TableItem as FileItem } from './hooks/useUpload';
+import useUpload from './hooks/useUpload';
 import useBreadcrumb from './hooks/useBreadcrumb';
 import pathUtil from '@/helpers/path';
 import useHistory from './hooks/useHistory';
@@ -199,7 +199,7 @@ import CollectPane from './components/CollectPane.vue';
 import useTable from './hooks/useTable';
 import useTableItem from './hooks/useTableItem';
 import useCollect from './hooks/useCollect';
-
+import { type TableItem } from './shared/types';
 const router = useRouter();
 const { tableList, disabled, getList, del, createDir, handleSelectionChange, batchCopy, batchDelete, batchDownload } =
     useTable();

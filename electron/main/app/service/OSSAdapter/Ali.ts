@@ -56,7 +56,9 @@ export default class extends BaseOss {
         token: string;
     }> {
         const { client } = this;
-        let restParams = {} as any;
+        let restParams = {} as {
+            'continuation-token'?: string;
+        };
         if (data.prefix === this.prevFilePrefix && data.useToken) {
             restParams['continuation-token'] = this.nextContinuationToken;
         }

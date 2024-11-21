@@ -37,6 +37,9 @@ export default () => {
     }
     return {
         setting,
+        /**
+         * 可编辑的设置，保存后会和同步至setting
+         */
         formSetting,
         visible,
         init(callback: Function) {

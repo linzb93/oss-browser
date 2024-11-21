@@ -4,7 +4,6 @@ import MsgBoxFileList from '../components/FileList.vue';
 import useTable from './useTable';
 import { getSize } from '@/helpers/size';
 import { type TableItem } from '../shared/types';
-export { type TableItem };
 
 const active = shallowRef(false);
 

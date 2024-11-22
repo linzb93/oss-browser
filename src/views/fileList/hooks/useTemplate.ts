@@ -79,6 +79,9 @@ export default () => {
                     ElMessage.success('删除成功');
                 });
         },
+        /**
+         * 调用复制样式模板
+         */
         async copyTemplate(data: { width: number; height: number; url: string }) {
             return await request('copy-template', {
                 width: data.height,

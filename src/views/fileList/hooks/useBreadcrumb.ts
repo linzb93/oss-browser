@@ -1,20 +1,21 @@
 import { ref, computed } from 'vue';
 
-/**
- * 面包屑列表
- */
 const breadcrumb = ref<string[]>([]);
+const fullPath = computed(() => breadcrumb.value.map((item) => `${item}/`).join(''));
 /**
  * 当面包屑变化时，触发的回调函数
  */
 let onChangeCallback: Function = () => {};
-/**
- * 面包屑列表拼接的字符串
- */
-const fullPath = computed(() => breadcrumb.value.map((item) => `${item}/`).join(''));
+
 export default () => {
     return {
+        /**
+         * 面包屑列表
+         */
         breadcrumb,
+        /**
+         * 面包屑列表拼接的字符串
+         */
         fullPath,
         /**
          * 设置面包屑

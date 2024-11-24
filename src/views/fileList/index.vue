@@ -102,12 +102,7 @@
                     </el-table-column>
                     <el-table-column label="预览图" v-if="setting.previewType === 2">
                         <template #default="scope">
-                            <img
-                                v-if="isPic(scope.row)"
-                                class="table-preview-img curp"
-                                :src="scope.row.url"
-                                @click="clickPath(scope.row)"
-                            />
+                            <img class="table-preview-img curp" :src="scope.row.url" @click="clickPath(scope.row)" />
                         </template>
                     </el-table-column>
                     <el-table-column label="类型/大小">
@@ -147,9 +142,8 @@
                                     @click="getStyle(scope.row)"
                                     >复制样式</el-link
                                 >
-                                <delete-confirm @confirm="del(scope.row)"></delete-confirm>
                             </template>
-                            <span v-else>-</span>
+                            <delete-confirm @confirm="del(scope.row)"></delete-confirm>
                         </template>
                     </el-table-column>
                 </el-table>

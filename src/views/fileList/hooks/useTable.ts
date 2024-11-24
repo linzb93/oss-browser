@@ -19,7 +19,7 @@ interface AddParams {
     type: 'directory' | 'files';
 }
 const addPath = async (params: AddParams) => {
-    request('oss-add-path', params);
+    await request('oss-add-path', params);
 };
 
 const deleteItem = async (data: { path: string }) => {
@@ -66,13 +66,30 @@ export default () => {
         return false;
     };
     return {
+        /**
+         * 文件列表
+         */
         tableList,
+        /**
+         * 能否继续加载下一页，在加载下一页的过程中会置为true，加载完成后置为false
+         */
         disabled,
         getList,
+        /**
+         * 多选项发生改变时触发的方法
+         * @param {TableItem[]} selection - 已选中项
+         */
         handleSelectionChange: (selection: TableItem[]) => {
             selected.value = selection.filter((item) => item.type !== 'dir');
         },
+        /**
+         * 下载单一文件
+         */
         download() {},
+        /**
+         * 批量下载文件
+         * @returns
+         */
         async batchDownload() {
             if (!checkMultiSelect()) {
                 return;
@@ -80,6 +97,10 @@ export default () => {
             await requestUtil.download(selected.value.map((item) => item.url).join(','));
             selected.value = [];
         },
+        /**
+         * 删除某个文件
+         * @param {TableItem} item - 列表项
+         */
         async del(item: TableItem) {
             const name = item.type === 'dir' ? `${item.name}/` : item.name;
             await deleteItem({
@@ -88,6 +109,9 @@ export default () => {
             ElMessage.success('删除成功');
             getList(false);
         },
+        /**
+         * 批量删除
+         */
         batchDelete() {
             if (!checkMultiSelect()) {
                 return;
@@ -110,6 +134,9 @@ export default () => {
                 getList(false);
             });
         },
+        /**
+         * 创建目录
+         */
         createDir() {
             ElMessageBox.prompt('请输入文件夹名称', '温馨提醒', {
                 confirmButtonText: '创建',
@@ -142,6 +169,9 @@ export default () => {
                     //
                 });
         },
+        /**
+         * 批量复制文件地址，用换行符区分
+         */
         batchCopy() {
             if (!checkMultiSelect()) {
                 return;

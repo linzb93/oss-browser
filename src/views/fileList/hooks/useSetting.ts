@@ -51,9 +51,6 @@ export default () => {
                 callback();
             });
         },
-        show() {
-            visible.value = true;
-        },
         getSetting,
         async homeGetSetting() {
             await getSetting();
@@ -76,12 +73,24 @@ export default () => {
                 });
             });
         },
+        /**
+         * 设置首页地址
+         */
         async setHome() {
             await request('set-home', {
                 path: fullPath.value.replace(/\/$/, ''),
             });
             ElMessage.success('设置成功');
         },
+        /**
+         * 打开设置弹窗
+         */
+        show() {
+            visible.value = true;
+        },
+        /**
+         * 关闭设置弹窗
+         */
         close,
     };
 };

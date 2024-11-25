@@ -30,6 +30,9 @@ export default () => {
         visible.value = false;
     };
     return {
+        /**
+         * 收藏功能初始化。
+         */
         init() {
             watch(visible, (vis) => {
                 if (!vis) {
@@ -72,7 +75,7 @@ export default () => {
             visible.value = false;
         },
         /**
-         * 删除收藏目录。因为是批量保存，所以删除功能不通过接口。
+         * 删除收藏目录。因为是批量保存，所以删除功能不通过调用接口。
          */
         async deleteItem(target: FormCollectItem) {
             formList.value = formList.value.filter((item) => item.id !== target.id);
@@ -85,9 +88,15 @@ export default () => {
             close();
             initBreadcrumb(item.path);
         },
+        /**
+         * 打开弹窗
+         */
         show() {
             visible.value = true;
         },
+        /**
+         * 关闭弹窗
+         */
         close,
     };
 };

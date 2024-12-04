@@ -138,10 +138,11 @@ export default class extends BaseOss {
                 size,
             });
         } else {
-            this.client.multipartUpload(join(prefix, basename(path)), path, {
+            const absolutePath = join(prefix, basename(path)).replace(/\\/g, '/');
+            this.client.multipartUpload(absolutePath, path, {
                 progress: (percent) => {
                     this.postUploadProgress({
-                        name: join(prefix, basename(path)),
+                        name: absolutePath,
                         progress: percent * 100,
                         size,
                     });

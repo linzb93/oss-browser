@@ -4,7 +4,6 @@ import path from 'node:path';
 import vue from '@vitejs/plugin-vue';
 import electron from 'vite-plugin-electron/simple';
 import pkg from './package.json';
-import cdn from 'vite-plugin-cdn-import';
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => {
     fs.rmSync('dist-electron', { recursive: true, force: true });
@@ -24,20 +23,6 @@ export default defineConfig(({ command }) => {
         },
         plugins: [
             vue(),
-            cdn({
-                modules: [
-                    {
-                        name: 'vue',
-                        var: 'Vue',
-                        path: 'https://cdn.bootcdn.net/ajax/libs/vue/{version}/vue.global.prod.min.js',
-                    },
-                    {
-                        name: 'element-plus',
-                        var: 'ElementPlus',
-                        path: 'https://cdn.bootcdn.net/ajax/libs/element-plus/{version}/index.full.min.js',
-                    },
-                ],
-            }),
             electron({
                 main: {
                     // Shortcut of `build.lib.entry`

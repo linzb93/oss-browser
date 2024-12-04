@@ -66,15 +66,20 @@ export class OSSService {
             const { name: path, progress, size } = data;
             // 更新statusList
             statusList = statusList.map((item) => {
-                if (item.name === path) {
+                const realName = item.name.replace(/\\/g, '/');
+                if (realName === path) {
                     return {
                         ...item,
+                        name: realName,
                         progress,
                         size,
                         finished: progress === 100,
                     };
                 }
-                return item;
+                return {
+                    ...item,
+                    name: realName,
+                };
             });
             if (statusList.every((item) => item.finished)) {
                 task$.next(null);

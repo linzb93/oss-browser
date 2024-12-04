@@ -96,6 +96,7 @@ const startUpload = () => {
         type: 'file',
     });
     listener((obj: { data: any; type: 'upload-finished' | 'uploading' }) => {
+        console.log(obj);
         const { type, data } = obj;
         if (type === 'upload-finished') {
             // 上传完成，显示批量操作按钮

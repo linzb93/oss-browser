@@ -1,4 +1,4 @@
-import { ref, shallowRef, watch } from 'vue';
+import { ref, shallowRef } from 'vue';
 import request from '@/helpers/request';
 import { ElMessage, ElMessageBox } from 'element-plus';
 
@@ -10,21 +10,21 @@ interface TemplateItem {
 
 const templates = ref<TemplateItem[]>([]);
 const visible = shallowRef(false);
+const form = ref<TemplateItem>({
+    id: 0,
+    name: '',
+    content: '',
+});
 export default () => {
-    const currentItem = ref<TemplateItem>({
-        id: 1,
-        name: '',
-        content: '',
-    });
     async function getItem(data: { id: number }) {
-        return await request('get-template', data);
+        form.value = await request('get-template', data);
     }
     async function addItem() {
-        await request('add-template', currentItem.value);
+        await request('add-template', form.value);
         ElMessage.success('添加成功');
     }
     async function editItem() {
-        await request('edit-template', currentItem.value);
+        await request('edit-template', form.value);
         ElMessage.success('编辑成功');
     }
     function close() {
@@ -33,30 +33,21 @@ export default () => {
     return {
         visible,
         templates,
-        currentItem,
-        init() {
-            watch(visible, (vis) => {
-                if (!vis) {
-                    return;
-                }
-                getItem(currentItem.value);
-            });
-        },
+        form,
         async getList() {
             templates.value = await request('get-template-list');
         },
-        getItem,
         async openDialog(item?: TemplateItem) {
             visible.value = true;
             if (item) {
-                currentItem.value = item;
+                getItem(item);
             }
         },
         addItem,
         editItem,
         async save() {
             const action = () => {
-                if (currentItem.value.id) {
+                if (form.value.id) {
                     return editItem();
                 } else {
                     return addItem();

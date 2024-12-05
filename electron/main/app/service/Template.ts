@@ -39,7 +39,12 @@ export class TemplateService {
             db.templates.push({
                 name: obj.name,
                 content: obj.content,
-                id: db.templates.at(-1).id + 1,
+                id: (() => {
+                    if (!db.templates || !db.templates.length) {
+                        return 1;
+                    }
+                    return db.templates.at(-1).id + 1;
+                })(),
             });
         });
     }

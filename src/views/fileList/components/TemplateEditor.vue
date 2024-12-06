@@ -25,7 +25,7 @@
 import { readonly, ref } from 'vue';
 import useTemplate from '../hooks/useTemplate';
 
-const { visible, currentItem: form, save, close } = useTemplate();
+const { visible, form, save, close } = useTemplate();
 const rules = readonly({});
 const formRef = ref(null);
 </script>

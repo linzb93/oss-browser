@@ -16,20 +16,22 @@
             <el-form-item label="复制模板">
                 <div>
                     <div v-if="!isTemplateEditMode">
-                        <el-radio-group v-model="formSetting.copyTemplateId">
+                        <el-radio-group v-model="formSetting.copyTemplateId" v-if="templates.length">
                             <el-radio v-for="item in templates" :key="item.id" :value="item.id">
                                 {{ item.name }}
                             </el-radio>
                         </el-radio-group>
+                        <p v-else>无</p>
                     </div>
                     <div v-else>
-                        <ul>
+                        <ul v-if="templates.length">
                             <li v-for="item in templates" :key="item.id" :value="item.id" style="display: block">
                                 <span>{{ item.name }}</span>
-                                <el-icon :size="14" class="ml10" @click="addTemplate(item)"><edit /></el-icon>
-                                <el-icon :size="14" class="ml10" @click="removeTemplate(item)"><remove /></el-icon>
+                                <el-icon :size="14" class="ml10 curp" @click="addTemplate(item)"><edit /></el-icon>
+                                <el-icon :size="14" class="ml10 curp" @click="removeTemplate(item)"><remove /></el-icon>
                             </li>
                         </ul>
+                        <p v-else>无</p>
                     </div>
                     <div>
                         <el-button size="small" type="primary" @click="addTemplate()">添加</el-button>

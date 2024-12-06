@@ -3,9 +3,9 @@
  */
 {
     $schema: 'https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json',
-    appId: 'com.ossBrowser',
+    appId: 'com.aliOSSBrowser',
     asar: true,
-    productName: 'OSS Browser',
+    productName: 'Ali OSS Browser',
     directories: {
         output: 'release/${version}',
     },

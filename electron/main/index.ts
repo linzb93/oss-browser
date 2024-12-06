@@ -29,7 +29,7 @@ const indexHtml = join(RENDERER_DIST, 'index.html');
 
 async function createWindow() {
     win = new BrowserWindow({
-        title: 'OSS Browser',
+        title: 'Ali OSS Browser',
         webPreferences: {
             spellcheck: false,
             preload,

@@ -1,8 +1,8 @@
-import { ref, readonly, onMounted } from 'vue';
+import { ref, readonly, onMounted, shallowRef } from 'vue';
 import request from '@/helpers/request';
 import { Router } from 'vue-router';
-import { cloneDeep } from 'lodash-es';
-import { ElMessage } from 'element-plus';
+import { cloneDeep, pick } from 'lodash-es';
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
 interface LoginParams {
     name: string;
     platform: number;
@@ -43,12 +43,50 @@ export default (router?: Router) => {
         accessKeySecret: '',
         bucket: '',
     });
-    const rules = readonly({});
+    const rules = readonly<FormRules>({
+        name: {
+            required: true,
+            message: '请输入名称',
+        },
+        region: {
+            required: true,
+            message: '请输入地区',
+        },
+        accessKeyId: {
+            required: true,
+            message: '请输入accessKeyId',
+        },
+        accessKeySecret: {
+            required: true,
+            message: '请输入accessKeySecret',
+        },
+        bucket: {
+            required: true,
+            message: '请输入bucket',
+        },
+        domain: [
+            {
+                pattern: /^https?\:\/\//,
+                message: '请输入正确的前缀',
+            },
+        ],
+    });
+    const formRef = ref<FormInstance>();
+    const bucketList = ref<any[]>([]);
+    const disabled = shallowRef(true);
     return {
         userInfo,
         form,
         rules,
+        formRef,
+        bucketList,
+        disabled,
         async login() {
+            try {
+                await formRef.value?.validate();
+            } catch (error) {
+                return;
+            }
             await doLogin(form.value);
             userInfo.value = cloneDeep(form.value);
             ElMessage.success({
@@ -77,6 +115,23 @@ export default (router?: Router) => {
                     }
                 });
             });
+        },
+        async getBuckets() {
+            try {
+                await formRef.value?.validateField(['name', 'region', 'accessKeyId', 'accessKeySecret']);
+            } catch (error) {
+                return;
+            }
+            disabled.value = false;
+            try {
+                bucketList.value = await request(
+                    'get-buckets',
+                    pick(form.value, ['region', 'accessKeyId', 'accessKeySecret'])
+                );
+            } catch (error) {
+                ElMessage.error('信息输入错误，请重新输入');
+                disabled.value = true;
+            }
         },
         logout() {
             router?.push('/login');

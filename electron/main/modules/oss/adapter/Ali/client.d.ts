@@ -29,6 +29,9 @@ declare module 'ali-oss' {
          */
         nextContinuationToken: string;
     }
+    interface BucketObject {
+        name: string;
+    }
     export default class OSS {
         constructor(config: OssConfig);
         /**
@@ -63,5 +66,8 @@ declare module 'ali-oss' {
                       prefix: string;
                   }
         ): Promise<void>;
+        listBuckets(): Promise<{
+            buckets: BucketObject[];
+        }>;
     }
 }

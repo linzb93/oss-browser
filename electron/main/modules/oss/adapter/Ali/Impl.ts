@@ -1,12 +1,12 @@
 import { basename, join } from 'node:path';
 import { omit } from 'lodash-es';
 import bytes from 'bytes';
-import OSS from 'ali-oss';
+import OSS, { BucketObject, OssConfig } from 'ali-oss';
 import fs from 'fs-extra';
 import pMap from 'p-map';
-import BaseOss from './Base';
-import { FileItem } from '../../../types/vo';
-import sql from '../../../helper/sql';
+import BaseOss from '../Base';
+import { FileItem } from '../../../../types/vo';
+import sql from '../../../../helper/sql';
 // import { sleep } from '@linzb93/utils';
 
 type uploadProgressCallback = (data: { name: string; progress: number; size: number }) => void;
@@ -157,5 +157,11 @@ export default class extends BaseOss {
         if (typeof this.uploadCallback === 'function') {
             this.uploadCallback(data);
         }
+    }
+    async getBuckets() {
+        const ret = await this.client.listBuckets();
+        return ret.buckets.map((item) => ({
+            name: item.name,
+        }));
     }
 }

@@ -8,7 +8,7 @@ import { type FileItem } from '../../types/vo';
 import { __dirname } from '../../enums/index.enum';
 import { AddOptions } from './oss.dto';
 import { ossEvents } from './oss.repository';
-
+import OSS, { OssConfig } from 'ali-oss';
 let currentApp: App;
 /**
  * 添加OSS App
@@ -97,3 +97,15 @@ export async function upload(e: IpcMainEvent, data: AddOptions) {
         },
     });
 }
+
+export const getBuckets = async (ossOptions: OssConfig) => {
+    const client = new OSS(ossOptions);
+    try {
+        const ret = await client.listBuckets();
+        return ret.buckets.map((item) => ({
+            name: item.name,
+        }));
+    } catch (error) {
+        throw new Error('error');
+    }
+};

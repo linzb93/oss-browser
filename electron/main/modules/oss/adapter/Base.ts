@@ -1,5 +1,5 @@
 import { FileItem } from '../../../types/vo';
-
+import { BucketObject } from 'ali-oss';
 export default abstract class {
     /**
      * 平台id
@@ -44,4 +44,5 @@ export default abstract class {
     setUploadFileSizeEdge(_: { large: string; small: string }) {
         throw new Error('Please set this size edge');
     }
+    abstract getBuckets(): Promise<BucketObject[]>;
 }

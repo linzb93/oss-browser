@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron';
 import ossController from './modules/oss/oss.controller';
-import AliOSS from './modules/oss/adapter/Ali';
+import AliOSS from './modules/oss/adapter/Ali/Impl';
 import accountController from './modules/account/account.controller';
 import settingController from './modules/setting/setting.controller';
 import historyController from './modules/history/history.controller';
@@ -30,6 +30,9 @@ export default () => {
     });
     ipcMain.on('oss-upload', (e, data) => {
         ossController.upload(e, data);
+    });
+    ipcMain.handle('get-buckets', (_, dataStr) => {
+        return response(async () => await ossController.getBuckets(dataStr));
     });
     // 设置
     ipcMain.handle('get-setting', () => {

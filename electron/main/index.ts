@@ -1,8 +1,8 @@
 import { app, BrowserWindow, shell, Menu, dialog } from 'electron';
 import { join } from 'node:path';
-import registerRoute from './app/router';
+import registerRoute from './router';
 import unhandled from 'electron-unhandled';
-import { root, __dirname } from './app/helper/constant';
+import { root, __dirname } from './enums/index.enum';
 unhandled();
 
 process.env.APP_ROOT = join(__dirname, '../..');
@@ -95,6 +95,18 @@ app.whenReady().then(() => {
     ]);
     Menu.setApplicationMenu(menu);
     registerRoute(win);
+    win.webContents.addListener('context-menu', (_, params) => {
+        const rightMenu = Menu.buildFromTemplate([
+            {
+                label: '创建目录',
+                click() {},
+            },
+        ]);
+        rightMenu.popup({
+            x: params.x + 5,
+            y: params.y + 15,
+        });
+    });
 });
 
 app.on('window-all-closed', () => {

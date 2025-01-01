@@ -5,8 +5,8 @@ import OSS from 'ali-oss';
 import fs from 'fs-extra';
 import pMap from 'p-map';
 import BaseOss from './Base';
-import { FileItem } from '../../types/vo';
-import sql from '../../helper/sql';
+import { FileItem } from '../../../types/vo';
+import sql from '../../../helper/sql';
 // import { sleep } from '@linzb93/utils';
 
 type uploadProgressCallback = (data: { name: string; progress: number; size: number }) => void;

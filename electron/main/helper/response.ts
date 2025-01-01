@@ -1,4 +1,4 @@
-import { HTTP_STATUS } from './constant';
+import { HTTP_STATUS } from '../enums/index.enum';
 export default async (callback: Function) => {
     try {
         const result = await callback();

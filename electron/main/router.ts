@@ -1,5 +1,4 @@
-import { ipcMain, BrowserWindow } from 'electron';
-import { setWindow } from './modules/window/window.service';
+import { ipcMain } from 'electron';
 import ossController from './modules/oss/oss.controller';
 import AliOSS from './modules/oss/adapter/Ali';
 import accountController from './modules/account/account.controller';
@@ -10,8 +9,7 @@ import collectController from './modules/collect/collect.controller';
 import utilController from './modules/util/util.controller';
 import response from './helper/response';
 
-export default (win: BrowserWindow) => {
-    setWindow(win);
+export default () => {
     ossController.add(AliOSS);
     // 登录
     ipcMain.handle('login-get', () => {

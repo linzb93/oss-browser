@@ -1,6 +1,7 @@
 import { ref, shallowRef, h, computed } from 'vue';
 import { scrollTo } from '@/helpers/scroll-to';
 import request, { requestUtil } from '@/helpers/request';
+import { handleMainPost } from '@/helpers/util';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import useBreadcrumb from './useBreadcrumb';
 import { type TableItem } from '../shared/types';
@@ -65,6 +66,38 @@ export default () => {
         ElMessage.error('请选择至少一个');
         return false;
     };
+    const createDir = () => {
+        ElMessageBox.prompt('请输入文件夹名称', '温馨提醒', {
+            confirmButtonText: '创建',
+            beforeClose: (action, instance, done) => {
+                if (action !== 'confirm') {
+                    done();
+                    return;
+                }
+                if (!instance.inputValue) {
+                    ElMessage.error('请输入文件夹名称');
+                    return;
+                }
+                done();
+            },
+        })
+            .then(async ({ value }) => {
+                if (tableList.value.some((file) => file.type === 'dir' && file.name === value)) {
+                    ElMessage.warning('存在同名文件夹，无需创建');
+                    return;
+                }
+                await addPath({
+                    prefix: fullPath.value,
+                    name: value,
+                    type: 'directory',
+                });
+                ElMessage.success('创建成功');
+                getList(false);
+            })
+            .catch(() => {
+                //
+            });
+    };
     return {
         /**
          * 文件列表
@@ -75,6 +108,14 @@ export default () => {
          */
         disabled,
         getList,
+        init() {
+            handleMainPost('create-dir', () => {
+                createDir();
+            });
+            handleMainPost('reload', () => {
+                getList(false);
+            });
+        },
         /**
          * 多选项发生改变时触发的方法
          * @param {TableItem[]} selection - 已选中项
@@ -137,38 +178,7 @@ export default () => {
         /**
          * 创建目录
          */
-        createDir() {
-            ElMessageBox.prompt('请输入文件夹名称', '温馨提醒', {
-                confirmButtonText: '创建',
-                beforeClose: (action, instance, done) => {
-                    if (action !== 'confirm') {
-                        done();
-                        return;
-                    }
-                    if (!instance.inputValue) {
-                        ElMessage.error('请输入文件夹名称');
-                        return;
-                    }
-                    done();
-                },
-            })
-                .then(async ({ value }) => {
-                    if (tableList.value.some((file) => file.type === 'dir' && file.name === value)) {
-                        ElMessage.warning('存在同名文件夹，无需创建');
-                        return;
-                    }
-                    await addPath({
-                        prefix: fullPath.value,
-                        name: value,
-                        type: 'directory',
-                    });
-                    ElMessage.success('创建成功');
-                    getList(false);
-                })
-                .catch(() => {
-                    //
-                });
-        },
+        createDir,
         /**
          * 批量复制文件地址，用换行符区分
          */

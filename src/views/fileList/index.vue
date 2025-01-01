@@ -181,8 +181,18 @@ import useTableItem from './hooks/useTableItem';
 import useCollect from './hooks/useCollect';
 import { type TableItem } from './shared/types';
 const router = useRouter();
-const { tableList, disabled, getList, del, createDir, handleSelectionChange, batchCopy, batchDelete, batchDownload } =
-    useTable();
+const {
+    init: tableInit,
+    tableList,
+    disabled,
+    getList,
+    del,
+    createDir,
+    handleSelectionChange,
+    batchCopy,
+    batchDelete,
+    batchDownload,
+} = useTable();
 const {
     breadcrumb,
     fullPath,
@@ -199,6 +209,7 @@ const { userInfo, checkLogin, logout } = useLogin(router);
 const { setting, getSetting, setHome, show: showSettingDialog } = useSetting();
 const { add: addCollect, show: showCollectDialog } = useCollect();
 onMounted(() => {
+    tableInit();
     onBreadcrumbChange(() => {
         getList(false);
     });

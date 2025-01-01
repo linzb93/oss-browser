@@ -75,7 +75,7 @@ export default () => {
          */
         async copyTemplate(data: { width: number; height: number; url: string }) {
             return await request('copy-template', {
-                width: data.height,
+                width: data.width,
                 height: data.height,
                 url: data.url,
             });

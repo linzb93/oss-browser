@@ -96,23 +96,23 @@ export default class extends BaseOss {
             token: this.nextContinuationToken,
         };
     }
-    async addPath(params: { prefix: string; name: string; type: 'directory' | 'file' }): Promise<void> {
+    async addPath(params: { prefix: string; names: string; type: 'directory' | 'file' }): Promise<void> {
         const { client } = this;
         if (params.type === 'directory') {
-            await client.put(`${params.prefix}${params.name}/`, Buffer.from(''));
+            await client.put(`${params.prefix}${params.names}/`, Buffer.from(''));
             return;
         }
         if (params.type === 'file') {
             // name的含义是本地地址，而且一定是数组格式
-            const files = params.name.split(',');
+            const files = params.names.split(',');
             await pMap(files, (file) => client.put(`${params.prefix}${basename(file)}`, file), {
                 concurrency: 4,
             });
         }
     }
-    async deleteFile(pathStr: string): Promise<void> {
+    async deleteFile(paths: string): Promise<void> {
         const { client } = this;
-        const pathList = pathStr.split(',');
+        const pathList = paths.split(',');
         try {
             await pMap(pathList, (path) => client.delete(path), {
                 concurrency: 4,
@@ -131,7 +131,7 @@ export default class extends BaseOss {
             await this.addPath({
                 type: 'file',
                 prefix,
-                name: path,
+                names: path,
             });
             this.postUploadProgress({
                 name: join(prefix, basename(path)),

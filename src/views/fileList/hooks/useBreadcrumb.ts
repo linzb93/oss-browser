@@ -14,7 +14,7 @@ export default () => {
          */
         breadcrumb,
         /**
-         * 面包屑列表拼接的字符串
+         * 面包屑列表拼接的字符串，以”/“收尾
          */
         fullPath,
         /**

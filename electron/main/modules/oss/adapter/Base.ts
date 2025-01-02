@@ -23,7 +23,7 @@ export default abstract class {
     /**
      * 创建文件或目录
      */
-    abstract addPath(params: { prefix: string; name: string; type: 'directory' | 'file' }): Promise<void>;
+    abstract addPath(params: { prefix: string; names: string; type: 'directory' | 'file' }): Promise<void>;
 
     /**
      * 上传文件

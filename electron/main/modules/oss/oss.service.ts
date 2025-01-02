@@ -41,8 +41,8 @@ export async function deleteFile(path: string): Promise<void> {
     ossEvents.emit('remove', path);
 }
 export async function upload(e: IpcMainEvent, data: AddOptions) {
-    const { name, prefix } = data;
-    const list = name.split(',').map((item) => item.replace(/\\/g, '/'));
+    const { names, prefix } = data;
+    const list = names.split(',').map((item) => item.replace(/\\/g, '/'));
     const task$ = new Subject();
     let statusList = list.map((item) => {
         return {

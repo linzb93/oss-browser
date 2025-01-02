@@ -77,7 +77,7 @@ export default () => {
                 }
                 await api.addPath({
                     prefix: fullPath.value,
-                    name: value,
+                    names: value,
                     type: 'directory',
                 });
                 ElMessage.success('创建成功');
@@ -96,6 +96,9 @@ export default () => {
          * 能否继续加载下一页，在加载下一页的过程中会置为true，加载完成后置为false
          */
         disabled,
+        /**
+         * 获取文件列表
+         */
         getList,
         init() {
             handleMainPost('create-dir', () => {
@@ -118,7 +121,6 @@ export default () => {
         download() {},
         /**
          * 批量下载文件
-         * @returns
          */
         async batchDownload() {
             if (!checkMultiSelect()) {

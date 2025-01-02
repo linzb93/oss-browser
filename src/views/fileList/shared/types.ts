@@ -42,7 +42,7 @@ export interface SettingInfo {
 }
 export interface AddParams {
     prefix: string;
-    name: string;
+    names: string;
     type: 'directory' | 'files';
 }
 export interface CollectItem {

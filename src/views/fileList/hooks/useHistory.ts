@@ -1,8 +1,8 @@
 import { ref, shallowRef } from 'vue';
 import useLogin from '@/views/login/hooks/useLogin';
-import request from '@/helpers/request';
 import useBreadcrumb from './useBreadcrumb';
 import useTable from './useTable';
+import * as api from '../api';
 
 interface IPage {
     pageIndex: number;
@@ -11,9 +11,6 @@ interface IPage {
 export interface HistoryItem {
     path: string;
 }
-const getHistoryList = async (query: IPage) => {
-    return await request('get-history', query);
-};
 const visible = shallowRef(false);
 const pageQuery = ref({
     pageSize: 10,
@@ -52,7 +49,7 @@ export default () => {
             totalCount.value = 0;
         },
         async getList() {
-            const result = await getHistoryList(pageQuery.value);
+            const result = await api.getHistoryList(pageQuery.value);
             totalCount.value = result.totalCount;
             list.value = result.list;
         },

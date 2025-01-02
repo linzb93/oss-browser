@@ -1,7 +1,7 @@
-import { basename, join } from 'node:path';
+import { basename, join, extname } from 'node:path';
 import { omit } from 'lodash-es';
 import bytes from 'bytes';
-import OSS, { BucketObject, OssConfig } from 'ali-oss';
+import OSS from 'ali-oss';
 import fs from 'fs-extra';
 import pMap from 'p-map';
 import BaseOss from '../Base';
@@ -75,21 +75,22 @@ export default class extends BaseOss {
          * objects会返回目录下所有的文件和目录，根据size字段判断是不是目录
          * prefixes只会返回目录
          */
-        const objects = result.objects
-            .filter((obj) => obj.size > 0)
+        const files = result.objects
+            .filter((obj) => obj.size > 0) // 移除顶层目录
             .map((obj) => ({
-                ...obj,
-                name: obj.name.split('/').slice(-1)[0],
-                url: obj.url.replace(/^https?:\/\/[^\/]+/, this.domain),
+                name: basename(obj.name),
+                type: extname(obj.name),
+                size: obj.size,
             }));
-        const list = result.prefixes
-            ? result.prefixes
-                  .map((subDir) => ({
-                      name: subDir.replace(/\/$/, '').split('/').slice(-1)[0],
-                      type: 'dir',
-                  }))
-                  .concat(objects)
-            : objects;
+        const dirs = result.prefixes
+            ? result.prefixes.map((subDir) => ({
+                  name: subDir.replace(/\/$/, '').split('/').slice(-1)[0],
+                  type: 'dir',
+                  size: 0,
+              }))
+            : [];
+        const list = dirs.concat(files);
+
         return {
             list,
             token: this.nextContinuationToken,

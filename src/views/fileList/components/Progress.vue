@@ -72,6 +72,7 @@ import request, { requestUtil } from '@/helpers/request';
 import { useOssStore } from '@/store';
 import pathUtils from '@/helpers/path';
 import { getSize } from '@/helpers/size';
+import * as api from '../api';
 
 const ossStore = useOssStore();
 const props = defineProps<{
@@ -117,7 +118,7 @@ watch(props, ({ visible }) => {
 
 // 撤销
 const redo = async (item: ListItem) => {
-    await request('oss-delete', {
+    await api.deleteItem({
         path: `${props.path}${item.name}`,
     });
     ElMessage.success('撤销成功');

@@ -9,3 +9,26 @@ export interface AddOptions {
     name: string;
     type: 'directory' | 'file';
 }
+
+export interface IFileItem {
+    /**
+     * 文件名
+     */
+    name: string;
+    /**
+     * 文件绝对路径
+     */
+    path: string;
+    /**
+     * 文件的网址
+     */
+    url: string;
+    /**
+     * 文件类型
+     */
+    type: string;
+    /**
+     * 文件大小
+     */
+    size: number;
+}

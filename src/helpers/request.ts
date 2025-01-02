@@ -8,7 +8,7 @@ interface Option {
     showLoading?: boolean;
 }
 
-export default async function doRequest(path: string, params?: any, options?: Option) {
+export default async function doRequest<T = any>(path: string, params?: any, options?: Option): Promise<T> {
     if (options?.showLoading) {
         loading.open();
     }
@@ -26,9 +26,9 @@ export default async function doRequest(path: string, params?: any, options?: Op
     console.log(res);
     console.groupEnd();
     if (!res) {
-        return;
+        return null as T;
     }
-    if (!res.code && res.result) {
+    if (!res.code && res.result !== undefined) {
         return res.result;
     }
     if (res.code !== 200) {

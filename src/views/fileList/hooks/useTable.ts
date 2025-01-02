@@ -1,31 +1,14 @@
 import { ref, shallowRef, h, computed } from 'vue';
 import { scrollTo } from '@/helpers/scroll-to';
-import request, { requestUtil } from '@/helpers/request';
+import { requestUtil } from '@/helpers/request';
 import { handleMainPost } from '@/helpers/util';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import useBreadcrumb from './useBreadcrumb';
 import { type TableItem } from '../shared/types';
 import MsgBoxFileList from '../components/FileList.vue';
-interface ListParams {
-    prefix: string;
-    useToken: boolean;
-}
-
-const getTableList = async (params: ListParams) => {
-    return await request('oss-get-list', params);
-};
-interface AddParams {
-    prefix: string;
-    name: string;
-    type: 'directory' | 'files';
-}
-const addPath = async (params: AddParams) => {
-    await request('oss-add-path', params);
-};
-
-const deleteItem = async (data: { path: string }) => {
-    await request('oss-delete', data);
-};
+import useLogin from '@/views/login/hooks/useLogin';
+import * as api from '../api';
+import { getSize } from '@/helpers/size';
 
 const tableList = ref<TableItem[]>([]);
 const finished = shallowRef(false);
@@ -34,24 +17,30 @@ const disabled = computed(() => loading.value || finished.value);
 const selected = ref<TableItem[]>([]);
 export default () => {
     const { fullPath } = useBreadcrumb();
-
+    const { userInfo } = useLogin();
     async function getList(isConcat: boolean) {
         loading.value = true;
         if (!isConcat) {
             finished.value = false;
+            tableList.value = [];
             scrollTo(0, 800, '.other-wrap');
         }
         try {
-            const data = await getTableList({
+            const data = await api.getList({
                 prefix: fullPath.value,
                 useToken: isConcat,
             });
             loading.value = false;
-            if (isConcat) {
-                tableList.value = tableList.value.concat(data.list);
-            } else {
-                tableList.value = data.list;
-            }
+            const list = data.list.map((item) => {
+                const path = `${fullPath.value}${item.name}`;
+                return {
+                    ...item,
+                    path,
+                    sizeFormat: getSize(item),
+                    url: `${userInfo.value.domain}/${path}`,
+                };
+            });
+            tableList.value = tableList.value.concat(list);
             finished.value = !data.token;
         } catch (error) {
             loading.value = false;
@@ -86,7 +75,7 @@ export default () => {
                     ElMessage.warning('存在同名文件夹，无需创建');
                     return;
                 }
-                await addPath({
+                await api.addPath({
                     prefix: fullPath.value,
                     name: value,
                     type: 'directory',
@@ -144,7 +133,7 @@ export default () => {
          */
         async del(item: TableItem) {
             const name = item.type === 'dir' ? `${item.name}/` : item.name;
-            await deleteItem({
+            await api.deleteItem({
                 path: `${fullPath.value}${name}`,
             });
             ElMessage.success('删除成功');
@@ -167,7 +156,7 @@ export default () => {
                 confirmButtonText: '删除',
                 cancelButtonText: '取消',
             }).then(async () => {
-                await request('oss-delete', {
+                await api.deleteItem({
                     path: selected.value.map((item) => `${fullPath.value}${item.name}`).join(','),
                 });
                 ElMessage.success('删除成功');

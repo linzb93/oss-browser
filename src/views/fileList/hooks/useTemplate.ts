@@ -1,14 +1,9 @@
 import { ref, shallowRef } from 'vue';
-import request from '@/helpers/request';
+import * as api from '../api';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import { TemplateItem } from '../shared/types';
 
-interface TemplateItem {
-    id: number;
-    name: string;
-    content: string;
-}
-
-const templates = ref<TemplateItem[]>([]);
+const templates = ref<Omit<TemplateItem, 'content'>[]>([]);
 const visible = shallowRef(false);
 const form = ref<TemplateItem>({
     id: 0,
@@ -17,14 +12,14 @@ const form = ref<TemplateItem>({
 });
 export default () => {
     async function getItem(data: { id: number }) {
-        form.value = await request('get-template', data);
+        form.value = await api.getTemplateItem(data);
     }
     async function addItem() {
-        await request('add-template', form.value);
+        await api.addTemplateItem(form.value);
         ElMessage.success('添加成功');
     }
     async function editItem() {
-        await request('edit-template', form.value);
+        await api.editTemplateItem(form.value);
         ElMessage.success('编辑成功');
     }
     function close() {
@@ -35,7 +30,7 @@ export default () => {
         templates,
         form,
         async getList() {
-            templates.value = await request('get-template-list');
+            templates.value = await api.getTemplateList();
         },
         async openDialog(item?: TemplateItem) {
             visible.value = true;
@@ -62,7 +57,7 @@ export default () => {
                 confirmButtonText: '删除',
             })
                 .then(() => {
-                    return request('remove-template', {
+                    return api.removeTemplateItem({
                         id: item.id,
                     });
                 })
@@ -74,7 +69,7 @@ export default () => {
          * 调用复制样式模板
          */
         async copyTemplate(data: { width: number; height: number; url: string }) {
-            return await request('copy-template', {
+            return await api.copyTemplate({
                 width: data.height,
                 height: data.height,
                 url: data.url,

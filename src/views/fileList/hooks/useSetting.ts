@@ -1,5 +1,5 @@
 import { ref, shallowRef, watch } from 'vue';
-import request from '@/helpers/request';
+import * as api from '../api';
 import useBreadcrumb from './useBreadcrumb';
 import { SettingInfo } from '../shared/types';
 import { cloneDeep } from 'lodash-es';
@@ -25,7 +25,7 @@ export default () => {
         visible.value = false;
     };
     async function getSetting() {
-        const data = await request('get-setting');
+        const data = await api.getSetting();
         setting.value = {
             ...setting.value,
             ...data,
@@ -62,7 +62,7 @@ export default () => {
         },
         saveSetting() {
             return new Promise((resolve) => {
-                request('save-setting', formSetting.value).then(() => {
+                api.saveSetting(formSetting.value).then(() => {
                     ElMessage.success({
                         message: '保存成功',
                         onClose: () => {
@@ -77,7 +77,7 @@ export default () => {
          * 设置首页地址
          */
         async setHome() {
-            await request('set-home', {
+            await api.setHome({
                 path: fullPath.value.replace(/\/$/, ''),
             });
             ElMessage.success('设置成功');

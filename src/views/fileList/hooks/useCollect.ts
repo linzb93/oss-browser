@@ -1,13 +1,9 @@
 import { ref, shallowRef, watch } from 'vue';
-import request from '@/helpers/request';
 import { cloneDeep, omit } from 'lodash-es';
 import { ElMessage } from 'element-plus';
 import useBreadcrumb from './useBreadcrumb';
-interface CollectItem {
-    id: string;
-    name: string;
-    path: string;
-}
+import { CollectItem } from '../shared/types';
+import * as api from '../api';
 
 export interface FormCollectItem extends CollectItem {
     isEdit: boolean;
@@ -19,7 +15,7 @@ const visible = shallowRef(false);
 export default () => {
     const { fullPath, init: initBreadcrumb } = useBreadcrumb();
     const getList = async () => {
-        const data: CollectItem[] = await request('get-collect');
+        const data = await api.getCollect();
         list.value = data;
         formList.value = data.map((item) => ({
             ...item,
@@ -57,7 +53,7 @@ export default () => {
          * 添加收藏目录
          */
         async add() {
-            await request('add-collect', {
+            await api.addCollect({
                 path: fullPath.value,
             });
             ElMessage.success('添加成功');
@@ -66,10 +62,7 @@ export default () => {
          * 保存收藏目录
          */
         async save() {
-            await request(
-                'set-collect',
-                formList.value.map((item) => omit(item, ['isEdit']))
-            );
+            await api.setCollect(formList.value.map((item) => omit(item, ['isEdit'])));
             list.value = cloneDeep(formList.value);
             ElMessage.success('保存成功');
             visible.value = false;

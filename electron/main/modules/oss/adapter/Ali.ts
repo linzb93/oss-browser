@@ -84,10 +84,14 @@ export default class extends BaseOss {
             }));
         const list = result.prefixes
             ? result.prefixes
-                  .map((subDir) => ({
-                      name: subDir.replace(/\/$/, '').split('/').slice(-1)[0],
-                      type: 'dir',
-                  }))
+                  .map((subDir) => {
+                      const name = subDir.replace(/\/$/, '').split('/').slice(-1)[0];
+                      return {
+                          name,
+                          url: `${this.domain}/${data.prefix}${name}`,
+                          type: 'dir',
+                      };
+                  })
                   .concat(objects)
             : objects;
         return {

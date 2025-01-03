@@ -110,27 +110,21 @@
                 </el-table-column>
                 <el-table-column label="操作">
                     <template #default="scope">
-                        <template v-if="scope.row.type !== 'dir'">
-                            <el-link type="primary" :underline="false" @click="requestUtil.copy(scope.row.url)"
-                                >获取地址</el-link
-                            >
-                            <el-link
-                                type="primary"
-                                :underline="false"
-                                class="mr10"
-                                @click="requestUtil.download(scope.row.url)"
-                                >下载</el-link
-                            >
-                            <el-link
-                                type="primary"
-                                :underline="false"
-                                class="mr10"
-                                style="margin-left: 0"
-                                v-if="isPic(scope.row)"
-                                @click="getStyle(scope.row)"
-                                >复制样式</el-link
-                            >
-                        </template>
+                        <el-link type="primary" :underline="false" @click="requestUtil.copy(scope.row.url)"
+                            >获取地址</el-link
+                        >
+                        <el-link type="primary" :underline="false" class="mr10" @click="downloadItem(scope.row)"
+                            >下载</el-link
+                        >
+                        <el-link
+                            type="primary"
+                            :underline="false"
+                            class="mr10"
+                            style="margin-left: 0"
+                            v-if="isPic(scope.row)"
+                            @click="getStyle(scope.row)"
+                            >复制样式</el-link
+                        >
                         <delete-confirm @confirm="del(scope.row)"></delete-confirm>
                     </template>
                 </el-table-column>
@@ -202,7 +196,7 @@ const {
     onChange: onBreadcrumbChange,
 } = useBreadcrumb();
 
-const { previewUrl, visible: previewVisible, clickPath, getStyle, isPic } = useTableItem();
+const { previewUrl, visible: previewVisible, clickPath, getStyle, isPic, download: downloadItem } = useTableItem();
 
 const { userInfo, checkLogin, logout } = useLogin(router);
 

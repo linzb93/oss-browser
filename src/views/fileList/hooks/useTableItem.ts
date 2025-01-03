@@ -4,6 +4,8 @@ import useBreadcrumb from './useBreadcrumb';
 import pathUtil from '@/helpers/path';
 import { ElMessage } from 'element-plus';
 import useTemplate from './useTemplate';
+import { requestUtil } from '@/helpers/request';
+
 const isPic = (item: TableItem) => {
     return ['jpg', 'png', 'jpeg', 'gif', 'webp'].includes(pathUtil.extname(item.name));
 };
@@ -41,6 +43,13 @@ export default () => {
                 return;
             }
             pushBreadcrumb(item.name);
+        },
+        download(item: TableItem) {
+            if (item.type === 'dir') {
+                ElMessage.warning('功能开发中');
+                return;
+            }
+            requestUtil.download(item.url);
         },
         /**
          * 读取复制模板，复制图片样式

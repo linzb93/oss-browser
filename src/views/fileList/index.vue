@@ -3,8 +3,8 @@
         class="wrap"
         :class="{ active: active }"
         @dragover.prevent="setDragState(true)"
-        @drop="dropFile"
-        @dragleave="setDragState(false)"
+        @drop.prevent="dropFile"
+        @dragleave.prevent="setDragState(false)"
     >
         <div class="layer flex-center" @keyup="setDragState(false)">
             <p class="tips">请将需要上传的文件拖拽至此</p>

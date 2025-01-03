@@ -31,7 +31,7 @@ export default () => {
          */
         isPic,
         /**
-         * 点击文件名称。如果是文件夹就进入，如果是图片就打开预览图
+         * 点击文件名称。如果是目录就进入，如果是图片就打开预览图
          */
         clickPath(item: TableItem) {
             if (item.size > 0) {

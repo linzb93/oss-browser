@@ -55,7 +55,7 @@ export default () => {
         return false;
     };
     const createDir = () => {
-        ElMessageBox.prompt('请输入文件夹名称', '温馨提醒', {
+        ElMessageBox.prompt('请输入目录名称', '温馨提醒', {
             confirmButtonText: '创建',
             beforeClose: (action, instance, done) => {
                 if (action !== 'confirm') {
@@ -63,7 +63,7 @@ export default () => {
                     return;
                 }
                 if (!instance.inputValue) {
-                    ElMessage.error('请输入文件夹名称');
+                    ElMessage.error('请输入目录名称');
                     return;
                 }
                 done();
@@ -71,7 +71,7 @@ export default () => {
         })
             .then(async ({ value }) => {
                 if (tableList.value.some((file) => file.type === 'dir' && file.name === value)) {
-                    ElMessage.warning('存在同名文件夹，无需创建');
+                    ElMessage.warning('存在同名目录，无需创建');
                     return;
                 }
                 await api.addPath({
@@ -99,6 +99,7 @@ export default () => {
          * 获取文件列表
          */
         getList,
+        selected,
         init() {
             handleMainPost('create-dir', () => {
                 createDir();
@@ -128,11 +129,22 @@ export default () => {
          * 删除某个文件
          * @param {TableItem} item - 列表项
          */
-        async del(item: TableItem) {
+        async doDelete(item: TableItem) {
             const name = `${item.name}${item.type === 'dir' ? '/' : ''}`;
-            await api.deleteItem({
+            const ret = await api.deleteItem({
                 paths: `${fullPath.value}${name}`,
             });
+            if (ret.length) {
+                ElMessageBox({
+                    message: h(MsgBoxFileList, {
+                        list: ret,
+                        tips: '以下目录无法删除',
+                    }),
+                    type: 'error',
+                    title: '温馨提醒',
+                    confirmButtonText: '确认',
+                });
+            }
             ElMessage.success('删除成功');
             getList(false);
         },

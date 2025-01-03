@@ -93,7 +93,7 @@ let removeEvt = () => {};
 const startUpload = () => {
     const { listener, removeListener } = request.send('oss-upload', {
         prefix: props.path,
-        name: props.uploadList.map((item) => item.path).join(','),
+        names: props.uploadList.map((item) => item.path).join(','),
         type: 'file',
     });
     listener((obj: { data: any; type: 'upload-finished' | 'uploading' }) => {

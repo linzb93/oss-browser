@@ -110,13 +110,41 @@ export default class extends BaseOss {
             });
         }
     }
-    async deleteFile(paths: string): Promise<void> {
+    private async isEmptyDir(path: string) {
+        const { client } = this;
+        const result = await client.listV2({
+            'prefix': path,
+            'delimiter': '/',
+            'max-keys': 1,
+        });
+        if (result.objects.length === 1 && result.objects[0].name !== path) {
+            return false;
+        }
+        return true;
+    }
+    async deleteFile(paths: string): Promise<any> {
         const { client } = this;
         const pathList = paths.split(',');
+        const unsuccessfulList = [];
         try {
-            await pMap(pathList, (path) => client.delete(path), {
-                concurrency: 4,
-            });
+            await pMap(
+                pathList,
+                async (path) => {
+                    if (path.endsWith('/')) {
+                        // 是目录，先检查是否为空
+                        const isEmpty = await this.isEmptyDir(path);
+                        if (!isEmpty) {
+                            unsuccessfulList.push(basename(path));
+                            return;
+                        }
+                    }
+                    return client.delete(path);
+                },
+                {
+                    concurrency: 4,
+                }
+            );
+            return unsuccessfulList;
         } catch (error) {
             console.log(error);
         }

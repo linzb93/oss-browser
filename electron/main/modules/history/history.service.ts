@@ -30,9 +30,9 @@ export async function get(param: IPage) {
         totalCount: history.length,
     };
 }
-export async function add(data: { prefix: string; name: string }) {
+export async function add(data: { prefix: string; names: string }) {
     await sql((db) => {
-        const list = data.name.split(',').map((item) => join(data.prefix, basename(item)).replace(/\\/g, '/'));
+        const list = data.names.split(',').map((item) => join(data.prefix, basename(item)).replace(/\\/g, '/'));
         const { history } = db;
         const now = dayjs().format('YYYY-MM-DD HH:mm:ss');
         if (!history) {

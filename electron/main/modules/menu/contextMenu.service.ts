@@ -10,7 +10,13 @@ export default (win: BrowserWindow) => {
                 },
             },
             {
-                label: '刷新',
+                label: '刷新应用',
+                click: () => {
+                    win.webContents.reload();
+                },
+            },
+            {
+                label: '刷新页面',
                 click() {
                     postRenderer('reload');
                 },

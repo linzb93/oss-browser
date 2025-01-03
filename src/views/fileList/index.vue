@@ -36,8 +36,8 @@
         </div>
         <div class="flexalign-center">
             <div class="flexitem-1">
-                <el-button type="primary" @click="createDir">创建文件夹</el-button>
-                <el-dropdown class="ml10" @command="batchCommand">
+                <el-button type="primary" @click="createDir">创建目录</el-button>
+                <el-dropdown class="ml10" @command="batchCommand" v-if="selected.length">
                     <el-button type="primary">
                         <span>批量操作</span>
                         <el-icon :size="14" class="dropdown-icon"><arrow-down /></el-icon>
@@ -95,16 +95,16 @@
                         <img class="table-preview-img curp" :src="scope.row.url" @click="clickPath(scope.row)" />
                     </template>
                 </el-table-column>
-                <el-table-column label="类型/大小">
+                <el-table-column label="大小">
                     <template #default="scope">
-                        <template v-if="scope.row.type === 'dir'">目录</template>
+                        <template v-if="scope.row.type === 'dir'">-</template>
                         <template v-else>{{ getSize(scope.row) }}</template>
                     </template>
                 </el-table-column>
                 <el-table-column label="最后修改时间">
                     <template #default="scope">
                         {{
-                            scope.row.type === 'dir' ? '' : dayjs(scope.row.lastModified).format('YYYY-MM-DD HH:mm:ss')
+                            scope.row.type === 'dir' ? '-' : dayjs(scope.row.lastModified).format('YYYY-MM-DD HH:mm:ss')
                         }}
                     </template>
                 </el-table-column>
@@ -125,7 +125,7 @@
                             @click="getStyle(scope.row)"
                             >复制样式</el-link
                         >
-                        <delete-confirm @confirm="del(scope.row)"></delete-confirm>
+                        <delete-confirm @confirm="doDelete(scope.row)"></delete-confirm>
                     </template>
                 </el-table-column>
             </el-table>
@@ -180,7 +180,8 @@ const {
     tableList,
     disabled,
     getList,
-    del,
+    selected,
+    doDelete,
     createDir,
     handleSelectionChange,
     batchCopy,

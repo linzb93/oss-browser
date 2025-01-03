@@ -22,6 +22,7 @@ export interface TableItem {
     type?: string;
 }
 export type ResponseTableItem = Pick<TableItem, 'name' | 'type' | 'size'>;
+export type UploadedTableItem = ResponseTableItem & Pick<TableItem, 'path'>;
 export interface SettingInfo {
     /**
      * 倍率。1:原图，2:两倍图
@@ -54,8 +55,16 @@ export interface IPage {
     pageIndex: number;
     pageSize: number;
 }
+export interface IPageResponse<T = any> {
+    totalCount: number;
+    list: T[];
+}
 export interface TemplateItem {
     id: number;
     name: string;
     content: string;
 }
+export interface IHistoryItem {
+    path: string;
+}
+export type IHistroyResponse = IPageResponse<IHistoryItem>;

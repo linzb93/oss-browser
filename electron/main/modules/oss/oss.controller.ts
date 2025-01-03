@@ -16,9 +16,9 @@ export default {
     },
     deleteFile(params: string) {
         const data = JSON.parse(params) as {
-            path: string;
+            paths: string;
         };
-        return ossService.deleteFile(data.path);
+        return ossService.deleteFile(data.paths);
     },
     addPath(params: string) {
         const data = JSON.parse(params) as AddOptions;

@@ -109,16 +109,12 @@ export default () => {
             });
         },
         /**
-         * 多选项发生改变时触发的方法
+         * 多选项发生改变时触发的方法。目前不操作目录
          * @param {TableItem[]} selection - 已选中项
          */
         handleSelectionChange: (selection: TableItem[]) => {
             selected.value = selection.filter((item) => item.type !== 'dir');
         },
-        /**
-         * 下载单一文件
-         */
-        download() {},
         /**
          * 批量下载文件
          */
@@ -134,9 +130,9 @@ export default () => {
          * @param {TableItem} item - 列表项
          */
         async del(item: TableItem) {
-            const name = item.type === 'dir' ? `${item.name}/` : item.name;
+            const name = `${item.name}${item.type === 'dir' ? '/' : ''}`;
             await api.deleteItem({
-                path: `${fullPath.value}${name}`,
+                paths: `${fullPath.value}${name}`,
             });
             ElMessage.success('删除成功');
             getList(false);
@@ -159,7 +155,7 @@ export default () => {
                 cancelButtonText: '取消',
             }).then(async () => {
                 await api.deleteItem({
-                    path: selected.value.map((item) => `${fullPath.value}${item.name}`).join(','),
+                    paths: selected.value.map((item) => `${fullPath.value}${item.name}`).join(','),
                 });
                 ElMessage.success('删除成功');
                 selected.value = [];

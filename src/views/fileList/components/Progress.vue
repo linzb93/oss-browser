@@ -119,7 +119,7 @@ watch(props, ({ visible }) => {
 // 撤销
 const redo = async (item: ListItem) => {
     await api.deleteItem({
-        path: `${props.path}${item.name}`,
+        paths: `${props.path}${item.name}`,
     });
     ElMessage.success('撤销成功');
     list.value = list.value.filter((file) => file.name !== item.name);

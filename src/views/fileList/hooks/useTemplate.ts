@@ -2,8 +2,8 @@ import { ref, shallowRef } from 'vue';
 import * as api from '../api';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { TemplateItem } from '../shared/types';
-
-const templates = ref<Omit<TemplateItem, 'content'>[]>([]);
+type TemplateItemPure = Omit<TemplateItem, 'content'>;
+const templates = ref<TemplateItemPure[]>([]);
 const visible = shallowRef(false);
 const form = ref<TemplateItem>({
     id: 0,
@@ -32,7 +32,7 @@ export default () => {
         async getList() {
             templates.value = await api.getTemplateList();
         },
-        async openDialog(item?: TemplateItem) {
+        async openDialog(item?: TemplateItemPure) {
             visible.value = true;
             if (item) {
                 getItem(item);
@@ -52,7 +52,7 @@ export default () => {
                 close();
             });
         },
-        removeItem(item: TemplateItem) {
+        removeItem(item: Pick<TemplateItem, 'id'>) {
             ElMessageBox.confirm('确认删除？', '温馨提醒', {
                 confirmButtonText: '删除',
             })

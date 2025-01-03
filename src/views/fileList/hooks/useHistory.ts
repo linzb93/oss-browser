@@ -3,11 +3,8 @@ import useLogin from '@/views/login/hooks/useLogin';
 import useBreadcrumb from './useBreadcrumb';
 import useTable from './useTable';
 import * as api from '../api';
+import { IHistoryItem } from '../shared/types';
 
-interface IPage {
-    pageIndex: number;
-    pageSize: number;
-}
 export interface HistoryItem {
     path: string;
 }
@@ -18,7 +15,7 @@ const pageQuery = ref({
 });
 
 const totalCount = shallowRef(0);
-const list = ref([]);
+const list = ref<IHistoryItem[]>([]);
 export default () => {
     const { userInfo } = useLogin();
     const { breadcrumb } = useBreadcrumb();

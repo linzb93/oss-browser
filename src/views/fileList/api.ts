@@ -1,5 +1,13 @@
 import request from '@/helpers/request';
-import { ResponseTableItem, AddParams, CollectItem, IPage, SettingInfo, TemplateItem } from './shared/types';
+import {
+    ResponseTableItem,
+    AddParams,
+    CollectItem,
+    IPage,
+    SettingInfo,
+    TemplateItem,
+    IHistroyResponse,
+} from './shared/types';
 
 export function getList(params: { prefix: string; useToken: boolean }): Promise<{
     list: ResponseTableItem[];
@@ -10,7 +18,7 @@ export function getList(params: { prefix: string; useToken: boolean }): Promise<
 export const addPath = async (params: AddParams) => {
     return request('oss-add-path', params);
 };
-export const deleteItem = async (data: { path: string }) => {
+export const deleteItem = async (data: { paths: string }) => {
     return request('oss-delete', data);
 };
 export function getCollect(): Promise<CollectItem[]> {
@@ -22,7 +30,8 @@ export function addCollect(data: { path: string }) {
 export function setCollect(list: CollectItem[]) {
     return request('set-collect', list);
 }
-export function getHistoryList(query: IPage) {
+
+export function getHistoryList(query: IPage): Promise<IHistroyResponse> {
     return request('get-history', query);
 }
 export function getSetting(): Promise<SettingInfo> {

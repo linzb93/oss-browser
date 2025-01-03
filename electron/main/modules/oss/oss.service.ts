@@ -36,9 +36,9 @@ export async function addPath(params: AddOptions): Promise<void> {
     });
     ossEvents.emit('add', params);
 }
-export async function deleteFile(path: string): Promise<void> {
-    await currentApp.deleteFile(path);
-    ossEvents.emit('remove', path);
+export async function deleteFile(paths: string): Promise<void> {
+    await currentApp.deleteFile(paths);
+    ossEvents.emit('remove', paths);
 }
 export async function upload(e: IpcMainEvent, data: AddOptions) {
     const { names, prefix } = data;

@@ -3,7 +3,7 @@ import { ElMessageBox, ElMessage } from 'element-plus';
 import MsgBoxFileList from '../components/FileList.vue';
 import useTable from './useTable';
 import { getSize } from '@/helpers/size';
-import { type TableItem } from '../shared/types';
+import { type TableItem, type UploadedTableItem } from '../shared/types';
 
 const active = shallowRef(false);
 
@@ -18,8 +18,9 @@ export default function useUpload() {
     const { tableList } = useTable();
     const dropFile = async (event: DragEvent) => {
         active.value = false;
-        const upOriginList = Array.from(event.dataTransfer?.files as unknown as TableItem[]);
-        const resolveList: TableItem[] = await new Promise((resolve) => {
+        const files = event.dataTransfer?.files as FileList;
+        const upOriginList = Array.from(files) as UploadedTableItem[];
+        const resolveList = await new Promise<UploadedTableItem[]>((resolve) => {
             // 过滤重名文件，其他正常上传
             const duplicateFiles = upOriginList.filter((item) => tableList.value.find((sub) => sub.name === item.name));
             if (duplicateFiles.length) {

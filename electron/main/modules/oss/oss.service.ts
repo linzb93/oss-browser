@@ -9,6 +9,7 @@ import { __dirname } from '../../enums/index.enum';
 import { AddOptions } from './oss.dto';
 import { ossEvents } from './oss.repository';
 import OSS, { OssConfig } from 'ali-oss';
+import { Database } from '../../types/api';
 let currentApp: App;
 /**
  * 添加OSS App
@@ -97,6 +98,10 @@ export async function upload(e: IpcMainEvent, data: AddOptions) {
         },
     });
 }
+
+export const validate = async (data: Database['account']) => {
+    return getBuckets(data);
+};
 
 export const getBuckets = async (ossOptions: OssConfig) => {
     const client = new OSS(ossOptions);

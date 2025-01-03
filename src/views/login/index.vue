@@ -19,7 +19,7 @@
                     <el-select style="width: 200px" v-model="form.bucket" :disabled="disabled">
                         <el-option v-for="item in bucketList" :label="item.name" :value="item.name"></el-option>
                     </el-select>
-                    <el-button type="primary" class="ml10" @click="getBuckets">获取</el-button>
+                    <el-button type="primary" class="ml10" @click="getBuckets(true)">获取</el-button>
                 </el-form-item>
                 <el-form-item label="domain" prop="domain">
                     <el-input v-model="form.domain" />

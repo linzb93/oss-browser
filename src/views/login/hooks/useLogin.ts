@@ -66,6 +66,10 @@ export default (router?: Router) => {
         },
         domain: [
             {
+                required: true,
+                message: '请输入前缀',
+            },
+            {
                 pattern: /^https?\:\/\//,
                 message: '请输入正确的前缀',
             },
@@ -74,6 +78,32 @@ export default (router?: Router) => {
     const formRef = ref<FormInstance>();
     const bucketList = ref<any[]>([]);
     const disabled = shallowRef(true);
+    const ossValidateProps = ['name', 'region', 'accessKeyId', 'accessKeySecret'];
+    const ossInfoSetted = async () => {
+        try {
+            await formRef.value?.validateField(ossValidateProps);
+        } catch (error) {
+            return false;
+        }
+        return true;
+    };
+    const getBuckets = async (shouldValidate?: boolean) => {
+        if (shouldValidate) {
+            if (!(await ossInfoSetted())) {
+                return;
+            }
+        }
+        disabled.value = false;
+        try {
+            bucketList.value = await request(
+                'get-buckets',
+                pick(userInfo.value, ['region', 'accessKeyId', 'accessKeySecret'])
+            );
+        } catch (error) {
+            ElMessage.error('信息输入错误，请重新输入');
+            disabled.value = true;
+        }
+    };
     return {
         userInfo,
         form,
@@ -87,7 +117,13 @@ export default (router?: Router) => {
             } catch (error) {
                 return;
             }
-            await doLogin(form.value);
+            try {
+                await doLogin(form.value);
+            } catch (error) {
+                ElMessage.error('信息输入错误，请重新输入');
+                disabled.value = false;
+                return;
+            }
             userInfo.value = cloneDeep(form.value);
             ElMessage.success({
                 message: '添加成功',
@@ -99,11 +135,18 @@ export default (router?: Router) => {
         },
         getFormData() {
             onMounted(async () => {
-                const data = await getInfo();
-                userInfo.value = data;
-                form.value = data;
+                const data = (await getInfo()) as LoginParams;
+                if (data.id) {
+                    userInfo.value = data;
+                    form.value = data;
+                }
+                //@ts-ignore
+                if (ossValidateProps.every((item) => !!data[item])) {
+                    getBuckets(false);
+                }
             });
         },
+        getBuckets,
         checkLogin(): Promise<null> {
             return new Promise((resolve) => {
                 getInfo().then((data) => {
@@ -115,23 +158,6 @@ export default (router?: Router) => {
                     }
                 });
             });
-        },
-        async getBuckets() {
-            try {
-                await formRef.value?.validateField(['name', 'region', 'accessKeyId', 'accessKeySecret']);
-            } catch (error) {
-                return;
-            }
-            disabled.value = false;
-            try {
-                bucketList.value = await request(
-                    'get-buckets',
-                    pick(form.value, ['region', 'accessKeyId', 'accessKeySecret'])
-                );
-            } catch (error) {
-                ElMessage.error('信息输入错误，请重新输入');
-                disabled.value = true;
-            }
         },
         logout() {
             router?.push('/login');

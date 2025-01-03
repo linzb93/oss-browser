@@ -22,7 +22,6 @@ export default () => {
         loading.value = true;
         if (!isConcat) {
             finished.value = false;
-            tableList.value = [];
             scrollTo(0, 800, '.other-wrap');
         }
         try {
@@ -32,7 +31,7 @@ export default () => {
             });
             loading.value = false;
             const list = data.list.map((item) => {
-                const path = `${fullPath.value}${item.name}`;
+                const path = `${fullPath.value}${item.name}${item.type === 'dir' ? '/' : ''}`;
                 return {
                     ...item,
                     path,
@@ -40,7 +39,7 @@ export default () => {
                     url: `${userInfo.value.domain}/${path}`,
                 };
             });
-            tableList.value = tableList.value.concat(list);
+            tableList.value = isConcat ? tableList.value.concat(list) : list;
             finished.value = !data.token;
         } catch (error) {
             loading.value = false;

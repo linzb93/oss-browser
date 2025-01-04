@@ -7,9 +7,10 @@ import pMap from 'p-map';
 import BaseOss from '../Base';
 import { FileItem } from '../../../../types/vo';
 import sql from '../../../../helper/sql';
+import { getLocalFileBaseName } from '../../../../helper/path';
 // import { sleep } from '@linzb93/utils';
 
-type uploadProgressCallback = (data: { name: string; progress: number; size: number }) => void;
+type uploadProgressCallback = (data: { path: string; progress: number; size: number }) => void;
 
 /**
  * @class
@@ -21,10 +22,6 @@ export default class extends BaseOss {
      * 阿里oss客户端实例
      */
     private client: OSS;
-    /**
-     * 同setting.domain。因为用处多了需要单独存放。
-     */
-    private domain: string;
     /**
      * 上传事件回调
      */
@@ -39,7 +36,7 @@ export default class extends BaseOss {
      */
     private nextContinuationToken: string;
     /**
-     * 当当前prefix和prevFilePrefix相同时，才用nextContinuationToken。
+     * 当前prefix和prevFilePrefix相同时，才用nextContinuationToken。
      * 否则不用这个token，并清空prevFilePrefix
      */
     private prevFilePrefix: string;
@@ -48,7 +45,6 @@ export default class extends BaseOss {
         super();
         sql((db) => {
             this.client = new OSS(omit(db.account, ['id', 'platform', 'name']));
-            this.domain = db.account.domain;
         });
     }
     async getFileList(data: { prefix: string; useToken: boolean }): Promise<{
@@ -84,7 +80,7 @@ export default class extends BaseOss {
             }));
         const dirs = result.prefixes
             ? result.prefixes.map((subDir) => ({
-                  name: subDir.replace(/\/$/, '').split('/').slice(-1)[0],
+                  name: subDir.split('/').slice(-2)[0],
                   type: 'dir',
                   size: 0,
               }))
@@ -105,7 +101,7 @@ export default class extends BaseOss {
         if (params.type === 'file') {
             // name的含义是本地地址，而且一定是数组格式
             const files = params.names.split(',');
-            await pMap(files, (file) => client.put(`${params.prefix}${basename(file)}`, file), {
+            await pMap(files, (file) => client.put(`${params.prefix}${getLocalFileBaseName(file)}`, file), {
                 concurrency: 4,
             });
         }
@@ -162,16 +158,16 @@ export default class extends BaseOss {
                 names: path,
             });
             this.postUploadProgress({
-                name: join(prefix, basename(path)),
+                path: join(prefix, basename(path)),
                 progress: 100,
                 size,
             });
         } else {
-            const absolutePath = join(prefix, basename(path)).replace(/\\/g, '/');
+            const absolutePath = join(prefix, getLocalFileBaseName(path));
             this.client.multipartUpload(absolutePath, path, {
                 progress: (percent) => {
                     this.postUploadProgress({
-                        name: absolutePath,
+                        path: absolutePath,
                         progress: percent * 100,
                         size,
                     });
@@ -182,7 +178,7 @@ export default class extends BaseOss {
     addUploadListener(callback: uploadProgressCallback): void {
         this.uploadCallback = callback;
     }
-    private postUploadProgress(data: { name: string; progress: number; size: number }) {
+    private postUploadProgress(data: { path: string; progress: number; size: number }) {
         if (typeof this.uploadCallback === 'function') {
             this.uploadCallback(data);
         }

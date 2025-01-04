@@ -131,21 +131,23 @@ export default () => {
          */
         async doDelete(item: TableItem) {
             const name = `${item.name}${item.type === 'dir' ? '/' : ''}`;
-            const ret = await api.deleteItem({
+            const unsuccessfulList = await api.deleteItem({
                 paths: `${fullPath.value}${name}`,
             });
-            if (ret.length) {
+            if (unsuccessfulList.length) {
                 ElMessageBox({
                     message: h(MsgBoxFileList, {
-                        list: ret,
+                        list: unsuccessfulList,
                         tips: '以下目录无法删除',
                     }),
                     type: 'error',
                     title: '温馨提醒',
                     confirmButtonText: '确认',
                 });
+            } else {
+                ElMessage.success('删除成功');
             }
-            ElMessage.success('删除成功');
+
             getList(false);
         },
         /**

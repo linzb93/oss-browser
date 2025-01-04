@@ -22,7 +22,6 @@ export default () => {
         {
             label: '调试',
             submenu: [
-                { role: 'toggleDevTools' },
                 {
                     label: '打开缓存页面',
                     click: () => {

@@ -10,6 +10,7 @@ import { AddOptions } from './oss.dto';
 import { ossEvents } from './oss.repository';
 import OSS, { OssConfig } from 'ali-oss';
 import { Database } from '../../types/api';
+import { formatLocalFilePath } from '../../helper/path';
 let currentApp: App;
 /**
  * 添加OSS App
@@ -44,23 +45,22 @@ export async function deleteFile(paths: string): Promise<any> {
 }
 export async function upload(e: IpcMainEvent, data: AddOptions) {
     const { names, prefix } = data;
-    const list = names.split(',').map((item) => item.replace(/\\/g, '/'));
+    const list = names.split(',').map((item) => formatLocalFilePath(item));
     const task$ = new Subject();
     let statusList = list.map((item) => {
         return {
-            name: join(prefix, basename(item)),
+            path: join(prefix, basename(item)),
             finished: false,
         };
     });
     currentApp.addUploadListener((data) => {
-        const { name: path, progress, size } = data;
+        const { path, progress, size } = data;
         // 更新statusList
         statusList = statusList.map((item) => {
-            const realName = item.name.replace(/\\/g, '/');
-            if (realName === path) {
+            if (item.path === path) {
                 return {
                     ...item,
-                    name: realName,
+                    path: item.path,
                     progress,
                     size,
                     finished: progress === 100,
@@ -68,7 +68,7 @@ export async function upload(e: IpcMainEvent, data: AddOptions) {
             }
             return {
                 ...item,
-                name: realName,
+                path: item.path,
             };
         });
         if (statusList.every((item) => item.finished)) {

@@ -21,6 +21,12 @@ export default (win: BrowserWindow) => {
                     postRenderer('reload');
                 },
             },
+            {
+                label: '开发者工具',
+                click: () => {
+                    win.webContents.openDevTools();
+                },
+            },
         ]);
         rightMenu.popup({
             x: params.x + 5,

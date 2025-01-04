@@ -1,5 +1,5 @@
 <template>
-    <el-dialog v-model="visible" width="500px" title="复制样式" @close="close">
+    <el-dialog v-model="visible" width="500px" title="复制样式" @close="close" @closed="closed">
         <el-form label-suffix="：">
             <el-form-item label="倍数">
                 <el-radio-group v-model="formSetting.pixel">
@@ -51,19 +51,15 @@
 </template>
 
 <script setup lang="ts">
-import { shallowRef } from 'vue';
-import { Edit, Remove } from '@element-plus/icons-vue';
 import TemplateEditor from './TemplateEditor.vue';
 import useTemplate from '../hooks/useTemplate';
 import useSetting from '../hooks/useSetting';
 
 const { getList: getTemplates, templates, openDialog: addTemplate, removeItem: removeTemplate } = useTemplate();
 
-const { saveSetting, formSetting, visible, close, init } = useSetting();
+const { saveSetting, formSetting, visible, close, closed, init, isTemplateEditMode } = useSetting();
 
 init(getTemplates);
-
-const isTemplateEditMode = shallowRef(false);
 </script>
 <style lang="scss" scoped>
 .copy-con {

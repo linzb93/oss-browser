@@ -37,7 +37,7 @@
             </el-table-column>
             <el-table-column prop="name" label="名称">
                 <template #default="scope">
-                    {{ pathUtils.basename(scope.row.name) }}
+                    {{ pathUtils.basename(scope.row.path) }}
                 </template>
             </el-table-column>
             <el-table-column prop="size" label="尺寸">

@@ -24,6 +24,7 @@ export default () => {
     const close = () => {
         visible.value = false;
     };
+    const isTemplateEditMode = shallowRef(false);
     async function getSetting() {
         const data = await api.getSetting();
         setting.value = {
@@ -42,6 +43,7 @@ export default () => {
          */
         formSetting,
         visible,
+        isTemplateEditMode,
         init(callback: Function) {
             watch(visible, (vis) => {
                 if (!vis) {
@@ -92,5 +94,8 @@ export default () => {
          * 关闭设置弹窗
          */
         close,
+        closed() {
+            isTemplateEditMode.value = false;
+        },
     };
 };

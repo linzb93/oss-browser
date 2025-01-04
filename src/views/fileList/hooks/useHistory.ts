@@ -20,6 +20,11 @@ export default () => {
     const { userInfo } = useLogin();
     const { breadcrumb } = useBreadcrumb();
     const { getList: getTableList } = useTable();
+    const getList = async () => {
+        const result = await api.getHistoryList(pageQuery.value);
+        totalCount.value = result.totalCount;
+        list.value = result.list;
+    };
     const close = () => {
         visible.value = false;
     };
@@ -44,12 +49,9 @@ export default () => {
             pageQuery.value.pageIndex = 1;
             list.value = [];
             totalCount.value = 0;
+            getList();
         },
-        async getList() {
-            const result = await api.getHistoryList(pageQuery.value);
-            totalCount.value = result.totalCount;
-            list.value = result.list;
-        },
+        getList,
         /**
          * 选中某个上传记录，跳转
          * @param {string} filePath - 文件绝对路径

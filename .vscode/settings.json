@@ -8,5 +8,6 @@
       "fileMatch": ["/*electron-builder.json5", "/*electron-builder.json"],
       "url": "https://json.schemastore.org/electron-builder"
     }
-  ]
+  ],
+  "marscode.chatLanguage": "cn"
 }

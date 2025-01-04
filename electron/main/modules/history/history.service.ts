@@ -1,8 +1,9 @@
-import { join, basename } from 'node:path';
+import { join } from 'node:path';
 import dayjs from 'dayjs';
 import sql from '../../helper/sql';
 import { IPage } from '../../types/vo';
 import { ossEvents } from '../oss/oss.repository';
+import { getLocalFileBaseName } from '../../helper/path';
 
 export function init() {
     ossEvents.on('add', (params) => {
@@ -31,8 +32,12 @@ export async function get(param: IPage) {
     };
 }
 export async function add(data: { prefix: string; names: string }) {
+    console.log(data.names);
     await sql((db) => {
-        const list = data.names.split(',').map((item) => join(data.prefix, basename(item)).replace(/\\/g, '/'));
+        const list = data.names
+            .split(',')
+            .filter((item) => !item.endsWith('/'))
+            .map((item) => join(data.prefix, getLocalFileBaseName(item)));
         const { history } = db;
         const now = dayjs().format('YYYY-MM-DD HH:mm:ss');
         if (!history) {
@@ -48,6 +53,7 @@ export async function add(data: { prefix: string; names: string }) {
                 createTime: now,
             }))
         );
+        console.log(db.history);
     });
 }
 export async function remove(data: string) {

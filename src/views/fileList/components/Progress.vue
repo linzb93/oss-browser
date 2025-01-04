@@ -11,11 +11,7 @@
         <div class="ctrl-bar flexalign-center">
             <el-button
                 type="primary"
-                @click="
-                    requestUtil.copy(
-                        list.map((item) => `${ossStore.platform.domain}/${props.path}${item.name}`).join('\n')
-                    )
-                "
+                @click="requestUtil.copy(list.map((item) => `${userInfo.domain}/${item.path}`).join('\n'))"
                 >复制全部</el-button
             >
         </div>
@@ -47,15 +43,10 @@
             </el-table-column>
             <el-table-column label="操作">
                 <template #default="scope">
-                    <el-popconfirm title="确认撤销" placement="top" @confirm="redo(scope.row)">
-                        <template #reference>
-                            <el-link type="primary" :underline="false">撤销</el-link>
-                        </template>
-                    </el-popconfirm>
                     <el-link
                         type="primary"
                         :underline="false"
-                        @click="requestUtil.copy(`${ossStore.platform.domain}/${props.path}${scope.row.name}`)"
+                        @click="requestUtil.copy(`${userInfo.domain}/${scope.row.path}`)"
                         >复制</el-link
                     >
                 </template>
@@ -69,21 +60,20 @@ import { ref, shallowRef, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { Check } from '@element-plus/icons-vue';
 import request, { requestUtil } from '@/helpers/request';
-import { useOssStore } from '@/store';
 import pathUtils from '@/helpers/path';
 import { getSize } from '@/helpers/size';
-import * as api from '../api';
+import useLogin from '@/views/login/hooks/useLogin';
 
-const ossStore = useOssStore();
 const props = defineProps<{
     visible: boolean;
     path: string;
     uploadList: any[];
 }>();
+const { userInfo } = useLogin();
 const emit = defineEmits(['update:visible', 'refresh']);
 
 interface ListItem {
-    name: string;
+    path: string;
 }
 
 const list = ref<ListItem[]>([]);
@@ -103,7 +93,6 @@ const startUpload = () => {
             finished.value = true;
             removeEvt();
             ElMessage.success('上传成功');
-            emit('refresh');
         }
         list.value = data;
     });
@@ -115,22 +104,13 @@ watch(props, ({ visible }) => {
     }
     startUpload();
 });
-
-// 撤销
-const redo = async (item: ListItem) => {
-    await api.deleteItem({
-        paths: `${props.path}${item.name}`,
-    });
-    ElMessage.success('撤销成功');
-    list.value = list.value.filter((file) => file.name !== item.name);
-    emit('refresh');
-};
 const close = () => {
     emit('update:visible', false);
 };
 const closed = () => {
     list.value = [];
     removeEvt();
+    emit('refresh');
 };
 </script>
 <style scoped lang="scss">

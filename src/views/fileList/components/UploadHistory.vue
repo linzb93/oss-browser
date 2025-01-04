@@ -33,6 +33,7 @@ import useLogin from '@/views/login/hooks/useLogin';
 const { userInfo } = useLogin();
 
 const { getList, pageQuery: query, totalCount, list, onSelect, visible, close, init } = useHistory();
+init();
 </script>
 <style lang="scss" scoped>
 .preview {

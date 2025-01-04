@@ -35,9 +35,13 @@
                     </div>
                     <div>
                         <el-button size="small" type="primary" @click="addTemplate()">添加</el-button>
-                        <el-button size="small" type="primary" @click="isTemplateEditMode = !isTemplateEditMode">{{
-                            isTemplateEditMode ? '退出编辑' : '编辑'
-                        }}</el-button>
+                        <el-button
+                            size="small"
+                            v-if="templates.length"
+                            type="primary"
+                            @click="isTemplateEditMode = !isTemplateEditMode"
+                            >{{ isTemplateEditMode ? '退出编辑' : '编辑' }}</el-button
+                        >
                     </div>
                 </div>
             </el-form-item>
@@ -54,6 +58,7 @@
 import TemplateEditor from './TemplateEditor.vue';
 import useTemplate from '../hooks/useTemplate';
 import useSetting from '../hooks/useSetting';
+import { Edit, Remove } from '@element-plus/icons-vue';
 
 const { getList: getTemplates, templates, openDialog: addTemplate, removeItem: removeTemplate } = useTemplate();
 

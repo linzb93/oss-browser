@@ -53,6 +53,10 @@ export default () => {
          * 添加收藏目录
          */
         async add() {
+            if (list.value.find((item) => item.path === fullPath.value)) {
+                ElMessage.warning('收藏目录已存在');
+                return;
+            }
             await api.addCollect({
                 path: fullPath.value,
             });

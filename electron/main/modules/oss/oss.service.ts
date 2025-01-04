@@ -36,7 +36,7 @@ export async function addPath(params: AddOptions): Promise<void> {
     await currentApp.addPath({
         ...params,
     });
-    ossEvents.emit('add', params);
+    // ossEvents.emit('add', params);
 }
 export async function deleteFile(paths: string): Promise<any> {
     const unsuccessfulList = await currentApp.deleteFile(paths);
@@ -68,6 +68,7 @@ export async function upload(e: IpcMainEvent, data: AddOptions) {
             }
             return {
                 ...item,
+                size: 0,
                 path: item.path,
             };
         });
@@ -92,6 +93,11 @@ export async function upload(e: IpcMainEvent, data: AddOptions) {
             });
         },
         complete() {
+            ossEvents.emit('add', {
+                prefix,
+                names,
+                type: 'file',
+            });
             e.sender.send(`oss-upload-receiver`, {
                 type: 'upload-finished',
                 data: cloneDeep(statusList),

@@ -47,6 +47,7 @@
         "electron-unhandled": "^4.0.1",
         "execa": "^9.3.1",
         "lowdb": "^7.0.1",
-        "p-map": "^7.0.2"
+        "p-map": "^7.0.2",
+        "slash": "^5.1.0"
     }
 }

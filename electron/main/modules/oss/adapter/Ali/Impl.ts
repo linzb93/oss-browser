@@ -7,8 +7,7 @@ import pMap from 'p-map';
 import BaseOss from '../Base';
 import { FileItem } from '../../../../types/vo';
 import sql from '../../../../helper/sql';
-import { getLocalFileBaseName } from '../../../../helper/path';
-// import { sleep } from '@linzb93/utils';
+import slash from 'slash';
 
 type uploadProgressCallback = (data: { path: string; progress: number; size: number }) => void;
 
@@ -77,6 +76,7 @@ export default class extends BaseOss {
                 name: basename(obj.name),
                 type: extname(obj.name),
                 size: obj.size,
+                lastModified: obj.lastModified,
             }));
         const dirs = result.prefixes
             ? result.prefixes.map((subDir) => ({
@@ -101,7 +101,7 @@ export default class extends BaseOss {
         if (params.type === 'file') {
             // name的含义是本地地址，而且一定是数组格式
             const files = params.names.split(',');
-            await pMap(files, (file) => client.put(`${params.prefix}${getLocalFileBaseName(file)}`, file), {
+            await pMap(files, (file) => client.put(`${params.prefix}${basename(slash(file))}`, file), {
                 concurrency: 4,
             });
         }
@@ -163,7 +163,7 @@ export default class extends BaseOss {
                 size,
             });
         } else {
-            const absolutePath = join(prefix, getLocalFileBaseName(path));
+            const absolutePath = slash(join(prefix, basename(path)));
             this.client.multipartUpload(absolutePath, path, {
                 progress: (percent) => {
                     this.postUploadProgress({

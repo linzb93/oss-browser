@@ -19,6 +19,7 @@ declare module 'ali-oss' {
             name?: string;
             type: string;
             url: string;
+            lastModified: string;
         }[];
         /**
          * 完整的目录列表

@@ -10,7 +10,7 @@ import { AddOptions } from './oss.dto';
 import { ossEvents } from './oss.repository';
 import OSS, { OssConfig } from 'ali-oss';
 import { Database } from '../../types/api';
-import { formatLocalFilePath } from '../../helper/path';
+import slash from 'slash';
 let currentApp: App;
 /**
  * 添加OSS App
@@ -20,7 +20,9 @@ export function add(AppCtor: new () => App) {
     currentApp = new AppCtor();
     currentApp.setUploadFileSizeEdge({
         large: '20MB',
-        small: '10MB',
+        // small: '10MB',
+        // test
+        small: '1MB',
     });
 }
 /**
@@ -45,17 +47,16 @@ export async function deleteFile(paths: string): Promise<any> {
 }
 export async function upload(e: IpcMainEvent, data: AddOptions) {
     const { names, prefix } = data;
-    const list = names.split(',').map((item) => formatLocalFilePath(item));
+    const list = names.split(',').map((item) => slash(item));
     const task$ = new Subject();
     let statusList = list.map((item) => {
         return {
-            path: join(prefix, basename(item)),
+            path: slash(join(prefix, basename(item))),
             finished: false,
         };
     });
     currentApp.addUploadListener((data) => {
         const { path, progress, size } = data;
-        // 更新statusList
         statusList = statusList.map((item) => {
             if (item.path === path) {
                 return {

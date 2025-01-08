@@ -39,6 +39,7 @@ export default () => {
                     url: `${userInfo.value.domain}/${path}`,
                 };
             });
+            console.log(list);
             tableList.value = isConcat ? tableList.value.concat(list) : list;
             finished.value = !data.token;
         } catch (error) {

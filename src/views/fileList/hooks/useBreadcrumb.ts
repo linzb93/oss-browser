@@ -1,4 +1,5 @@
 import { ref, computed } from 'vue';
+import { handleMainPost } from '@/helpers/util';
 
 const breadcrumb = ref<string[]>([]);
 const fullPath = computed(() => breadcrumb.value.map((item) => `${item}/`).join(''));
@@ -8,6 +9,10 @@ const fullPath = computed(() => breadcrumb.value.map((item) => `${item}/`).join(
 let onChangeCallback: Function = () => {};
 
 export default () => {
+    const pop = () => {
+        breadcrumb.value.pop();
+        onChangeCallback();
+    };
     return {
         /**
          * 面包屑列表
@@ -23,6 +28,9 @@ export default () => {
         init(path: string) {
             breadcrumb.value = path.split('/').filter((item) => !!item);
             onChangeCallback();
+            handleMainPost('back', () => {
+                pop();
+            });
         },
         /**
          * 进入下一级
@@ -35,10 +43,7 @@ export default () => {
         /**
          * 返回上一级
          */
-        pop() {
-            breadcrumb.value.pop();
-            onChangeCallback();
-        },
+        pop,
         /**
          * 点击面包屑的某一级
          */

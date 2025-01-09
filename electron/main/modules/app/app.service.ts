@@ -15,7 +15,7 @@ export function createApp(options: IAppOptions) {
         init();
         createWindow();
         setWindow(win);
-        createMenu();
+        createMenu(win);
         createContextMenu(win);
         options.router();
     });

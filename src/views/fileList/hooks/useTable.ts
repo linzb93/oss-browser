@@ -15,9 +15,11 @@ const finished = shallowRef(false);
 const loading = shallowRef(true);
 const disabled = computed(() => loading.value || finished.value);
 const selected = ref<TableItem[]>([]);
+const activeIndex = shallowRef(-1);
 export default () => {
     const { fullPath } = useBreadcrumb();
     const { userInfo } = useLogin();
+
     async function getList(isConcat: boolean) {
         loading.value = true;
         if (!isConcat) {
@@ -39,7 +41,6 @@ export default () => {
                     url: `${userInfo.value.domain}/${path}`,
                 };
             });
-            console.log(list);
             tableList.value = isConcat ? tableList.value.concat(list) : list;
             finished.value = !data.token;
         } catch (error) {
@@ -101,12 +102,27 @@ export default () => {
          */
         getList,
         selected,
+        activeIndex,
         init() {
             handleMainPost('create-dir', () => {
                 createDir();
             });
             handleMainPost('reload', () => {
                 getList(false);
+            });
+            handleMainPost('location', (data: { isDown: boolean }) => {
+                const { isDown } = data;
+                if (isDown) {
+                    if (activeIndex.value < tableList.value.length - 1) {
+                        activeIndex.value += 1;
+                    }
+                } else {
+                    if (activeIndex.value > 0) {
+                        activeIndex.value -= 1;
+                    } else {
+                        activeIndex.value = 0;
+                    }
+                }
             });
         },
         /**
@@ -188,6 +204,15 @@ export default () => {
                 return;
             }
             requestUtil.copy(selected.value.map((item) => item.url).join('\n'));
+        },
+        /**
+         * 获取某个位置的文件
+         */
+        getActiveItem() {
+            return tableList.value[activeIndex.value];
+        },
+        resetActiveIndex() {
+            activeIndex.value = -1;
         },
     };
 };

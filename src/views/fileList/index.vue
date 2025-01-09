@@ -86,7 +86,12 @@
                                 <folder />
                             </el-icon>
                             <file-type-icon :type="pathUtil.extname(scope.row.name)" v-else />
-                            <span class="file-name" @click="clickPath(scope.row)">{{ scope.row.name }}</span>
+                            <span
+                                class="file-name"
+                                :class="{ active: activeIndex === scope.$index }"
+                                @click="clickPath(scope.row)"
+                                >{{ scope.row.name }}</span
+                            >
                         </div>
                     </template>
                 </el-table-column>
@@ -187,6 +192,8 @@ const {
     batchCopy,
     batchDelete,
     batchDownload,
+    activeIndex,
+    resetActiveIndex,
 } = useTable();
 const {
     breadcrumb,
@@ -197,7 +204,15 @@ const {
     onChange: onBreadcrumbChange,
 } = useBreadcrumb();
 
-const { previewUrl, visible: previewVisible, clickPath, getStyle, isPic, download: downloadItem } = useTableItem();
+const {
+    init: tableItemInit,
+    previewUrl,
+    visible: previewVisible,
+    clickPath,
+    getStyle,
+    isPic,
+    download: downloadItem,
+} = useTableItem();
 
 const { userInfo, checkLogin, logout } = useLogin(router);
 
@@ -205,7 +220,9 @@ const { setting, getSetting, setHome, show: showSettingDialog } = useSetting();
 const { add: addCollect, show: showCollectDialog } = useCollect();
 onMounted(() => {
     tableInit();
+    tableItemInit();
     onBreadcrumbChange(() => {
+        resetActiveIndex();
         getList(false);
     });
     checkLogin()
@@ -264,16 +281,17 @@ const { progressVisible, active, setDragState, dropFile, uploadingList } = useUp
 }
 .file-name {
     cursor: pointer;
-    &:hover {
+    &:hover,
+    &.active {
         color: #409eff;
     }
 }
 .other-wrap {
     position: absolute;
     top: 65px;
-    bottom: 10px;
+    bottom: 0;
     left: 0;
-    width: 100%;
+    right: -10px;
     overflow: auto;
 }
 .dropdown-icon {

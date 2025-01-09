@@ -5,6 +5,8 @@ import pathUtil from '@/helpers/path';
 import { ElMessage } from 'element-plus';
 import useTemplate from './useTemplate';
 import { requestUtil } from '@/helpers/request';
+import { handleMainPost } from '@/helpers/util';
+import useTable from './useTable';
 
 const isPic = (item: TableItem) => {
     return ['jpg', 'png', 'jpeg', 'gif', 'webp'].includes(pathUtil.extname(item.name));
@@ -15,7 +17,18 @@ const selected = ref<TableItem[]>([]);
 export default () => {
     const { copyTemplate } = useTemplate();
     const { push: pushBreadcrumb } = useBreadcrumb();
-
+    const { getActiveItem } = useTable();
+    const clickPath = (item: TableItem) => {
+        if (item.size > 0) {
+            // 是图片
+            if (isPic(item)) {
+                previewUrl.value = item.url;
+                visible.value = true;
+            }
+            return;
+        }
+        pushBreadcrumb(item.name);
+    };
     return {
         selected,
         /**
@@ -26,6 +39,14 @@ export default () => {
          * 控制预览弹窗的显示
          */
         visible,
+        init() {
+            handleMainPost('enter', () => {
+                const item = getActiveItem();
+                if (item) {
+                    clickPath(item);
+                }
+            });
+        },
         /**
          * 根据文件后缀名判断是否是图片
          */
@@ -33,17 +54,7 @@ export default () => {
         /**
          * 点击文件名称。如果是目录就进入，如果是图片就打开预览图
          */
-        clickPath(item: TableItem) {
-            if (item.size > 0) {
-                // 是图片
-                if (isPic(item)) {
-                    previewUrl.value = item.url;
-                    visible.value = true;
-                }
-                return;
-            }
-            pushBreadcrumb(item.name);
-        },
+        clickPath,
         download(item: TableItem) {
             if (item.type === 'dir') {
                 ElMessage.warning('功能开发中');

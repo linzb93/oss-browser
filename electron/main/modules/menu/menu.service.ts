@@ -1,6 +1,7 @@
-import { app, shell, Menu, dialog } from 'electron';
+import { app, shell, type BrowserWindow, Menu, dialog } from 'electron';
 import { root } from '../../enums/index.enum';
-export default () => {
+import { postRenderer } from '../window/window.service';
+export default (win: BrowserWindow) => {
     const menu = Menu.buildFromTemplate([
         {
             label: '应用',
@@ -13,6 +14,42 @@ export default () => {
                             title: '关于我们',
                             message: `${app.getVersion()}\n @copyright ${new Date().getFullYear()} linzb93`,
                         });
+                    },
+                },
+                {
+                    label: '返回上一级',
+                    accelerator: 'Backspace',
+                    visible: false,
+                    click: () => {
+                        postRenderer('back');
+                    },
+                },
+                {
+                    label: '切换上一个',
+                    accelerator: 'Up',
+                    visible: false,
+                    click: () => {
+                        postRenderer('location', {
+                            isDown: false,
+                        });
+                    },
+                },
+                {
+                    label: '切换下一个',
+                    accelerator: 'Down',
+                    visible: false,
+                    click: () => {
+                        postRenderer('location', {
+                            isDown: true,
+                        });
+                    },
+                },
+                {
+                    label: '打开文件',
+                    accelerator: 'Enter',
+                    visible: false,
+                    click: () => {
+                        postRenderer('enter', {});
                     },
                 },
                 { type: 'separator' },

@@ -36,7 +36,7 @@ export async function add(data: { prefix: string; names: string }) {
         const list = data.names
             .split(',')
             .filter((item) => !item.endsWith('/'))
-            .map((item) => join(data.prefix, basename(slash(item))));
+            .map((item) => slash(join(data.prefix, basename(item))));
         const { history } = db;
         const now = dayjs().format('YYYY-MM-DD HH:mm:ss');
         if (!history) {

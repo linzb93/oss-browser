@@ -158,7 +158,7 @@ export default class extends BaseOss {
                 names: path,
             });
             this.postUploadProgress({
-                path: join(prefix, basename(path)),
+                path: slash(join(prefix, basename(path))),
                 progress: 100,
                 size,
             });

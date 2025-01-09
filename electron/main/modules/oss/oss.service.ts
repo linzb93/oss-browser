@@ -20,9 +20,7 @@ export function add(AppCtor: new () => App) {
     currentApp = new AppCtor();
     currentApp.setUploadFileSizeEdge({
         large: '20MB',
-        // small: '10MB',
-        // test
-        small: '1MB',
+        small: '10MB',
     });
 }
 /**

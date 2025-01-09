@@ -128,8 +128,9 @@ export const uploadDirectory = async (params: AddOptions) => {
     });
 };
 
-// #读取一个文件夹里的所有目录
-
+/**
+ * 读取一个文件夹里的所有目录
+ */
 function readDirectoryRecursively(directory: string): string[] {
     let fileList: string[] = [];
 

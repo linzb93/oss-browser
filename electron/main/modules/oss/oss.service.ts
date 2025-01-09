@@ -3,7 +3,7 @@ import { interval, Subject, takeUntil, map } from 'rxjs';
 import { type IpcMainEvent } from 'electron';
 import { cloneDeep } from 'lodash-es';
 import App from './adapter/Base';
-
+import fs from 'fs-extra';
 import { type FileItem } from '../../types/vo';
 import { __dirname } from '../../enums/index.enum';
 import { AddOptions } from './oss.dto';
@@ -120,3 +120,33 @@ export const getBuckets = async (ossOptions: OssConfig) => {
         throw new Error('error');
     }
 };
+
+export const uploadDirectory = async (params: AddOptions) => {
+    const files = readDirectoryRecursively(slash(join(params.prefix, params.names)));
+    files.forEach((file) => {
+        currentApp.upload(params.prefix, file.replace(params.prefix, ''));
+    });
+};
+
+// #读取一个文件夹里的所有目录
+
+function readDirectoryRecursively(directory: string): string[] {
+    let fileList: string[] = [];
+
+    const files = fs.readdirSync(directory);
+
+    files.forEach((file) => {
+        const filePath = join(directory, file);
+        const stats = fs.statSync(filePath);
+
+        if (stats.isDirectory()) {
+            // 如果是目录，递归调用该函数
+            fileList = fileList.concat(readDirectoryRecursively(filePath));
+        } else {
+            // 如果是文件，将文件名添加到列表中
+            fileList.push(filePath);
+        }
+    });
+
+    return fileList;
+}

@@ -10,6 +10,14 @@ export interface AddOptions {
     type: 'directory' | 'file';
 }
 
+export interface AddDirectory {
+    /**
+     * 上传目录
+     */
+    prefix: string;
+    files: string[];
+}
+
 export interface IFileItem {
     /**
      * 文件名

@@ -123,6 +123,11 @@ export default () => {
                         activeIndex.value = 0;
                     }
                 }
+                if (activeIndex.value > 5) {
+                    const rowHeight = (document.querySelector('.el-table__row') as HTMLElement).clientHeight;
+                    (document.querySelector('.other-wrap') as HTMLElement).scrollTop =
+                        (activeIndex.value - 4) * rowHeight - 2;
+                }
             });
         },
         /**

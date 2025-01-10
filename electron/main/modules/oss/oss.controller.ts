@@ -1,10 +1,10 @@
 import { type IpcMainEvent } from 'electron';
 import * as ossService from './oss.service';
-import { AddOptions } from './oss.dto';
+import { AddOptions, AppConstructorOptions } from './oss.dto';
 import App from './adapter/Base';
 import { OssConfig } from 'ali-oss';
 export default {
-    add(AppCtor: new () => App) {
+    add(AppCtor: new (options: AppConstructorOptions) => App) {
         return ossService.add(AppCtor);
     },
     getFileList(params: string) {
@@ -20,9 +20,9 @@ export default {
         };
         return ossService.deleteFile(data.paths);
     },
-    addPath(params: string) {
+    addDirectory(params: string) {
         const data = JSON.parse(params) as AddOptions;
-        return ossService.addPath(data);
+        return ossService.addDirectory(data);
     },
     upload(e: IpcMainEvent, data: AddOptions) {
         return ossService.upload(e, data);

@@ -8,6 +8,7 @@ import BaseOss from '../Base';
 import { FileItem } from '../../../../types/vo';
 import sql from '../../../../helper/sql';
 import slash from 'slash';
+import { AppConstructorOptions } from '../../oss.dto';
 
 type uploadProgressCallback = (data: { path: string; progress: number; size: number }) => void;
 
@@ -25,11 +26,7 @@ export default class extends BaseOss {
      * 上传事件回调
      */
     private uploadCallback: uploadProgressCallback;
-
-    private sizeMap = {
-        large: '',
-        small: '',
-    };
+    protected sizeBoundary = '';
     /**
      * 分页加载用的，根据这个token获取下一批数据
      */
@@ -40,8 +37,9 @@ export default class extends BaseOss {
      */
     private prevFilePrefix: string;
 
-    constructor() {
-        super();
+    constructor(options: AppConstructorOptions) {
+        super(options);
+        this.sizeBoundary = options.sizeBoundary;
         sql((db) => {
             this.client = new OSS(omit(db.account, ['id', 'platform', 'name']));
         });
@@ -92,19 +90,9 @@ export default class extends BaseOss {
             token: this.nextContinuationToken,
         };
     }
-    async addPath(params: { prefix: string; names: string; type: 'directory' | 'file' }): Promise<void> {
+    async addDirectory(params: { prefix: string; names: string }): Promise<void> {
         const { client } = this;
-        if (params.type === 'directory') {
-            await client.put(`${params.prefix}${params.names}/`, Buffer.from(''));
-            return;
-        }
-        if (params.type === 'file') {
-            // name的含义是本地地址，而且一定是数组格式
-            const files = params.names.split(',');
-            await pMap(files, (file) => client.put(`${params.prefix}${basename(slash(file))}`, file), {
-                concurrency: 4,
-            });
-        }
+        await client.put(`${params.prefix}${params.names}/`, Buffer.from(''));
     }
     private async isEmptyDir(path: string) {
         const { client } = this;
@@ -145,15 +133,11 @@ export default class extends BaseOss {
             console.log(error);
         }
     }
-    setUploadFileSizeEdge(map: { large: string; small: string }): void {
-        this.sizeMap = map;
-    }
     async upload(prefix: string, path: string) {
         const fileStats = await fs.stat(path);
         const { size } = fileStats;
-        if (size < bytes(this.sizeMap.small)) {
-            await this.addPath({
-                type: 'file',
+        if (size < bytes(this.sizeBoundary)) {
+            await this.addDirectory({
                 prefix,
                 names: path,
             });

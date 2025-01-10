@@ -15,8 +15,8 @@ export function getList(params: { prefix: string; useToken: boolean }): Promise<
 }> {
     return request('oss-get-list', params);
 }
-export const addPath = async (params: AddParams) => {
-    return request('oss-add-path', params);
+export const addDirectory = async (params: AddParams) => {
+    return request('oss-add-directory', params);
 };
 export const deleteItem = async (data: { paths: string }) => {
     return request('oss-delete', data);

@@ -6,21 +6,20 @@ import App from './adapter/Base';
 import fs from 'fs-extra';
 import { type FileItem } from '../../types/vo';
 import { __dirname } from '../../enums/index.enum';
-import { AddOptions } from './oss.dto';
+import { AddOptions, AppConstructorOptions } from './oss.dto';
 import { ossEvents } from './oss.repository';
 import OSS, { OssConfig } from 'ali-oss';
 import { Database } from '../../types/api';
 import slash from 'slash';
+
 let currentApp: App;
 /**
  * 添加OSS App
  * @param app OSS App适配器
  */
-export function add(AppCtor: new () => App) {
-    currentApp = new AppCtor();
-    currentApp.setUploadFileSizeEdge({
-        large: '20MB',
-        small: '10MB',
+export function add(AppCtor: new (options: AppConstructorOptions) => App) {
+    currentApp = new AppCtor({
+        sizeBoundary: '20MB',
     });
 }
 /**
@@ -32,11 +31,8 @@ export async function getFileList(data: { prefix: string; useToken: boolean }): 
 }> {
     return await currentApp.getFileList(data);
 }
-export async function addPath(params: AddOptions): Promise<void> {
-    await currentApp.addPath({
-        ...params,
-    });
-    // ossEvents.emit('add', params);
+export async function addDirectory(params: AddOptions): Promise<void> {
+    await currentApp.addDirectory(params);
 }
 export async function deleteFile(paths: string): Promise<any> {
     const unsuccessfulList = await currentApp.deleteFile(paths);

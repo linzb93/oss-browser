@@ -1,10 +1,12 @@
 import { FileItem } from '../../../types/vo';
 import { BucketObject } from 'ali-oss';
+import { AppConstructorOptions } from '../oss.dto';
 export default abstract class {
     /**
      * 平台id
      */
     abstract platformId: number;
+    constructor(_: AppConstructorOptions) {}
     /**
      * 获取文件列表
      * @param {object} data
@@ -21,9 +23,9 @@ export default abstract class {
      */
     abstract deleteFile(url: string): Promise<any>;
     /**
-     * 创建文件或目录
+     * 创建目录
      */
-    abstract addPath(params: { prefix: string; names: string; type: 'directory' | 'file' }): Promise<void>;
+    abstract addDirectory(params: { prefix: string; names: string; type: 'directory' | 'file' }): Promise<void>;
 
     /**
      * 上传文件
@@ -35,14 +37,5 @@ export default abstract class {
      * 监听上传进度
      */
     abstract addUploadListener(callback: (data: { path: string; progress: number; size: number }) => void): void;
-    /**
-     * @description
-     * 设置文件上传的边界。
-     * small: 小文件，直接上传；
-     * large: 大文件，用分片上传
-     */
-    setUploadFileSizeEdge(_: { large: string; small: string }) {
-        throw new Error('Please set this size edge');
-    }
     abstract getBuckets(): Promise<BucketObject[]>;
 }

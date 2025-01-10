@@ -40,3 +40,7 @@ export interface IFileItem {
      */
     size: number;
 }
+
+export interface AppConstructorOptions {
+    sizeBoundary: string;
+}

@@ -25,8 +25,8 @@ export default () => {
     ipcMain.handle('oss-delete', (_, dataStr) => {
         return response(async () => await ossController.deleteFile(dataStr));
     });
-    ipcMain.handle('oss-add-path', (_, dataStr) => {
-        return response(async () => await ossController.addPath(dataStr));
+    ipcMain.handle('oss-add-directory', (_, dataStr) => {
+        return response(async () => await ossController.addDirectory(dataStr));
     });
     ipcMain.on('oss-upload', (e, data) => {
         ossController.upload(e, data);

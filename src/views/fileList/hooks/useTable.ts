@@ -76,7 +76,7 @@ export default () => {
                     ElMessage.warning('存在同名目录，无需创建');
                     return;
                 }
-                await api.addPath({
+                await api.addDirectory({
                     prefix: fullPath.value,
                     names: value,
                     type: 'directory',

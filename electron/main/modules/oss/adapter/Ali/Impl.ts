@@ -133,22 +133,30 @@ export default class extends BaseOss {
             console.log(error);
         }
     }
-    async upload(prefix: string, path: string) {
-        const fileStats = await fs.stat(path);
+    /**
+     * 上传文件
+     * @param prefix oss目录
+     * @param path 本地地址
+     */
+    async upload(
+        prefix: string,
+        pathItem: {
+            ossPath: string;
+            localPath: string;
+        }
+    ) {
+        const fileStats = await fs.stat(pathItem.localPath);
         const { size } = fileStats;
         if (size < bytes(this.sizeBoundary)) {
-            await this.addDirectory({
-                prefix,
-                names: path,
-            });
+            await this.client.put(`${prefix}${pathItem.ossPath}`, pathItem.localPath);
             this.postUploadProgress({
-                path: slash(join(prefix, basename(path))),
+                path: slash(join(prefix, basename(pathItem.ossPath))),
                 progress: 100,
                 size,
             });
         } else {
-            const absolutePath = slash(join(prefix, basename(path)));
-            this.client.multipartUpload(absolutePath, path, {
+            const absolutePath = slash(join(prefix, basename(pathItem.ossPath)));
+            this.client.multipartUpload(absolutePath, pathItem.localPath, {
                 progress: (percent) => {
                     this.postUploadProgress({
                         path: absolutePath,

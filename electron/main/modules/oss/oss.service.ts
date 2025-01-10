@@ -1,16 +1,16 @@
-import { join, basename } from 'node:path';
-import { interval, Subject, takeUntil, map } from 'rxjs';
+import { join, dirname, basename, extname } from 'node:path';
 import { type IpcMainEvent } from 'electron';
-import { cloneDeep } from 'lodash-es';
-import App from './adapter/Base';
 import fs from 'fs-extra';
+import { interval, Subject, takeUntil, map } from 'rxjs';
+import { cloneDeep } from 'lodash-es';
+import OSS, { OssConfig } from 'ali-oss';
+import slash from 'slash';
+import App from './adapter/Base';
 import { type FileItem } from '../../types/vo';
 import { __dirname } from '../../enums/index.enum';
 import { AddOptions, AppConstructorOptions } from './oss.dto';
 import { ossEvents } from './oss.repository';
-import OSS, { OssConfig } from 'ali-oss';
 import { Database } from '../../types/api';
-import slash from 'slash';
 
 let currentApp: App;
 /**
@@ -41,64 +41,85 @@ export async function deleteFile(paths: string): Promise<any> {
 }
 export async function upload(e: IpcMainEvent, data: AddOptions) {
     const { names, prefix } = data;
-    const list = names.split(',').map((item) => slash(item));
-    const task$ = new Subject();
-    let statusList = list.map((item) => {
-        return {
-            path: slash(join(prefix, basename(item))),
-            finished: false,
-        };
-    });
-    currentApp.addUploadListener((data) => {
-        const { path, progress, size } = data;
-        statusList = statusList.map((item) => {
-            if (item.path === path) {
-                return {
-                    ...item,
-                    path: item.path,
-                    progress,
-                    size,
-                    finished: progress === 100,
-                };
+    const list = names
+        .split(',')
+        .map((item) => {
+            if (!extname(item)) {
+                // 是目录
+                const fileDirname = slash(dirname(item));
+                return readDirectoryRecursively(item).map((originlocalPath) => {
+                    const localPath = slash(originlocalPath);
+                    return {
+                        localPath,
+                        ossPath: localPath.replace(`${fileDirname}/`, ''),
+                    };
+                });
             }
             return {
-                ...item,
-                size: 0,
-                path: item.path,
+                localPath: slash(item),
+                ossPath: basename(item),
             };
-        });
-        if (statusList.every((item) => item.finished)) {
-            task$.next(null);
-            task$.complete();
-        }
-    });
-    list.forEach((item) => {
-        currentApp.upload(prefix, item);
-    });
+        })
+        .flat();
+    console.log(list);
+    console.log(prefix);
+    // const task$ = new Subject();
+    // let statusList = list.map((item) => {
+    //     return {
+    //         path: slash(join(prefix, basename(item))),
+    //         finished: false,
+    //     };
+    // });
+    // currentApp.addUploadListener((data) => {
+    //     const { path, progress, size } = data;
+    //     statusList = statusList.map((item) => {
+    //         if (item.path === path) {
+    //             return {
+    //                 ...item,
+    //                 path: item.path,
+    //                 progress,
+    //                 size,
+    //                 finished: progress === 100,
+    //             };
+    //         }
+    //         return {
+    //             ...item,
+    //             size: 0,
+    //             path: item.path,
+    //         };
+    //     });
+    //     if (statusList.every((item) => item.finished)) {
+    //         task$.next(null);
+    //         task$.complete();
+    //     }
+    // });
+    // list.forEach((item) => {
+    //     currentApp.upload(prefix, item);
+    // });
 
-    const timer$ = interval(2000).pipe(
-        map((data) => `已经经过了${data}秒`),
-        takeUntil(task$)
-    );
-    timer$.subscribe({
-        next() {
-            e.sender.send(`oss-upload-receiver`, {
-                type: 'uploading',
-                data: cloneDeep(statusList),
-            });
-        },
-        complete() {
-            ossEvents.emit('add', {
-                prefix,
-                names,
-                type: 'file',
-            });
-            e.sender.send(`oss-upload-receiver`, {
-                type: 'upload-finished',
-                data: cloneDeep(statusList),
-            });
-        },
-    });
+    // const timer$ = interval(2000).pipe(
+    //     map((data) => `已经经过了${data}秒`),
+    //     takeUntil(task$)
+    // );
+    // timer$.subscribe({
+    //     next() {
+    //         e.sender.send(`oss-upload-receiver`, {
+    //             type: 'uploading',
+    //             data: cloneDeep(statusList),
+    //         });
+    //     },
+    //     complete() {
+    //         ossEvents.emit('add', {
+    //             prefix,
+    //             names,
+    //             type: 'file',
+    //         });
+    //         e.sender.send(`oss-upload-receiver`, {
+    //             type: 'upload-finished',
+    //             data: cloneDeep(statusList),
+    //         });
+    //     },
+    // });
 }
 
 export const validate = async (data: Database['account']) => {
@@ -115,13 +136,6 @@ export const getBuckets = async (ossOptions: OssConfig) => {
     } catch (error) {
         throw new Error('error');
     }
-};
-
-export const uploadDirectory = async (params: AddOptions) => {
-    const files = readDirectoryRecursively(slash(join(params.prefix, params.names)));
-    files.forEach((file) => {
-        currentApp.upload(params.prefix, file.replace(params.prefix, ''));
-    });
 };
 
 /**

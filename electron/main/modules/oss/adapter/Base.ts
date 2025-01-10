@@ -25,17 +25,25 @@ export default abstract class {
     /**
      * 创建目录
      */
-    abstract addDirectory(params: { prefix: string; names: string; type: 'directory' | 'file' }): Promise<void>;
+    abstract addDirectory(params: { prefix: string; names: string }): Promise<void>;
 
     /**
      * 上传文件
      * @param {string} prefix 前缀
-     * @param {string} path 本地文件地址
      */
-    abstract upload(prefix: string, path: string): Promise<void>;
+    abstract upload(
+        prefix: string,
+        pathItem: {
+            ossPath: string;
+            localPath: string;
+        }
+    ): Promise<void>;
     /**
      * 监听上传进度
      */
     abstract addUploadListener(callback: (data: { path: string; progress: number; size: number }) => void): void;
+    /**
+     * 获取账号下的所有bucket
+     */
     abstract getBuckets(): Promise<BucketObject[]>;
 }

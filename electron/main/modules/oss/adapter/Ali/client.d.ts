@@ -56,7 +56,7 @@ declare module 'ali-oss' {
                 progress: (percent: number) => void;
             }
         ): Promise<string>;
-        listV2(obj: { 'prefix': string; 'delimiter': string; 'max-keys': number }): Promise<OSSObject>;
+        listV2(obj: { 'prefix': string; 'delimiter'?: string; 'max-keys': number }): Promise<OSSObject>;
         /**
          * 删除文件或者目录
          */

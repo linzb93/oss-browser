@@ -61,65 +61,65 @@ export async function upload(e: IpcMainEvent, data: AddOptions) {
             };
         })
         .flat();
-    console.log(list);
-    console.log(prefix);
-    // const task$ = new Subject();
-    // let statusList = list.map((item) => {
-    //     return {
-    //         path: slash(join(prefix, basename(item))),
-    //         finished: false,
-    //     };
-    // });
-    // currentApp.addUploadListener((data) => {
-    //     const { path, progress, size } = data;
-    //     statusList = statusList.map((item) => {
-    //         if (item.path === path) {
-    //             return {
-    //                 ...item,
-    //                 path: item.path,
-    //                 progress,
-    //                 size,
-    //                 finished: progress === 100,
-    //             };
-    //         }
-    //         return {
-    //             ...item,
-    //             size: 0,
-    //             path: item.path,
-    //         };
-    //     });
-    //     if (statusList.every((item) => item.finished)) {
-    //         task$.next(null);
-    //         task$.complete();
-    //     }
-    // });
-    // list.forEach((item) => {
-    //     currentApp.upload(prefix, item);
-    // });
+    const task$ = new Subject();
+    let statusList = list.map((item) => {
+        return {
+            path: slash(join(prefix, item.ossPath)),
+            size: 0,
+            finished: false,
+        };
+    });
+    currentApp.addUploadListener((data) => {
+        const { path, progress, size } = data;
+        statusList = statusList.map((item) => {
+            // 用完整的oss path进行对比
+            if (item.path === path) {
+                return {
+                    ...item,
+                    path: item.path,
+                    progress,
+                    size,
+                    finished: progress === 100,
+                };
+            }
+            return {
+                ...item,
+                size: item.size,
+                path: item.path,
+            };
+        });
+        if (statusList.every((item) => item.finished)) {
+            task$.next(null);
+            task$.complete();
+        }
+    });
+    list.forEach((item) => {
+        currentApp.upload(prefix, item);
+    });
 
-    // const timer$ = interval(2000).pipe(
-    //     map((data) => `已经经过了${data}秒`),
-    //     takeUntil(task$)
-    // );
-    // timer$.subscribe({
-    //     next() {
-    //         e.sender.send(`oss-upload-receiver`, {
-    //             type: 'uploading',
-    //             data: cloneDeep(statusList),
-    //         });
-    //     },
-    //     complete() {
-    //         ossEvents.emit('add', {
-    //             prefix,
-    //             names,
-    //             type: 'file',
-    //         });
-    //         e.sender.send(`oss-upload-receiver`, {
-    //             type: 'upload-finished',
-    //             data: cloneDeep(statusList),
-    //         });
-    //     },
-    // });
+    const timer$ = interval(2000).pipe(
+        map((data) => `已经经过了${data}秒`),
+        takeUntil(task$)
+    );
+    timer$.subscribe({
+        next() {
+            e.sender.send(`oss-upload-receiver`, {
+                type: 'uploading',
+                data: cloneDeep(statusList),
+            });
+        },
+        complete() {
+            ossEvents.emit('add', {
+                prefix,
+                names, // TODO：加入上传文件夹后，这个地方得改成目录里面的所有文件拼接的
+                type: 'file',
+            });
+            e.sender.send(`oss-upload-receiver`, {
+                type: 'upload-finished',
+                data: cloneDeep(statusList),
+            });
+        },
+    });
 }
 
 export const validate = async (data: Database['account']) => {

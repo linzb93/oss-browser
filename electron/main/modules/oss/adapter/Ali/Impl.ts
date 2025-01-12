@@ -90,21 +90,26 @@ export default class extends BaseOss {
             token: this.nextContinuationToken,
         };
     }
+    /**
+     * 获取一个目录下的所有文件（含子目录里面的文件）
+     */
+    async getAllFileUnderDirectory(path: string) {
+        // 存放文件完整的oss路径
+        const ret = [];
+        let nextContinuationToken = '-1';
+        while (nextContinuationToken && nextContinuationToken !== '-1') {
+            const res = await this.client.listV2({
+                'prefix': path,
+                'max-keys': 100,
+            });
+            nextContinuationToken = res.nextContinuationToken;
+            ret.push(res.objects.map((item) => item.name));
+        }
+        return ret;
+    }
     async addDirectory(params: { prefix: string; names: string }): Promise<void> {
         const { client } = this;
         await client.put(`${params.prefix}${params.names}/`, Buffer.from(''));
-    }
-    private async isEmptyDir(path: string) {
-        const { client } = this;
-        const result = await client.listV2({
-            'prefix': path,
-            'delimiter': '/',
-            'max-keys': 1,
-        });
-        if (result.objects.length === 1 && result.objects[0].name !== path) {
-            return false;
-        }
-        return true;
     }
     async deleteFile(paths: string): Promise<any> {
         const { client } = this;
@@ -115,12 +120,8 @@ export default class extends BaseOss {
                 pathList,
                 async (path) => {
                     if (path.endsWith('/')) {
-                        // 是目录，先检查是否为空
-                        const isEmpty = await this.isEmptyDir(path);
-                        if (!isEmpty) {
-                            unsuccessfulList.push(basename(path));
-                            return;
-                        }
+                        const list = await this.getAllFileUnderDirectory(path);
+                        return await pMap(list, (item) => client.delete(item), { concurrency: 4 });
                     }
                     return client.delete(path);
                 },
@@ -150,12 +151,12 @@ export default class extends BaseOss {
         if (size < bytes(this.sizeBoundary)) {
             await this.client.put(`${prefix}${pathItem.ossPath}`, pathItem.localPath);
             this.postUploadProgress({
-                path: slash(join(prefix, basename(pathItem.ossPath))),
+                path: slash(join(prefix, pathItem.ossPath)),
                 progress: 100,
                 size,
             });
         } else {
-            const absolutePath = slash(join(prefix, basename(pathItem.ossPath)));
+            const absolutePath = slash(join(prefix, pathItem.ossPath));
             this.client.multipartUpload(absolutePath, pathItem.localPath, {
                 progress: (percent) => {
                     this.postUploadProgress({

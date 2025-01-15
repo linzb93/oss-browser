@@ -31,4 +31,10 @@ export default {
         const data = JSON.parse(params) as OssConfig;
         return ossService.getBuckets(data);
     },
+    download(params: string) {
+        const data = JSON.parse(params) as {
+            url: string;
+        };
+        return ossService.download(data.url);
+    },
 };

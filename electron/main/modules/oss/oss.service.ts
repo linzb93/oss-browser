@@ -161,3 +161,7 @@ function readDirectoryRecursively(directory: string): string[] {
 
     return fileList;
 }
+
+export async function download(paths: string) {
+    return await currentApp.download(paths);
+}

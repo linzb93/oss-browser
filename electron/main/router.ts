@@ -28,6 +28,9 @@ export default () => {
     ipcMain.handle('oss-add-directory', (_, dataStr) => {
         return response(async () => await ossController.addDirectory(dataStr));
     });
+    ipcMain.handle('oss-download', (e, dataStr) => {
+        return response(async () => await ossController.download(dataStr));
+    });
     ipcMain.on('oss-upload', (e, data) => {
         ossController.upload(e, data);
     });
@@ -80,9 +83,6 @@ export default () => {
     // 通用
     ipcMain.handle('copy', (_, dataStr: string) => {
         return response(() => utilController.copy(dataStr));
-    });
-    ipcMain.handle('download', (_, dataStr) => {
-        return response(async () => await utilController.download(dataStr));
     });
     ipcMain.handle('open', (_, dataStr) => {
         return response(async () => await utilController.open(dataStr));

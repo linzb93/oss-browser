@@ -46,4 +46,5 @@ export default abstract class {
      * 获取账号下的所有bucket
      */
     abstract getBuckets(): Promise<BucketObject[]>;
+    abstract download(path: string): Promise<void>;
 }

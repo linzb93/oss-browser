@@ -91,7 +91,7 @@ export const requestUtil = {
      */
     async download(url: string) {
         try {
-            await doRequest('download', {
+            await doRequest('oss-download', {
                 url,
             });
         } catch (error) {

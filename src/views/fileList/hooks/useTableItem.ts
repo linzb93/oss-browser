@@ -56,10 +56,6 @@ export default () => {
          */
         clickPath,
         download(item: TableItem) {
-            if (item.type === 'dir') {
-                ElMessage.warning('功能开发中');
-                return;
-            }
             requestUtil.download(item.url);
         },
         /**

@@ -1,12 +1,13 @@
-import { basename, join, extname } from 'node:path';
+import { basename, join, dirname, extname } from 'node:path';
 import { omit } from 'lodash-es';
 import bytes from 'bytes';
 import OSS from 'ali-oss';
 import fs from 'fs-extra';
 import pMap from 'p-map';
-import BaseOss from '../Base';
-import { FileItem } from '../../../../types/vo';
 import sql from '../../../../helper/sql';
+import BaseOss from '../Base';
+import * as utilService from '../../../util/util.service';
+import { FileItem } from '../../../../types/vo';
 import slash from 'slash';
 import { AppConstructorOptions } from '../../oss.dto';
 
@@ -93,19 +94,26 @@ export default class extends BaseOss {
     /**
      * 获取一个目录下的所有文件（含子目录里面的文件）
      */
-    async getAllFileUnderDirectory(path: string) {
+    private async getAllFileUnderDirectory(path: string): Promise<string[]> {
         // 存放文件完整的oss路径
         const ret = [];
         let nextContinuationToken = '-1';
-        while (nextContinuationToken && nextContinuationToken !== '-1') {
+        while (nextContinuationToken) {
+            const restParams =
+                nextContinuationToken === '-1'
+                    ? {}
+                    : {
+                          'continuation-token': nextContinuationToken,
+                      };
             const res = await this.client.listV2({
                 'prefix': path,
                 'max-keys': 100,
+                ...restParams,
             });
             nextContinuationToken = res.nextContinuationToken;
             ret.push(res.objects.map((item) => item.name));
         }
-        return ret;
+        return ret.flat();
     }
     async addDirectory(params: { prefix: string; names: string }): Promise<void> {
         const { client } = this;
@@ -114,7 +122,6 @@ export default class extends BaseOss {
     async deleteFile(paths: string): Promise<any> {
         const { client } = this;
         const pathList = paths.split(',');
-        const unsuccessfulList = [];
         try {
             await pMap(
                 pathList,
@@ -129,7 +136,6 @@ export default class extends BaseOss {
                     concurrency: 4,
                 }
             );
-            return unsuccessfulList;
         } catch (error) {
             console.log(error);
         }
@@ -167,6 +173,34 @@ export default class extends BaseOss {
                 },
             });
         }
+    }
+    /**
+     * 下载文件
+     * @param callback
+     */
+    async download(paths: string) {
+        const account = await sql((db) => db.account);
+        const pathList = paths.split(',');
+        const dir = dirname(pathList[0].replace(`${account.domain}/`, ''));
+        const list = await pMap(
+            pathList,
+            async (path) => {
+                if (path.endsWith('/')) {
+                    return await this.getAllFileUnderDirectory(path.replace(`${account.domain}/`, ''));
+                }
+                return [path.replace(`${account.domain}/`, '')];
+            },
+            {
+                concurrency: 4,
+            }
+        );
+        await utilService.download(
+            list
+                .flat()
+                .map((item) => `${account.domain}/${item}`)
+                .join(','),
+            dir
+        );
     }
     addUploadListener(callback: uploadProgressCallback): void {
         this.uploadCallback = callback;

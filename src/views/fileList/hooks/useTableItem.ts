@@ -29,6 +29,24 @@ export default () => {
         }
         pushBreadcrumb(item.name);
     };
+    const getStyle = (item: TableItem) => {
+        const img = new Image();
+        img.src = item.url;
+        img.onload = function () {
+            const { width, height } = img;
+            copyTemplate({
+                width,
+                height,
+                url: item.url,
+            })
+                .then(() => {
+                    ElMessage.success('复制成功');
+                })
+                .catch((e) => {
+                    ElMessage.error(e.message);
+                });
+        };
+    };
     return {
         selected,
         /**
@@ -46,6 +64,12 @@ export default () => {
                     clickPath(item);
                 }
             });
+            handleMainPost('copy-style', () => {
+                const item = getActiveItem();
+                if (item) {
+                    getStyle(item);
+                }
+            });
         },
         /**
          * 根据文件后缀名判断是否是图片
@@ -61,23 +85,6 @@ export default () => {
         /**
          * 读取复制模板，复制图片样式
          */
-        getStyle(item: TableItem) {
-            const img = new Image();
-            img.src = item.url;
-            img.onload = function () {
-                const { width, height } = img;
-                copyTemplate({
-                    width,
-                    height,
-                    url: item.url,
-                })
-                    .then(() => {
-                        ElMessage.success('复制成功');
-                    })
-                    .catch((e) => {
-                        ElMessage.error(e.message);
-                    });
-            };
-        },
+        getStyle,
     };
 };

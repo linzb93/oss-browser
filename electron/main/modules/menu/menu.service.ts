@@ -52,6 +52,30 @@ export default (win: BrowserWindow) => {
                         postRenderer('enter', {});
                     },
                 },
+                {
+                    label: '创建目录',
+                    accelerator: 'Ctrl + D',
+                    visible: false,
+                    click: () => {
+                        postRenderer('create-dir');
+                    },
+                },
+                {
+                    label: '复制地址',
+                    accelerator: 'Ctrl + Shift + U',
+                    visible: false,
+                    click: () => {
+                        postRenderer('copy-url');
+                    },
+                },
+                {
+                    label: '复制样式',
+                    accelerator: 'Ctrl + Shift + C',
+                    visible: false,
+                    click: () => {
+                        postRenderer('copy-style');
+                    },
+                },
                 { type: 'separator' },
                 { role: 'quit' },
             ],

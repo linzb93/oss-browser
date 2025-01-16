@@ -56,6 +56,9 @@ export default () => {
         ElMessage.error('请选择至少一个');
         return false;
     };
+    const getActiveItem = () => {
+        return tableList.value[activeIndex.value];
+    };
     const createDir = () => {
         ElMessageBox.prompt('请输入目录名称', '温馨提醒', {
             confirmButtonText: '创建',
@@ -109,6 +112,13 @@ export default () => {
             });
             handleMainPost('reload', () => {
                 getList(false);
+            });
+            handleMainPost('copy-url', () => {
+                const item = getActiveItem();
+                console.log(item);
+                if (item) {
+                    requestUtil.copy(item.url);
+                }
             });
             handleMainPost('location', (data: { isDown: boolean }) => {
                 const { isDown } = data;
@@ -200,9 +210,7 @@ export default () => {
         /**
          * 获取某个位置的文件
          */
-        getActiveItem() {
-            return tableList.value[activeIndex.value];
-        },
+        getActiveItem,
         resetActiveIndex() {
             activeIndex.value = -1;
         },

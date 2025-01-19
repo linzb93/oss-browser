@@ -1,6 +1,6 @@
 {
     "name": "oss-browser",
-    "version": "1.6.0",
+    "version": "1.7.0",
     "main": "dist-electron/main/index.js",
     "description": "OSS客户端",
     "author": "linzb93",

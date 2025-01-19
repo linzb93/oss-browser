@@ -11,8 +11,20 @@ import useTable from './useTable';
 const isPic = (item: TableItem) => {
     return ['jpg', 'png', 'jpeg', 'gif', 'webp'].includes(pathUtil.extname(item.name));
 };
-const previewUrl = shallowRef('');
-const visible = shallowRef(false);
+const imgPreview = ref({
+    /**
+     * 控制预览弹窗的显示
+     */
+    visible: false,
+    /**
+     * 预览图的网址
+     */
+    url: '',
+    /**
+     * 预览弹窗的宽度
+     */
+    width: 400,
+});
 const selected = ref<TableItem[]>([]);
 export default () => {
     const { copyTemplate } = useTemplate();
@@ -22,12 +34,45 @@ export default () => {
         if (item.size > 0) {
             // 是图片
             if (isPic(item)) {
-                previewUrl.value = item.url;
-                visible.value = true;
+                imgPreview.value.url = item.url;
+                imgPreview.value.visible = true;
+                loadImage(item.url);
             }
             return;
         }
         pushBreadcrumb(item.name);
+    };
+    const loadImage = (url: string) => {
+        const img = new Image();
+        img.src = url;
+        img.onload = function () {
+            const { width: imgWidth, height: imgHeight } = img;
+            const { offsetWidth, offsetHeight } = document.body;
+            if (imgWidth / offsetWidth > imgHeight / offsetHeight) {
+                // 图片较宽
+                if (imgWidth <= 400) {
+                    imgPreview.value.width = imgWidth;
+                } else if (imgWidth > offsetWidth * 0.8) {
+                    imgPreview.value.width = offsetWidth * 0.8 + 32;
+                } else {
+                    imgPreview.value.width = imgWidth + 32;
+                }
+            } else {
+                // 图片较宽
+                if (imgHeight > offsetHeight * 0.8) {
+                    imgPreview.value.width = ((offsetWidth * 0.8 + 32) * imgWidth) / imgHeight;
+                } else {
+                    imgPreview.value.width = Math.max(400, imgWidth);
+                }
+            }
+            // if (width <= 400) {
+            //     imgPreview.value.width = width;
+            // } else if (width > offsetWidth * 0.8) {
+            //     imgPreview.value.width = offsetWidth * 0.8 + 32;
+            // } else {
+            //     imgPreview.value.width = width + 32;
+            // }
+        };
     };
     const getStyle = (item: TableItem) => {
         const img = new Image();
@@ -49,14 +94,7 @@ export default () => {
     };
     return {
         selected,
-        /**
-         * 预览图的网址
-         */
-        previewUrl,
-        /**
-         * 控制预览弹窗的显示
-         */
-        visible,
+        imgPreview,
         init() {
             handleMainPost('enter', () => {
                 const item = getActiveItem();

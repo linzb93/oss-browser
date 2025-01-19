@@ -145,12 +145,12 @@
     />
     <collect-pane />
     <setting-dialog />
-    <el-dialog v-model="previewVisible" title="图片预览" :width="`450px`">
+    <el-dialog v-model="imgPreview.visible" title="图片预览" :width="`${imgPreview.width}px`" top="2%">
         <div class="center">
-            <img :src="previewUrl" class="img-dialog-preview" />
+            <img :src="imgPreview.url" class="img-dialog-preview" />
         </div>
         <template #footer>
-            <el-button type="primary" @click="requestUtil.open('web', previewUrl)">在浏览器打开</el-button>
+            <el-button type="primary" @click="requestUtil.open('web', imgPreview.url)">在浏览器打开</el-button>
         </template>
     </el-dialog>
 </template>
@@ -204,15 +204,7 @@ const {
     onChange: onBreadcrumbChange,
 } = useBreadcrumb();
 
-const {
-    init: tableItemInit,
-    previewUrl,
-    visible: previewVisible,
-    clickPath,
-    getStyle,
-    isPic,
-    download: downloadItem,
-} = useTableItem();
+const { init: tableItemInit, imgPreview, clickPath, getStyle, isPic, download: downloadItem } = useTableItem();
 
 const { userInfo, checkLogin, logout } = useLogin(router);
 
@@ -331,7 +323,7 @@ const { progressVisible, active, setDragState, dropFile, uploadingList } = useUp
     text-align: center;
 }
 .img-dialog-preview {
-    max-width: 400px;
+    max-width: 100%;
 }
 .table-preview-img {
     max-width: 100px;

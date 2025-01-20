@@ -65,13 +65,6 @@ export default () => {
                     imgPreview.value.width = Math.max(400, imgWidth);
                 }
             }
-            // if (width <= 400) {
-            //     imgPreview.value.width = width;
-            // } else if (width > offsetWidth * 0.8) {
-            //     imgPreview.value.width = offsetWidth * 0.8 + 32;
-            // } else {
-            //     imgPreview.value.width = width + 32;
-            // }
         };
     };
     const getStyle = (item: TableItem) => {

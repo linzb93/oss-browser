@@ -4,7 +4,7 @@ export default (win: BrowserWindow) => {
     win.webContents.addListener('context-menu', (_, params) => {
         const rightMenu = Menu.buildFromTemplate([
             {
-                label: '创建目录',
+                label: '创建目录(Ctrl + D)',
                 click() {
                     postRenderer('create-dir');
                 },

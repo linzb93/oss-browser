@@ -78,7 +78,7 @@ export default () => {
             } else {
                 // 图片较高
                 if (imgHeight > offsetHeight * 0.8) {
-                    imgPreview.value.width = ((offsetHeight * 0.8 + 32) * imgWidth) / imgHeight;
+                    imgPreview.value.width = parseInt((((offsetHeight * 0.8 - 32) * imgWidth) / imgHeight).toString());
                 } else {
                     imgPreview.value.width = Math.max(400, imgWidth);
                 }

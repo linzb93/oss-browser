@@ -5,6 +5,7 @@
         width="500px"
         append-to-body
         @close="close"
+        @closed="closed"
     >
         <el-form ref="formRef" :rules="rules" :model="form" label-suffix="：">
             <el-form-item label="名称">
@@ -25,8 +26,14 @@
 import { readonly, ref } from 'vue';
 import useTemplate from '../hooks/useTemplate';
 
-const { visible, form, save, close } = useTemplate();
+const { visible, form, saveAction, close, closed } = useTemplate();
 const rules = readonly({});
 const formRef = ref(null);
+const emit = defineEmits(['submit']);
+const save = () =>
+    saveAction().then(() => {
+        emit('submit');
+        close();
+    });
 </script>
 <style lang="scss" scoped></style>

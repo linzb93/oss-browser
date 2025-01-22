@@ -5,6 +5,7 @@ import { TemplateItem } from '../shared/types';
 type TemplateItemPure = Omit<TemplateItem, 'content'>;
 const templates = ref<TemplateItemPure[]>([]);
 const visible = shallowRef(false);
+
 const form = ref<TemplateItem>({
     id: 0,
     name: '',
@@ -25,13 +26,21 @@ export default () => {
     function close() {
         visible.value = false;
     }
+    function closed() {
+        form.value = {
+            id: 0,
+            name: '',
+            content: '',
+        };
+    }
+    async function getList() {
+        templates.value = await api.getTemplateList();
+    }
     return {
         visible,
         templates,
         form,
-        async getList() {
-            templates.value = await api.getTemplateList();
-        },
+        getList,
         async openDialog(item?: TemplateItemPure) {
             visible.value = true;
             if (item) {
@@ -40,17 +49,12 @@ export default () => {
         },
         addItem,
         editItem,
-        async save() {
-            const action = () => {
-                if (form.value.id) {
-                    return editItem();
-                } else {
-                    return addItem();
-                }
-            };
-            action().then(() => {
-                close();
-            });
+        async saveAction() {
+            if (form.value.id) {
+                return editItem();
+            } else {
+                return addItem();
+            }
         },
         removeItem(item: Pick<TemplateItem, 'id'>) {
             ElMessageBox.confirm('确认删除？', '温馨提醒', {
@@ -63,6 +67,7 @@ export default () => {
                 })
                 .then(() => {
                     ElMessage.success('删除成功');
+                    getList();
                 });
         },
         /**
@@ -76,5 +81,6 @@ export default () => {
             });
         },
         close,
+        closed,
     };
 };

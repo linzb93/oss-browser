@@ -40,6 +40,7 @@
         "@linzb93/utils": "^0.0.14",
         "@types/bytes": "^3.1.4",
         "ali-oss": "^6.20.0",
+        "axios": "^1.7.9",
         "bytes": "^3.1.2",
         "dayjs": "1.11.13",
         "electron-is-dev": "^3.0.1",

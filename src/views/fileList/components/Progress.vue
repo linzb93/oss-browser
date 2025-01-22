@@ -65,12 +65,12 @@ import { getSize } from '@/helpers/size';
 import useLogin from '@/views/login/hooks/useLogin';
 
 const props = defineProps<{
-    visible: boolean;
     path: string;
     uploadList: any[];
 }>();
 const { userInfo } = useLogin();
-const emit = defineEmits(['update:visible', 'refresh']);
+const emit = defineEmits(['refresh']);
+const visible = defineModel('visible');
 
 interface ListItem {
     path: string;
@@ -98,14 +98,14 @@ const startUpload = () => {
     });
     removeEvt = removeListener;
 };
-watch(props, ({ visible }) => {
-    if (!visible) {
+watch(visible, (data) => {
+    if (!data) {
         return;
     }
     startUpload();
 });
 const close = () => {
-    emit('update:visible', false);
+    visible.value = false;
 };
 const closed = () => {
     list.value = [];

@@ -153,6 +153,9 @@
             <el-button type="primary" @click="requestUtil.open('web', imgPreview.url)">在浏览器打开</el-button>
         </template>
     </el-dialog>
+    <el-dialog v-model="textPreview.visible" title="文件预览" width="800px">
+        <div class="file-content">{{ textPreview.content }}</div>
+    </el-dialog>
 </template>
 
 <script setup lang="ts">
@@ -204,7 +207,15 @@ const {
     onChange: onBreadcrumbChange,
 } = useBreadcrumb();
 
-const { init: tableItemInit, imgPreview, clickPath, getStyle, isPic, download: downloadItem } = useTableItem();
+const {
+    init: tableItemInit,
+    imgPreview,
+    textPreview,
+    clickPath,
+    getStyle,
+    isPic,
+    download: downloadItem,
+} = useTableItem();
 
 const { userInfo, checkLogin, logout } = useLogin(router);
 
@@ -327,5 +338,10 @@ const { progressVisible, active, setDragState, dropFile, uploadingList } = useUp
 }
 .table-preview-img {
     max-width: 100px;
+}
+.file-content {
+    max-height: 50vh;
+    overflow: auto;
+    word-break: break-all;
 }
 </style>

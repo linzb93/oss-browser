@@ -1,4 +1,5 @@
-import { shallowRef, ref } from 'vue';
+import { ref } from 'vue';
+import axios from 'axios';
 import { TableItem } from '../shared/types';
 import useBreadcrumb from './useBreadcrumb';
 import pathUtil from '@/helpers/path';
@@ -11,6 +12,10 @@ import useTable from './useTable';
 const isPic = (item: TableItem) => {
     return ['jpg', 'png', 'jpeg', 'gif', 'webp'].includes(pathUtil.extname(item.name));
 };
+const isPlainText = (item: TableItem) => {
+    return ['txt', 'js', 'ts', 'jsx', 'tsx', 'py', 'json', 'yml', 'yaml'].includes(pathUtil.extname(item.name));
+};
+
 const imgPreview = ref({
     /**
      * 控制预览弹窗的显示
@@ -25,6 +30,10 @@ const imgPreview = ref({
      */
     width: 400,
 });
+const textPreview = ref({
+    visible: false,
+    content: '',
+});
 const selected = ref<TableItem[]>([]);
 export default () => {
     const { copyTemplate } = useTemplate();
@@ -37,6 +46,15 @@ export default () => {
                 imgPreview.value.url = item.url;
                 imgPreview.value.visible = true;
                 loadImage(item.url);
+                return;
+            }
+            if (isPlainText(item)) {
+                axios.get(item.url).then((res) => {
+                    textPreview.value = {
+                        visible: true,
+                        content: res.data,
+                    };
+                });
             }
             return;
         }
@@ -58,9 +76,9 @@ export default () => {
                     imgPreview.value.width = imgWidth + 32;
                 }
             } else {
-                // 图片较宽
+                // 图片较高
                 if (imgHeight > offsetHeight * 0.8) {
-                    imgPreview.value.width = ((offsetWidth * 0.8 + 32) * imgWidth) / imgHeight;
+                    imgPreview.value.width = ((offsetHeight * 0.8 + 32) * imgWidth) / imgHeight;
                 } else {
                     imgPreview.value.width = Math.max(400, imgWidth);
                 }
@@ -88,6 +106,7 @@ export default () => {
     return {
         selected,
         imgPreview,
+        textPreview,
         init() {
             handleMainPost('enter', () => {
                 const item = getActiveItem();

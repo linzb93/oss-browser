@@ -6,6 +6,7 @@ import {
     IPage,
     SettingInfo,
     TemplateItem,
+    WorkflowItem,
     IHistroyResponse,
 } from './shared/types';
 
@@ -57,6 +58,21 @@ export function editTemplateItem(data: TemplateItem) {
 }
 export function removeTemplateItem(data: { id: number }) {
     return request('remove-template', data);
+}
+export function getWorkflowItem(data: { id: number }): Promise<WorkflowItem> {
+    return request('get-workflow', data);
+}
+export function getWorkflowList(): Promise<Omit<WorkflowItem, 'content'>[]> {
+    return request('get-workflow-list');
+}
+export function addWorkflowItem(data: Omit<WorkflowItem, 'id'>) {
+    return request('add-workflow', data);
+}
+export function editWorkflowItem(data: WorkflowItem) {
+    return request('edit-workflow', data);
+}
+export function removeWorkflowItem(data: { id: number }) {
+    return request('remove-workflow', data);
 }
 export function copyTemplate(data: { width: number; height: number; url: string }) {
     return request('copy-template', data);

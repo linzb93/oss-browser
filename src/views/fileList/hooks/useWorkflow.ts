@@ -1,27 +1,28 @@
-import { ref, shallowRef } from 'vue';
+import { shallowRef, ref, watch } from 'vue';
+import { WorkflowItem } from '../shared/types';
 import * as api from '../api';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { TemplateItem } from '../shared/types';
-type TemplateItemPure = Omit<TemplateItem, 'content'>;
-const templates = ref<TemplateItemPure[]>([]);
-const visible = shallowRef(false);
 
-const form = ref<TemplateItem>({
+const visible = shallowRef(false);
+const isEditMode = shallowRef(false);
+const list = ref<WorkflowItem[]>([]);
+const form = ref<WorkflowItem>({
     id: 0,
     name: '',
-    content: '',
+    nameType: 'originName',
+    templateContent: '',
+    templateType: 'plainText',
 });
-const isEditMode = shallowRef(false);
 export default () => {
     async function getItem(data: { id: number }) {
-        form.value = await api.getTemplateItem(data);
+        form.value = await api.getWorkflowItem(data);
     }
     async function addItem() {
-        await api.addTemplateItem(form.value);
+        await api.addWorkflowItem(form.value);
         ElMessage.success('添加成功');
     }
     async function editItem() {
-        await api.editTemplateItem(form.value);
+        await api.editWorkflowItem(form.value);
         ElMessage.success('编辑成功');
     }
     function close() {
@@ -31,19 +32,23 @@ export default () => {
         form.value = {
             id: 0,
             name: '',
-            content: '',
+            nameType: 'originName',
+            templateContent: '',
+            templateType: 'plainText',
         };
     }
     async function getList() {
-        templates.value = await api.getTemplateList();
+        list.value = await api.getWorkflowList();
     }
     return {
         visible,
-        templates,
+        list,
         form,
         isEditMode,
         getList,
-        openDialog(item?: TemplateItemPure) {
+        close,
+        closed,
+        openDialog(item?: WorkflowItem) {
             visible.value = true;
             if (item) {
                 getItem(item);
@@ -58,12 +63,12 @@ export default () => {
                 return addItem();
             }
         },
-        removeItem(item: Pick<TemplateItem, 'id'>) {
+        removeItem(item: Pick<WorkflowItem, 'id'>) {
             ElMessageBox.confirm('确认删除？', '温馨提醒', {
                 confirmButtonText: '删除',
             })
                 .then(() => {
-                    return api.removeTemplateItem({
+                    return api.removeWorkflowItem({
                         id: item.id,
                     });
                 })
@@ -72,17 +77,5 @@ export default () => {
                     getList();
                 });
         },
-        /**
-         * 调用复制样式模板
-         */
-        async copyTemplate(data: { width: number; height: number; url: string }) {
-            return await api.copyTemplate({
-                width: data.width,
-                height: data.height,
-                url: data.url,
-            });
-        },
-        close,
-        closed,
     };
 };

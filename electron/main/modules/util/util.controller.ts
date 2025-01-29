@@ -11,7 +11,7 @@ export default {
         const data = JSON.parse(dataStr) as {
             url: string;
         };
-        return utilService.download(data.url);
+        return utilService.download(data.url, '');
     },
     open(dataStr: string) {
         const data = JSON.parse(dataStr) as {

@@ -58,4 +58,11 @@ export interface Database {
         path: string;
         createTime: string;
     }[];
+    workflow: {
+        id: number;
+        name: string;
+        nameType: 'index' | 'uid' | 'originName';
+        templateContent: string;
+        templateType: 'plainText' | 'json';
+    }[];
 }

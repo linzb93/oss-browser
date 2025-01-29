@@ -170,19 +170,20 @@ import useUpload from './hooks/useUpload';
 import useBreadcrumb from './hooks/useBreadcrumb';
 import pathUtil from '@/helpers/path';
 import useHistory from './hooks/useHistory';
+import UploadHistory from './components/UploadHistory.vue';
 import { requestUtil } from '@/helpers/request';
 import FileTypeIcon from '@/components/FileTypeIcon.vue';
 import DeleteConfirm from '@/components/DeleteConfirm.vue';
 import ProgressDrawer from './components/Progress.vue';
 import SettingDialog from './components/Setting.vue';
 import useSetting from './hooks/useSetting';
-import UploadHistory from './components/UploadHistory.vue';
 import CollectPane from './components/CollectPane.vue';
+import useCollect from './hooks/useCollect';
 import useTable from './hooks/useTable';
 import useTableItem from './hooks/useTableItem';
-import useCollect from './hooks/useCollect';
 import { type TableItem } from './shared/types';
 import request from '@/helpers/request';
+import useWorkflow from './hooks/useWorkflow';
 const router = useRouter();
 const {
     init: tableInit,

@@ -7,6 +7,7 @@ import historyController from './modules/history/history.controller';
 import templateController from './modules/template/template.controller';
 import collectController from './modules/collect/collect.controller';
 import utilController from './modules/util/util.controller';
+import workflowController from './modules/workflow/workflow.controller';
 import response from './helper/response';
 
 export default () => {
@@ -95,5 +96,17 @@ export default () => {
     });
     ipcMain.handle('open', (_, dataStr) => {
         return response(async () => await utilController.open(dataStr));
+    });
+    ipcMain.handle('workflow-get-list', () => {
+        return response(async () => await workflowController.getList());
+    });
+    ipcMain.handle('workflow-add', (_, dataStr) => {
+        return response(async () => await workflowController.add(dataStr));
+    });
+    ipcMain.handle('workflow-edit', (_, dataStr) => {
+        return response(async () => await workflowController.edit(dataStr));
+    });
+    ipcMain.handle('workflow-remove', (_, dataStr) => {
+        return response(async () => await workflowController.remove(dataStr));
     });
 };

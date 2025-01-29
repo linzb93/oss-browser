@@ -4,27 +4,32 @@ import useBreadcrumb from './useBreadcrumb';
 import { SettingInfo } from '../shared/types';
 import { cloneDeep } from 'lodash-es';
 import useTable from './useTable';
+import useWorkflow from './useWorkflow';
 import { ElMessage } from 'element-plus';
+import useTemplate from './useTemplate';
 const visible = shallowRef(false);
 const setting = ref<SettingInfo>({
     pixel: 2,
     previewType: 1,
     homePath: '',
     copyTemplateId: 0,
+    copyWorkflowId: 0,
 });
 const formSetting = ref<SettingInfo>({
     pixel: 2,
     previewType: 1,
     homePath: '',
     copyTemplateId: 0,
+    copyWorkflowId: 0,
 });
 export default () => {
     const { init: initBreadcrumb, fullPath } = useBreadcrumb();
     const { getList } = useTable();
+    const { isEditMode: isTemplateEditMode } = useTemplate();
+    const { isEditMode: isWorkflowEditMode } = useWorkflow();
     const close = () => {
         visible.value = false;
     };
-    const isTemplateEditMode = shallowRef(false);
     async function getSetting() {
         const data = await api.getSetting();
         setting.value = {
@@ -96,6 +101,7 @@ export default () => {
         close,
         closed() {
             isTemplateEditMode.value = false;
+            isWorkflowEditMode.value = false;
         },
     };
 };

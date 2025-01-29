@@ -29,7 +29,7 @@ export async function download(paths: string, dir: string) {
     if (result.canceled) {
         return {};
     }
-    const account = await sql((db) => db.account);
+    const account = await sql((db) => db.accounts.find((item) => item.id === db.defaultAppId));
     await pMap(
         pathList,
         (url: string) =>

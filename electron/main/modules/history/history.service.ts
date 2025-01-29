@@ -16,7 +16,8 @@ export function init() {
 
 export async function get(param: IPage) {
     const { pageIndex, pageSize } = param;
-    const history = await sql((db) => db.history);
+    const id = await sql((db) => db.defaultAppId);
+    const history = await sql(id, (db) => db.history);
     if (!history || !history.length) {
         return {
             list: [],
@@ -32,7 +33,8 @@ export async function get(param: IPage) {
     };
 }
 export async function add(data: { prefix: string; names: string }) {
-    await sql((db) => {
+    const id = await sql((db) => db.defaultAppId);
+    await sql(id, (db) => {
         const list = data.names
             .split(',')
             .filter((item) => !item.endsWith('/'))
@@ -55,7 +57,8 @@ export async function add(data: { prefix: string; names: string }) {
     });
 }
 export async function remove(data: string) {
-    await sql((db) => {
+    const id = await sql((db) => db.defaultAppId);
+    await sql(id, (db) => {
         const { history } = db;
         const realPath = data.split(',');
         db.history = history.filter((item) => !realPath.includes(item.path));

@@ -41,8 +41,11 @@ export default class extends BaseOss {
     constructor(options: AppConstructorOptions) {
         super(options);
         this.sizeBoundary = options.sizeBoundary;
-        sql((db) => {
-            this.client = new OSS(omit(db.account, ['id', 'platform', 'name']));
+    }
+    async init() {
+        await sql((db) => {
+            const account = db.accounts.find((item) => item.id === db.defaultAppId);
+            this.client = new OSS(omit(account, ['id', 'platform', 'name']));
         });
     }
     async getFileList(data: { prefix: string; useToken: boolean }): Promise<{
@@ -179,7 +182,7 @@ export default class extends BaseOss {
      * @param callback
      */
     async download(paths: string) {
-        const account = await sql((db) => db.account);
+        const account = await sql((db) => db.accounts.find((item) => item.id === db.defaultAppId));
         const pathList = paths.split(',');
         const dir = dirname(pathList[0].replace(`${account.domain}/`, ''));
         const list = await pMap(

@@ -122,7 +122,7 @@ export async function upload(e: IpcMainEvent, data: AddOptions) {
     });
 }
 
-export const validate = async (data: Database['account']) => {
+export const validate = async (data: Database['accounts'][number]) => {
     return getBuckets(data);
 };
 
@@ -164,4 +164,7 @@ function readDirectoryRecursively(directory: string): string[] {
 
 export async function download(paths: string) {
     return await currentApp.download(paths);
+}
+export async function init() {
+    return await currentApp.init();
 }

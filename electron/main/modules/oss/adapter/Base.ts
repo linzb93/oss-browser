@@ -7,6 +7,7 @@ export default abstract class {
      */
     abstract platformId: number;
     constructor(_: AppConstructorOptions) {}
+    abstract init(): Promise<void>;
     /**
      * 获取文件列表
      * @param {object} data

@@ -163,7 +163,7 @@ import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import dayjs from 'dayjs';
-import useLogin from '@/views/login/hooks/useLogin';
+import useLogin from '@/views/home/hooks/useLogin';
 import { Folder, ArrowRight, HomeFilled, ArrowDown, Back } from '@element-plus/icons-vue';
 import { getSize } from '@/helpers/size';
 import useUpload from './hooks/useUpload';
@@ -182,6 +182,7 @@ import useTable from './hooks/useTable';
 import useTableItem from './hooks/useTableItem';
 import useCollect from './hooks/useCollect';
 import { type TableItem } from './shared/types';
+import request from '@/helpers/request';
 const router = useRouter();
 const {
     init: tableInit,
@@ -217,7 +218,7 @@ const {
     download: downloadItem,
 } = useTableItem();
 
-const { userInfo, checkLogin, logout } = useLogin(router);
+const { userInfo } = useLogin();
 
 const { setting, getSetting, setHome, show: showSettingDialog } = useSetting();
 const { add: addCollect, show: showCollectDialog } = useCollect();
@@ -228,13 +229,9 @@ onMounted(() => {
         resetActiveIndex();
         getList(false);
     });
-    checkLogin()
-        .then(() => {
-            return getSetting();
-        })
-        .then(() => {
-            initBreadcrumb(setting.value.homePath);
-        });
+    getSetting().then(() => {
+        initBreadcrumb(setting.value.homePath);
+    });
 });
 // 批量操作
 const batchCommand = (command: 'download' | 'delete' | 'copy') => {
@@ -267,6 +264,10 @@ const moreCommand = async (
     }
 };
 const { onSelect: onSelectHistory, show: showHistoryDialog } = useHistory();
+const logout = () => {
+    request('setDefaultAppId', 0);
+    router.back();
+};
 
 // 拖拽上传
 const { progressVisible, active, setDragState, dropFile, uploadingList } = useUpload();

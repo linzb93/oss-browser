@@ -29,7 +29,7 @@
 <script setup lang="ts">
 import pathUtil from '@/helpers/path';
 import useHistory from '../hooks/useHistory';
-import useLogin from '@/views/login/hooks/useLogin';
+import useLogin from '@/views/home/hooks/useLogin';
 const { userInfo } = useLogin();
 
 const { getList, pageQuery: query, totalCount, list, onSelect, visible, close, init } = useHistory();

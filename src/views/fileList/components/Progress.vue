@@ -62,7 +62,7 @@ import { Check } from '@element-plus/icons-vue';
 import request, { requestUtil } from '@/helpers/request';
 import pathUtils from '@/helpers/path';
 import { getSize } from '@/helpers/size';
-import useLogin from '@/views/login/hooks/useLogin';
+import useLogin from '@/views/home/hooks/useLogin';
 
 const props = defineProps<{
     path: string;

@@ -8,7 +8,7 @@ export interface Request<T = AnyObject> {
 }
 
 export interface Database {
-    account: {
+    accounts: {
         id: number;
         platform?: number;
         name?: string;
@@ -17,7 +17,8 @@ export interface Database {
         accessKeyId: string;
         accessKeySecret: string;
         bucket: string;
-    };
+    }[];
+    defaultAppId: number;
     collect: {
         id: string;
         /**

@@ -5,7 +5,9 @@ import { type Database } from '../../types/api';
  */
 
 export async function get(): Promise<Database['setting']> {
+    const id = await sql((db) => db.defaultAppId);
     return await sql(
+        id,
         (db) =>
             db.setting || {
                 pixel: 1,
@@ -16,7 +18,8 @@ export async function get(): Promise<Database['setting']> {
     );
 }
 export async function set(data: Database['setting']) {
-    await sql((db) => {
+    const id = await sql((db) => db.defaultAppId);
+    await sql(id, (db) => {
         db.setting = {
             ...db.setting,
             ...data,
@@ -24,7 +27,8 @@ export async function set(data: Database['setting']) {
     });
 }
 export async function setHome(url: string) {
-    await sql((db) => {
+    const id = await sql((db) => db.defaultAppId);
+    await sql(id, (db) => {
         db.setting = {
             ...db.setting,
             homePath: url,

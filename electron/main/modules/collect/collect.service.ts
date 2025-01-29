@@ -2,10 +2,12 @@ import sql from '../../helper/sql';
 import { Database } from '../../types/api';
 
 export async function get() {
-    return await sql((db) => db.collect || []);
+    const id = await sql((db) => db.defaultAppId);
+    return await sql(id, (db) => db.collect || []);
 }
 export async function add(data: string) {
-    await sql((db) => {
+    const id = await sql((db) => db.defaultAppId);
+    await sql(id, (db) => {
         const obj = {
             id: Date.now().toString(),
             name: data
@@ -22,7 +24,8 @@ export async function add(data: string) {
     });
 }
 export async function set(list: Database['collect']) {
-    await sql((db) => {
+    const id = await sql((db) => db.defaultAppId);
+    await sql(id, (db) => {
         db.collect = list;
     });
 }

@@ -1,6 +1,6 @@
 {
     "name": "oss-browser",
-    "version": "1.7.0",
+    "version": "1.8.0",
     "main": "dist-electron/main/index.js",
     "description": "OSS客户端",
     "author": "linzb93",
@@ -36,7 +36,6 @@
         "vue-tsc": "^2.0.6"
     },
     "dependencies": {
-        "@linzb93/event-router": "^1.0.3",
         "@linzb93/utils": "^0.0.14",
         "@types/bytes": "^3.1.4",
         "ali-oss": "^6.20.0",

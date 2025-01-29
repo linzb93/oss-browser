@@ -1,6 +1,5 @@
-import { ref, readonly, onMounted, shallowRef } from 'vue';
+import { ref, readonly, shallowRef, watch } from 'vue';
 import request from '@/helpers/request';
-import { Router } from 'vue-router';
 import { cloneDeep, pick } from 'lodash-es';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
 interface LoginParams {
@@ -18,12 +17,12 @@ const doLogin = async (params: LoginParams) => {
     await request('login-save', params);
 };
 
-const getInfo = async (): Promise<LoginParams> => {
-    return await request('login-get');
+const getInfo = async (id: number): Promise<LoginParams> => {
+    return await request('login-get', { id });
 };
 
 const userInfo = ref<LoginParams>({
-    id: 1,
+    id: 0,
     domain: '',
     platform: 1,
     name: '',
@@ -32,17 +31,18 @@ const userInfo = ref<LoginParams>({
     accessKeySecret: '',
     bucket: '',
 });
-export default (router?: Router) => {
-    const form = ref<LoginParams>({
-        id: 1,
-        domain: '',
-        platform: 1,
-        name: '',
-        region: '',
-        accessKeyId: '',
-        accessKeySecret: '',
-        bucket: '',
-    });
+const visible = shallowRef(false);
+const form = ref<LoginParams>({
+    id: 0,
+    domain: '',
+    platform: 1,
+    name: '',
+    region: '',
+    accessKeyId: '',
+    accessKeySecret: '',
+    bucket: '',
+});
+export default () => {
     const rules = readonly<FormRules>({
         name: {
             required: true,
@@ -104,6 +104,9 @@ export default (router?: Router) => {
             disabled.value = true;
         }
     };
+    const close = () => {
+        visible.value = false;
+    };
     return {
         userInfo,
         form,
@@ -111,6 +114,7 @@ export default (router?: Router) => {
         formRef,
         bucketList,
         disabled,
+        visible,
         async login() {
             try {
                 await formRef.value?.validate();
@@ -126,16 +130,20 @@ export default (router?: Router) => {
             }
             userInfo.value = cloneDeep(form.value);
             ElMessage.success({
-                message: '添加成功',
+                message: form.value.id ? '编辑成功' : '添加成功',
                 duration: 1500,
-                onClose() {
-                    router?.push('/');
-                },
             });
+            close();
         },
         getFormData() {
-            onMounted(async () => {
-                const data = (await getInfo()) as LoginParams;
+            watch(visible, async (vis) => {
+                if (!vis) {
+                    return;
+                }
+                if (!form.value.id) {
+                    return;
+                }
+                const data = (await getInfo(form.value.id)) as LoginParams;
                 if (data.id) {
                     userInfo.value = data;
                     form.value = data;
@@ -147,20 +155,20 @@ export default (router?: Router) => {
             });
         },
         getBuckets,
-        checkLogin(): Promise<null> {
-            return new Promise((resolve) => {
-                getInfo().then((data) => {
-                    userInfo.value = data;
-                    if (!userInfo.value.id) {
-                        router?.push('/login');
-                    } else {
-                        resolve(null);
-                    }
-                });
-            });
-        },
-        logout() {
-            router?.push('/login');
+        close,
+        closed() {
+            form.value = {
+                id: 0,
+                domain: '',
+                platform: 1,
+                name: '',
+                region: '',
+                accessKeyId: '',
+                accessKeySecret: '',
+                bucket: '',
+            };
+            bucketList.value = [];
+            formRef.value?.resetFields();
         },
     };
 };

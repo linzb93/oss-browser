@@ -6,7 +6,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import useBreadcrumb from './useBreadcrumb';
 import { type TableItem } from '../shared/types';
 import MsgBoxFileList from '../components/FileList.vue';
-import useLogin from '@/views/login/hooks/useLogin';
+import useLogin from '@/views/home/hooks/useLogin';
 import * as api from '../api';
 import { getSize } from '@/helpers/size';
 

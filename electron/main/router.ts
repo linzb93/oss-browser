@@ -12,11 +12,20 @@ import response from './helper/response';
 export default () => {
     ossController.add(AliOSS);
     // 登录
-    ipcMain.handle('login-get', () => {
-        return response(async () => await accountController.get());
+    ipcMain.handle('home-getList', () => {
+        return response(async () => await accountController.getList());
+    });
+    ipcMain.handle('login-get', (_, dataStr) => {
+        return response(async () => await accountController.getItem(dataStr));
     });
     ipcMain.handle('login-save', async (_, dataStr) => {
         return response(async () => await accountController.save(dataStr));
+    });
+    ipcMain.handle('getDefaultAppId', () => {
+        return response(async () => await accountController.getDefaultAppId());
+    });
+    ipcMain.handle('setDefaultAppId', (_, dataStr) => {
+        return response(async () => await accountController.setDefaultAppId(dataStr));
     });
     // OSS操作
     ipcMain.handle('oss-get-list', (_, dataStr) => {

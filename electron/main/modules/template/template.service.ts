@@ -5,7 +5,8 @@ import * as settingService from '../setting/setting.service';
 import * as utilService from '../util/util.service';
 
 export async function getList() {
-    return await sql((db) => {
+    const id = await sql((db) => db.defaultAppId);
+    return await sql(id, (db) => {
         if (!db.templates) {
             return [];
         }
@@ -13,7 +14,8 @@ export async function getList() {
     });
 }
 export async function getDetail(id: number) {
-    return await sql((db) => {
+    const appId = await sql((db) => db.defaultAppId);
+    return await sql(appId, (db) => {
         if (!db.templates) {
             return null;
         }
@@ -22,7 +24,8 @@ export async function getDetail(id: number) {
     });
 }
 export async function add(obj: Database['templates'][number]) {
-    await sql((db) => {
+    const id = await sql((db) => db.defaultAppId);
+    await sql(id, (db) => {
         if (!db.templates) {
             db.templates = [
                 {
@@ -46,7 +49,8 @@ export async function add(obj: Database['templates'][number]) {
     });
 }
 export async function edit(obj: Database['templates'][number]) {
-    await sql((db) => {
+    const id = await sql((db) => db.defaultAppId);
+    await sql(id, (db) => {
         const match = db.templates.find((item) => item.id === obj.id);
         if (!match) {
             return;
@@ -56,7 +60,8 @@ export async function edit(obj: Database['templates'][number]) {
     });
 }
 export async function remove({ id }: { id: number }) {
-    await sql((db) => {
+    const appId = await sql((db) => db.defaultAppId);
+    await sql(appId, (db) => {
         db.templates = db.templates.filter((item) => item.id !== id);
     });
 }

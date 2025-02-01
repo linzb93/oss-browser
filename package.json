@@ -20,7 +20,7 @@
     },
     "devDependencies": {
         "@vitejs/plugin-vue": "^5.0.4",
-        "electron": "^29.1.1",
+        "electron": "^34.0.2",
         "electron-builder": "^24.13.3",
         "element-plus": "2.6.3",
         "husky": "^9.0.11",

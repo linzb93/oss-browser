@@ -8,6 +8,7 @@ import useTemplate from './useTemplate';
 import { requestUtil } from '@/helpers/request';
 import { handleMainPost } from '@/helpers/util';
 import useTable from './useTable';
+import useLogin from '@/views/home/hooks/useLogin';
 
 const isPic = (item: TableItem) => {
     return ['jpg', 'png', 'jpeg', 'gif', 'webp'].includes(pathUtil.extname(item.name));
@@ -39,17 +40,19 @@ export default () => {
     const { copyTemplate } = useTemplate();
     const { push: pushBreadcrumb } = useBreadcrumb();
     const { getActiveItem } = useTable();
+    const { userInfo } = useLogin();
     const clickPath = (item: TableItem) => {
         if (item.size > 0) {
+            const url = item.url;
             // 是图片
             if (isPic(item)) {
-                imgPreview.value.url = item.url;
+                imgPreview.value.url = url;
                 imgPreview.value.visible = true;
-                loadImage(item.url);
+                loadImage(url);
                 return;
             }
             if (isPlainText(item)) {
-                axios.get(item.url).then((res) => {
+                axios.get(url).then((res) => {
                     textPreview.value = {
                         visible: true,
                         content: res.data,
@@ -69,7 +72,7 @@ export default () => {
             if (imgWidth / offsetWidth > imgHeight / offsetHeight) {
                 // 图片较宽
                 if (imgWidth <= 400) {
-                    imgPreview.value.width = imgWidth;
+                    imgPreview.value.width = 400;
                 } else if (imgWidth > offsetWidth * 0.8) {
                     imgPreview.value.width = offsetWidth * 0.8 + 32;
                 } else {
@@ -78,11 +81,15 @@ export default () => {
             } else {
                 // 图片较高
                 if (imgHeight > offsetHeight * 0.8) {
-                    imgPreview.value.width = parseInt((((offsetHeight * 0.8 - 32) * imgWidth) / imgHeight).toString());
+                    imgPreview.value.width = Math.max(
+                        parseInt((((offsetHeight * 0.8 - 32) * imgWidth) / imgHeight).toString()),
+                        400
+                    );
                 } else {
                     imgPreview.value.width = Math.max(400, imgWidth);
                 }
             }
+            console.log(imgPreview.value.width);
         };
     };
     const getStyle = (item: TableItem) => {

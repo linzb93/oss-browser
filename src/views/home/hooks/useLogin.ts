@@ -154,6 +154,11 @@ export default () => {
                 }
             });
         },
+        getUserInfo(id: string) {
+            getInfo(Number(id)).then((res) => {
+                userInfo.value = res;
+            });
+        },
         getBuckets,
         close,
         closed() {

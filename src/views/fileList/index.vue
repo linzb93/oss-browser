@@ -160,7 +160,7 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import dayjs from 'dayjs';
 import useLogin from '@/views/home/hooks/useLogin';
@@ -183,7 +183,7 @@ import useTable from './hooks/useTable';
 import useTableItem from './hooks/useTableItem';
 import { type TableItem } from './shared/types';
 import request from '@/helpers/request';
-import useWorkflow from './hooks/useWorkflow';
+const route = useRoute();
 const router = useRouter();
 const {
     init: tableInit,
@@ -219,11 +219,12 @@ const {
     download: downloadItem,
 } = useTableItem();
 
-const { userInfo } = useLogin();
+const { userInfo, getUserInfo } = useLogin();
 
 const { setting, getSetting, setHome, show: showSettingDialog } = useSetting();
 const { add: addCollect, show: showCollectDialog } = useCollect();
 onMounted(() => {
+    getUserInfo(route.query.id as string);
     tableInit();
     tableItemInit();
     onBreadcrumbChange(() => {

@@ -1,6 +1,6 @@
 <template>
     <el-dialog v-model="visible" title="复制工作流" width="500px" @close="close" @closed="closed">
-        <template #title>
+        <!-- <template #title>
             <h3>复制工作流</h3>
             <el-popover title="如何使用" trigger="click">
                 <template #reference>
@@ -8,7 +8,7 @@
                 </template>
                 <p>复制工作流是可以批量自定义上传文件名称，以及自定义批量复制的格式。</p>
             </el-popover>
-        </template>
+        </template> -->
         <el-form ref="formRef" :rules="rules" :model="form" label-suffix="：">
             <el-form-item label="名称">
                 <el-input v-model="form.name" />
@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { ref, shallowRef, reactive, shallowReactive } from 'vue';
+import { ref, readonly } from 'vue';
 import { QuestionFilled } from '@element-plus/icons-vue';
 import useWorkflow from '../hooks/useWorkflow';
 const { visible, saveAction, close, closed } = useWorkflow();

@@ -92,7 +92,7 @@ import TemplateEditor from './TemplateEditor.vue';
 import useTemplate from '../hooks/useTemplate';
 import useSetting from '../hooks/useSetting';
 import useWorkflow from '../hooks/useWorkflow';
-import WorkflowEditor from './Workflow.vue';
+import WorkflowEditor from './WorkflowEditor.vue';
 import { Edit, Remove } from '@element-plus/icons-vue';
 
 const { getList: getTemplates, templates, openDialog: addTemplate, removeItem: removeTemplate } = useTemplate();

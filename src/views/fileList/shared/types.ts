@@ -34,10 +34,12 @@ export interface SettingInfo {
     previewType: 1 | 2;
     /**
      * 自定义的复制样式模板ID，可编辑与选择
+     * * @default 0 - 表示不复制。
      */
     copyTemplateId: number;
     /**
-     * 自定义的复制工作流ID，可编辑与选择
+     * 自定义的复制工作流ID，可编辑与选择。
+     * @default 0 - 表示不复制。
      */
     copyWorkflowId: number;
     /**

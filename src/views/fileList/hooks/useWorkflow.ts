@@ -1,4 +1,4 @@
-import { shallowRef, ref, watch } from 'vue';
+import { shallowRef, ref, computed } from 'vue';
 import { WorkflowItem } from '../shared/types';
 import * as api from '../api';
 import { ElMessage, ElMessageBox } from 'element-plus';
@@ -54,6 +54,7 @@ export default () => {
                 getItem(item);
             }
         },
+        hasWorkflow: computed(() => list.value.length > 0),
         addItem,
         editItem,
         async saveAction() {

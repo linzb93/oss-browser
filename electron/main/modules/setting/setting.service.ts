@@ -5,17 +5,22 @@ import { type Database } from '../../types/api';
  */
 
 export async function get(): Promise<Database['setting']> {
-    const id = await sql((db) => db.defaultAppId);
-    return await sql(
-        id,
-        (db) =>
-            db.setting || {
-                pixel: 1,
-                previewType: 1,
-                copyTemplateId: 1,
-                homePath: '',
-            }
-    );
+    try {
+        const id = await sql((db) => db.defaultAppId);
+        return await sql(
+            id,
+            (db) =>
+                db.setting || {
+                    pixel: 1,
+                    previewType: 1,
+                    copyTemplateId: 0,
+                    copyWorkflowId: 0,
+                    homePath: '',
+                }
+        );
+    } catch (error) {
+        console.log(error);
+    }
 }
 export async function set(data: Database['setting']) {
     const id = await sql((db) => db.defaultAppId);

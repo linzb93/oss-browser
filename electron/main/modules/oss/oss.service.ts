@@ -11,6 +11,9 @@ import { __dirname } from '../../enums/index.enum';
 import { AddOptions, AppConstructorOptions } from './oss.dto';
 import { ossEvents } from './oss.repository';
 import { Database } from '../../types/api';
+import { v4 as uuidv4 } from 'uuid';
+import * as workflowService from '../workflow/workflow.service';
+import * as settingService from '../setting/setting.service';
 
 let currentApp: App;
 /**
@@ -39,16 +42,23 @@ export async function deleteFile(paths: string): Promise<any> {
     ossEvents.emit('remove', paths);
     return unsuccessfulList;
 }
+/**
+ * 上传文件，支持批量目录上传
+ */
 export async function upload(e: IpcMainEvent, data: AddOptions) {
     const { names, prefix } = data;
-    const list = names
+    // 读取workflowId
+    const { copyWorkflowId } = await settingService.get();
+    const workflowItem = await workflowService.getById(copyWorkflowId);
+    let list = names
         .split(',')
-        .map((item) => {
-            if (!extname(item)) {
-                // 是目录
-                const fileDirname = slash(dirname(item));
-                return readDirectoryRecursively(item).map((originlocalPath) => {
-                    const localPath = slash(originlocalPath);
+        .map((name) => {
+            if (!extname(name)) {
+                // 上传的是目录
+                const fileDirname = slash(dirname(name));
+                console.log(fileDirname);
+                return readDirectoryRecursively(name).map((originLocalPath) => {
+                    const localPath = slash(originLocalPath);
                     return {
                         localPath,
                         ossPath: localPath.replace(`${fileDirname}/`, ''),
@@ -56,11 +66,36 @@ export async function upload(e: IpcMainEvent, data: AddOptions) {
                 });
             }
             return {
-                localPath: slash(item),
-                ossPath: basename(item),
+                localPath: slash(name),
+                ossPath: basename(name),
             };
         })
         .flat();
+    list = list.map((item, index) => {
+        let { ossPath } = item;
+        if (workflowItem.nameType === 'index') {
+            // 将目录地址里面的文件basename换成index值，目录前缀地址不变
+            const pathDirname = dirname(ossPath);
+            if (pathDirname === '.') {
+                ossPath = `${index + 1}${extname(ossPath)}`;
+            } else {
+                ossPath = `${pathDirname}/${index + 1}${extname(ossPath)}`;
+            }
+        } else if (workflowItem.nameType === 'uid') {
+            // 将目录地址里面的文件basename换成index值，目录前缀地址不变
+            const pathDirname = dirname(ossPath);
+            if (pathDirname === '.') {
+                ossPath = `${uuidv4()}${extname(ossPath)}`;
+            } else {
+                ossPath = `${pathDirname}/${uuidv4()}${extname(ossPath)}`;
+            }
+        }
+        return {
+            ...item,
+            ossPath,
+        };
+    });
+    console.log(list);
     const task$ = new Subject();
     let statusList = list.map((item) => {
         return {
@@ -111,7 +146,7 @@ export async function upload(e: IpcMainEvent, data: AddOptions) {
         complete() {
             ossEvents.emit('add', {
                 prefix,
-                names, // TODO：加入上传文件夹后，这个地方得改成目录里面的所有文件拼接的
+                names,
                 type: 'file',
             });
             e.sender.send(`oss-upload-receiver`, {

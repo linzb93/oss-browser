@@ -97,16 +97,16 @@ export default () => {
     ipcMain.handle('open', (_, dataStr) => {
         return response(async () => await utilController.open(dataStr));
     });
-    ipcMain.handle('workflow-get-list', () => {
+    ipcMain.handle('get-workflow-list', () => {
         return response(async () => await workflowController.getList());
     });
-    ipcMain.handle('workflow-add', (_, dataStr) => {
+    ipcMain.handle('add-workflow', (_, dataStr) => {
         return response(async () => await workflowController.add(dataStr));
     });
-    ipcMain.handle('workflow-edit', (_, dataStr) => {
+    ipcMain.handle('edit-workflow', (_, dataStr) => {
         return response(async () => await workflowController.edit(dataStr));
     });
-    ipcMain.handle('workflow-remove', (_, dataStr) => {
+    ipcMain.handle('remove-workflow', (_, dataStr) => {
         return response(async () => await workflowController.remove(dataStr));
     });
 };

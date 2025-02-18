@@ -1,4 +1,4 @@
-import { ref, shallowRef } from 'vue';
+import { computed, ref, shallowRef } from 'vue';
 import * as api from '../api';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { TemplateItem } from '../shared/types';
@@ -49,6 +49,7 @@ export default () => {
                 getItem(item);
             }
         },
+        hasTemplate: computed(() => templates.value.length > 0),
         addItem,
         editItem,
         async saveAction() {

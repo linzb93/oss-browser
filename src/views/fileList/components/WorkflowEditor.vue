@@ -39,7 +39,6 @@
 
 <script setup>
 import { ref, readonly } from 'vue';
-import { QuestionFilled } from '@element-plus/icons-vue';
 import useWorkflow from '../hooks/useWorkflow';
 const { visible, saveAction, close, closed } = useWorkflow();
 const form = ref({

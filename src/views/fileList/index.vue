@@ -126,7 +126,7 @@
                             :underline="false"
                             class="mr10"
                             style="margin-left: 0"
-                            v-if="isPic(scope.row)"
+                            v-if="isPic(scope.row) && hasTemplate"
                             @click="getStyle(scope.row)"
                             >复制样式</el-link
                         >
@@ -180,6 +180,7 @@ import useSetting from './hooks/useSetting';
 import CollectPane from './components/CollectPane.vue';
 import useCollect from './hooks/useCollect';
 import useTable from './hooks/useTable';
+import useTemplate from './hooks/useTemplate';
 import useTableItem from './hooks/useTableItem';
 import { type TableItem } from './shared/types';
 import request from '@/helpers/request';
@@ -223,6 +224,7 @@ const { userInfo, getUserInfo } = useLogin();
 
 const { setting, getSetting, setHome, show: showSettingDialog } = useSetting();
 const { add: addCollect, show: showCollectDialog } = useCollect();
+const { hasTemplate } = useTemplate();
 onMounted(() => {
     getUserInfo(route.query.id as string);
     tableInit();

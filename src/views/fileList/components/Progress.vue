@@ -57,24 +57,29 @@
 
 <script setup lang="ts">
 import { ref, shallowRef, watch } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { Check } from '@element-plus/icons-vue';
 import request, { requestUtil } from '@/helpers/request';
 import pathUtils from '@/helpers/path';
 import { getSize } from '@/helpers/size';
 import useLogin from '@/views/home/hooks/useLogin';
-
+import useWorkflow from '../hooks/useWorkflow';
+import useSetting from '../hooks/useSetting';
 const props = defineProps<{
     path: string;
     uploadList: any[];
 }>();
-const { userInfo } = useLogin();
+
 const emit = defineEmits(['refresh']);
 const visible = defineModel('visible');
 
 interface ListItem {
     path: string;
 }
+const { userInfo } = useLogin();
+
+const { list: workflowList } = useWorkflow();
+const { setting } = useSetting();
 
 const list = ref<ListItem[]>([]);
 const finished = shallowRef(false);
@@ -93,6 +98,9 @@ const startUpload = () => {
             finished.value = true;
             removeEvt();
             ElMessage.success('上传成功');
+            if (workflowList.value.length && setting.value.copyWorkflowId) {
+                setting.value.copyWorkflowId = 0;
+            }
         }
         list.value = data;
     });
@@ -102,7 +110,21 @@ watch(visible, (data) => {
     if (!data) {
         return;
     }
-    startUpload();
+    if (workflowList.value.length && setting.value.copyWorkflowId) {
+        // 提醒用户当前有复制工作流，是否取消或继续
+        ElMessageBox.confirm('当前有复制工作流，是否继续？', '提示', {
+            confirmButtonText: '继续',
+            cancelButtonText: '取消',
+        })
+            .then(() => {
+                startUpload();
+            })
+            .catch(() => {
+                close();
+            });
+    } else {
+        startUpload();
+    }
 });
 const close = () => {
     visible.value = false;

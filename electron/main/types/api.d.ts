@@ -53,6 +53,10 @@ export interface Database {
          * 复制模板ID
          */
         copyTemplateId: number;
+        /**
+         * 复制工作流ID
+         */
+        copyWorkflowId: number;
     };
     history: {
         path: string;

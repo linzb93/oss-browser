@@ -56,7 +56,6 @@ export async function upload(e: IpcMainEvent, data: AddOptions) {
             if (!extname(name)) {
                 // 上传的是目录
                 const fileDirname = slash(dirname(name));
-                console.log(fileDirname);
                 return readDirectoryRecursively(name).map((originLocalPath) => {
                     const localPath = slash(originLocalPath);
                     return {
@@ -95,7 +94,6 @@ export async function upload(e: IpcMainEvent, data: AddOptions) {
             ossPath,
         };
     });
-    console.log(list);
     const task$ = new Subject();
     let statusList = list.map((item) => {
         return {

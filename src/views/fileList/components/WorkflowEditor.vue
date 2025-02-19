@@ -9,7 +9,7 @@
                 <p>复制工作流是可以批量自定义上传文件名称，以及自定义批量复制的格式。</p>
             </el-popover>
         </template> -->
-        <el-form ref="formRef" :rules="rules" :model="form" label-suffix="：">
+        <el-form ref="formRef" :rules="rules" :model="form" label-suffix="：" label-width="110px">
             <el-form-item label="名称">
                 <el-input v-model="form.name" />
             </el-form-item>
@@ -40,12 +40,7 @@
 <script setup>
 import { ref, readonly } from 'vue';
 import useWorkflow from '../hooks/useWorkflow';
-const { visible, saveAction, close, closed } = useWorkflow();
-const form = ref({
-    nameType: '',
-    templateType: '',
-    templateContent: '',
-});
+const { visible, saveAction, close, closed, form } = useWorkflow();
 const rules = readonly({});
 const formRef = ref(null);
 const emit = defineEmits(['submit']);

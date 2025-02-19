@@ -18,6 +18,7 @@ export default () => {
         form.value = await api.getWorkflowItem(data);
     }
     async function addItem() {
+        console.log(form.value);
         await api.addWorkflowItem(form.value);
         ElMessage.success('添加成功');
     }

@@ -1,13 +1,13 @@
 <template>
-    <el-dialog v-model="visible" width="500px" title="复制样式" @close="close" @closed="closed">
-        <el-form label-suffix="：">
-            <el-form-item label="倍数">
+    <el-dialog v-model="visible" width="500px" title="设置" @close="close" @closed="closed">
+        <el-form label-suffix="：" label-width="110px">
+            <el-form-item label="图片倍数">
                 <el-radio-group v-model="formSetting.pixel">
                     <el-radio :value="2">二倍图</el-radio>
                     <el-radio :value="1">原图</el-radio>
                 </el-radio-group>
             </el-form-item>
-            <el-form-item label="预览模式">
+            <el-form-item label="图片预览模式">
                 <el-radio-group v-model="formSetting.previewType">
                     <el-radio :value="1">无</el-radio>
                     <el-radio :value="2">缩略图</el-radio>
@@ -106,7 +106,10 @@ const {
     removeItem: removeWorkflow,
 } = useWorkflow();
 
-init(getTemplates);
+init(() => {
+    getTemplates();
+    getWorkflow();
+});
 </script>
 <style lang="scss" scoped>
 .copy-con {

@@ -1,0 +1,63 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Vue + Electron + TypeScript 项目指南
+
+## 项目结构
+项目采用 Vue 3 + Electron + TypeScript 技术栈，遵循以下目录结构：
+
+- `src/main` - Electron 主进程代码
+- `src/renderer` - Vue 前端渲染进程代码
+- `src/preload` - Electron 预加载脚本
+- `src/shared` - 主进程和渲染进程共享的类型定义和工具
+
+## 主要文件
+- [src/main/index.ts](mdc:src/main/index.ts) - Electron 主进程入口文件
+- [src/renderer/main.ts](mdc:src/renderer/main.ts) - Vue 应用入口文件
+- [src/preload/index.ts](mdc:src/preload/preload.ts) - 预加载脚本
+- [electron.vite.config.ts](mdc:electron.vite.config.ts) - 项目构建配置
+
+## 开发规范
+
+### TypeScript
+- 使用严格模式 (`"strict": true`)
+- 所有文件使用 `.ts` 或 `.vue` 扩展名
+- 接口名称使用 `I` 前缀，如 `IUserConfig`
+- 类型定义放在 `src/shared/types` 目录
+
+### Vue 组件
+- 使用 Composition API 和 `<script setup lang="ts">`
+- 组件名称使用 PascalCase
+- Props 必须声明类型
+- 使用 `defineEmits` 和 `defineProps` 定义事件和属性
+
+### Electron
+- 使用 `ipcMain` 和 `ipcRenderer` 进行进程间通信
+- 通信事件类型定义在 `src/shared/ipc.ts`
+- 主进程业务逻辑模块化，放在 `src/main/modules`
+- 使用预加载脚本暴露安全的 API
+
+### 状态管理
+- 使用 Pinia 进行状态管理
+- Store 文件放在 `src/renderer/stores`
+- 每个 Store 一个文件，使用 `defineStore`
+
+### 样式
+- 使用 SCSS 预处理器
+- 遵循 BEM 命名规范
+- 全局样式在 `src/renderer/styles`
+- 组件样式使用 `<style scoped lang="scss">`
+
+## 安全性
+- 禁止在渲染进程直接访问 Node.js API
+- 使用预加载脚本和 contextBridge 暴露必要的 API
+- 配置 CSP 策略
+- 关闭 nodeIntegration，启用 contextIsolation
+
+## 构建和部署
+- 使用 electron-builder 打包
+- 环境变量配置在 `.env` 文件
+- 生产构建前执行类型检查
+- 自动更新配置在 `electron-builder.config.js`

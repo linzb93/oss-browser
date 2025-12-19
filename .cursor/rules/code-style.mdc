@@ -1,0 +1,157 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# 代码风格指南
+
+## TypeScript 代码风格
+
+### 命名规范
+- 变量和函数使用 camelCase
+- 类和接口使用 PascalCase
+- 常量使用 UPPER_SNAKE_CASE
+- 文件名使用 kebab-case
+
+### 注释规范
+
+#### JSDoc 注释
+```typescript
+/**
+ * 函数描述
+ * @param {string} param1 - 参数1的描述
+ * @param {number} param2 - 参数2的描述
+ * @returns {Promise<boolean>} 返回值描述
+ * @throws {Error} 可能抛出的错误
+ */
+```
+
+#### 接口注释
+```typescript
+/**
+ * 用户配置接口
+ * @interface IUserConfig
+ */
+interface IUserConfig {
+  /** 用户名 */
+  username: string;
+  /** 年龄 */
+  age: number;
+}
+```
+
+### Vue 组件注释
+```vue
+<script setup lang="ts">
+/**
+ * @component UserProfile
+ * @description 用户资料展示组件
+ * @example
+ * <UserProfile
+ *   :userId="123"
+ *   @update="handleUpdate"
+ * />
+ */
+
+/** 组件属性定义 */
+const props = defineProps<{
+  /** 用户ID */
+  userId: number;
+}>();
+
+/** 组件事件定义 */
+const emit = defineEmits<{
+  /** 更新事件 */
+  (event: 'update', userId: number): void;
+}>();
+</script>
+```
+
+### 代码格式化
+- 使用 2 空格缩进
+- 使用单引号字符串
+- 语句末尾使用分号
+- 大括号换行风格遵循 1TBS
+
+#### 1TBS 风格示例
+```typescript
+// ✅ 正确的 1TBS 风格
+if (condition) {
+  doSomething();
+} else {
+  doOtherthing();
+}
+
+function calculate(x: number) {
+  if (x > 0) {
+    return x * 2;
+  }
+  return 0;
+}
+
+class Example {
+  constructor() {
+    // 构造函数内容
+  }
+
+  method() {
+    try {
+      // 尝试执行
+    } catch (error) {
+      // 错误处理
+    }
+  }
+}
+
+// ❌ 不符合 1TBS 风格
+if (condition)
+{
+  doSomething();
+}
+else
+{
+  doOtherthing();
+}
+
+// ❌ 即使只有一行代码也不要省略大括号
+if (condition) doSomething(); // 不推荐
+
+// ✅ 正确写法
+if (condition) {
+  doSomething();
+}
+```
+
+### 导入顺序
+1. Node.js 内置模块
+2. 第三方模块
+3. 本地模块
+4. 类型导入
+5. 样式文件
+
+示例：
+```typescript
+import { join } from 'path';
+import { app } from 'electron';
+import { createApp } from 'vue';
+import { useUserStore } from '@/stores/user';
+import type { IUserConfig } from '@/types';
+import './styles/main.scss';
+```
+
+## Git 提交规范
+- feat: 新功能
+- fix: 修复bug
+- docs: 文档更新
+- style: 代码格式调整
+- refactor: 重构
+- test: 测试相关
+- chore: 构建/工具链相关
+
+提交信息格式：
+```
+type(scope): subject
+
+body
+
+footer

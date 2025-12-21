@@ -11,7 +11,7 @@ import { __dirname } from '../../enums/index.enum';
 import { AddOptions, AppConstructorOptions } from './oss.dto';
 import { ossEvents } from './oss.repository';
 import { Database } from '../../types/api';
-import { v4 as uuidv4 } from 'uuid';
+// import { v4 as uuidv4 } from 'uuid';
 import * as workflowService from '../workflow/workflow.service';
 import * as settingService from '../setting/setting.service';
 
@@ -48,8 +48,8 @@ export async function deleteFile(paths: string): Promise<any> {
 export async function upload(e: IpcMainEvent, data: AddOptions) {
     const { names, prefix } = data;
     // 读取workflowId
-    const { copyWorkflowId } = await settingService.get();
-    const workflowItem = await workflowService.getById(copyWorkflowId);
+    // const { copyWorkflowId } = await settingService.get();
+    // const workflowItem = await workflowService.getById(copyWorkflowId);
     let list = names
         .split(',')
         .map((name) => {
@@ -70,30 +70,30 @@ export async function upload(e: IpcMainEvent, data: AddOptions) {
             };
         })
         .flat();
-    list = list.map((item, index) => {
-        let { ossPath } = item;
-        if (workflowItem.nameType === 'index') {
-            // 将目录地址里面的文件basename换成index值，目录前缀地址不变
-            const pathDirname = dirname(ossPath);
-            if (pathDirname === '.') {
-                ossPath = `${index + 1}${extname(ossPath)}`;
-            } else {
-                ossPath = `${pathDirname}/${index + 1}${extname(ossPath)}`;
-            }
-        } else if (workflowItem.nameType === 'uid') {
-            // 将目录地址里面的文件basename换成index值，目录前缀地址不变
-            const pathDirname = dirname(ossPath);
-            if (pathDirname === '.') {
-                ossPath = `${uuidv4()}${extname(ossPath)}`;
-            } else {
-                ossPath = `${pathDirname}/${uuidv4()}${extname(ossPath)}`;
-            }
-        }
-        return {
-            ...item,
-            ossPath,
-        };
-    });
+    // list = list.map((item, index) => {
+    //     let { ossPath } = item;
+    //     if (workflowItem.nameType === 'index') {
+    //         // 将目录地址里面的文件basename换成index值，目录前缀地址不变
+    //         const pathDirname = dirname(ossPath);
+    //         if (pathDirname === '.') {
+    //             ossPath = `${index + 1}${extname(ossPath)}`;
+    //         } else {
+    //             ossPath = `${pathDirname}/${index + 1}${extname(ossPath)}`;
+    //         }
+    //     } else if (workflowItem.nameType === 'uid') {
+    //         // 将目录地址里面的文件basename换成index值，目录前缀地址不变
+    //         const pathDirname = dirname(ossPath);
+    //         if (pathDirname === '.') {
+    //             ossPath = `${uuidv4()}${extname(ossPath)}`;
+    //         } else {
+    //             ossPath = `${pathDirname}/${uuidv4()}${extname(ossPath)}`;
+    //         }
+    //     }
+    //     return {
+    //         ...item,
+    //         ossPath,
+    //     };
+    // });
     const task$ = new Subject();
     let statusList = list.map((item) => {
         return {

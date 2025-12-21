@@ -26,7 +26,11 @@ export default function useUpload() {
             if (duplicateFiles.length) {
                 ElMessageBox({
                     message: h(MsgBoxFileList, {
-                        list: duplicateFiles.map((item) => item.name),
+                        list: duplicateFiles.map((item) => ({
+                            name: item.name,
+                            path: URL.createObjectURL(item as unknown as Blob),
+                            onlineUrl: tableList.value.find((sub) => sub.name === item.name)?.url,
+                        })),
                         tips: '下列文件已存在，是否覆盖？',
                     }),
                     title: '温馨提醒',

@@ -145,31 +145,7 @@
     />
     <collect-pane />
     <setting-dialog />
-    <el-dialog v-model="imgPreview.visible" title="图片预览" :width="`${imgPreview.width}px`" top="2%">
-        <div class="center" :style="{ backgroundColor: previewBgColor }">
-            <img :src="imgPreview.url" class="img-dialog-preview" />
-        </div>
-        <template #footer>
-            <div class="flexalign-center flexpack-end">
-                <el-button @click="changeBgColor">背景色替换</el-button>
-                <el-button type="primary" @click="requestUtil.open('web', imgPreview.url)">在浏览器打开</el-button>
-                <el-dropdown class="ml10">
-                    <span class="curp">
-                        更多功能
-                        <el-icon class="ml5">
-                            <arrow-down />
-                        </el-icon>
-                    </span>
-                    <template #dropdown>
-                        <el-dropdown-item action="forceRefresh">强制刷新</el-dropdown-item>
-                    </template>
-                </el-dropdown>
-            </div>
-        </template>
-    </el-dialog>
-    <el-dialog v-model="textPreview.visible" title="文件预览" width="800px">
-        <div class="file-content">{{ textPreview.content }}</div>
-    </el-dialog>
+    <preview-dialog />
 </template>
 
 <script setup lang="ts">
@@ -190,6 +166,7 @@ import FileTypeIcon from '@/components/FileTypeIcon.vue';
 import DeleteConfirm from '@/components/DeleteConfirm.vue';
 import ProgressDrawer from './components/Progress.vue';
 import SettingDialog from './components/Setting.vue';
+import PreviewDialog from './components/Preview.vue';
 import useSetting from './hooks/useSetting';
 import CollectPane from './components/CollectPane.vue';
 import useCollect from './hooks/useCollect';
@@ -224,17 +201,7 @@ const {
     onChange: onBreadcrumbChange,
 } = useBreadcrumb();
 
-const {
-    init: tableItemInit,
-    imgPreview,
-    textPreview,
-    previewBgColor,
-    clickPath,
-    getStyle,
-    isPic,
-    download: downloadItem,
-    changeBgColor,
-} = useTableItem();
+const { init: tableItemInit, clickPath, getStyle, isPic, download: downloadItem } = useTableItem();
 
 const { userInfo, getUserInfo } = useLogin();
 
@@ -350,19 +317,5 @@ const { progressVisible, active, setDragState, dropFile, uploadingList } = useUp
     .tips {
         display: none;
     }
-}
-.center {
-    text-align: center;
-}
-.img-dialog-preview {
-    max-width: 100%;
-}
-.table-preview-img {
-    max-width: 100px;
-}
-.file-content {
-    max-height: 50vh;
-    overflow: auto;
-    word-break: break-all;
 }
 </style>

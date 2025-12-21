@@ -146,11 +146,25 @@
     <collect-pane />
     <setting-dialog />
     <el-dialog v-model="imgPreview.visible" title="图片预览" :width="`${imgPreview.width}px`" top="2%">
-        <div class="center">
+        <div class="center" :style="{ backgroundColor: previewBgColor }">
             <img :src="imgPreview.url" class="img-dialog-preview" />
         </div>
         <template #footer>
-            <el-button type="primary" @click="requestUtil.open('web', imgPreview.url)">在浏览器打开</el-button>
+            <div class="flexalign-center flexpack-end">
+                <el-button @click="changeBgColor">背景色替换</el-button>
+                <el-button type="primary" @click="requestUtil.open('web', imgPreview.url)">在浏览器打开</el-button>
+                <el-dropdown class="ml10">
+                    <span class="curp">
+                        更多功能
+                        <el-icon class="ml5">
+                            <arrow-down />
+                        </el-icon>
+                    </span>
+                    <template #dropdown>
+                        <el-dropdown-item action="forceRefresh">强制刷新</el-dropdown-item>
+                    </template>
+                </el-dropdown>
+            </div>
         </template>
     </el-dialog>
     <el-dialog v-model="textPreview.visible" title="文件预览" width="800px">
@@ -214,10 +228,12 @@ const {
     init: tableItemInit,
     imgPreview,
     textPreview,
+    previewBgColor,
     clickPath,
     getStyle,
     isPic,
     download: downloadItem,
+    changeBgColor,
 } = useTableItem();
 
 const { userInfo, getUserInfo } = useLogin();

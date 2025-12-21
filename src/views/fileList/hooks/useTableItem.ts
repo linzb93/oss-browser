@@ -35,6 +35,7 @@ const textPreview = ref({
     visible: false,
     content: '',
 });
+const previewBgColor = ref('');
 const selected = ref<TableItem[]>([]);
 export default () => {
     const { copyTemplate } = useTemplate();
@@ -143,5 +144,14 @@ export default () => {
          * 读取复制模板，复制图片样式
          */
         getStyle,
+        previewBgColor,
+        changeBgColor() {
+            // 背景色替换
+            if (previewBgColor.value) {
+                previewBgColor.value = '';
+            } else {
+                previewBgColor.value = '#000';
+            }
+        },
     };
 };

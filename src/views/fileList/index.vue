@@ -207,9 +207,10 @@ const { userInfo, getUserInfo } = useLogin();
 
 const { setting, getSetting, setHome, show: showSettingDialog } = useSetting();
 const { add: addCollect, show: showCollectDialog } = useCollect();
-const { hasTemplate } = useTemplate();
+const { hasTemplate, getList: getTemplateList } = useTemplate();
 onMounted(() => {
     getUserInfo(route.query.id as string);
+    getTemplateList();
     tableInit();
     tableItemInit();
     onBreadcrumbChange(() => {

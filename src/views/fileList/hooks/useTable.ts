@@ -178,7 +178,7 @@ export default () => {
             }
             ElMessageBox({
                 message: h(MsgBoxFileList, {
-                    list: selected.value.map((item) => item.name),
+                    list: selected.value.map((item) => ({ name: item.name })),
                     tips: '确认删除以下文件：',
                 }),
                 title: '温馨提醒',

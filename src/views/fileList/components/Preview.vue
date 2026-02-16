@@ -3,7 +3,7 @@
         <template v-if="type === 'img'">
             <p class="size">图片尺寸：{{ imgPreview.realWidth }} * {{ imgPreview.realHeight }}</p>
             <div class="center" :style="{ backgroundColor: imgPreview.bgColor }">
-                <img :src="imgPreview.url" class="img-dialog-preview" />
+                <img :src="fileURL" class="img-dialog-preview" />
             </div>
         </template>
         <template v-else-if="type === 'text'">
@@ -14,7 +14,7 @@
         <template #footer>
             <div class="flexalign-center flexpack-end">
                 <el-button @click="changeBgColor">背景色替换</el-button>
-                <el-button type="primary" @click="requestUtil.open('web', imgPreview.url)">在浏览器打开</el-button>
+                <el-button type="primary" @click="requestUtil.open('web', fileURL)">在浏览器打开</el-button>
                 <el-dropdown class="ml10">
                     <span class="curp">
                         更多功能
@@ -43,6 +43,20 @@ const props = defineProps({
         type: String,
         default: 'img',
     },
+    domain: {
+        type: String,
+        default: '',
+    },
+});
+
+const fileURL = computed(() => {
+    if (props.type === 'img') {
+        return `${imgPreview.value.url}`;
+    }
+    if (props.type === 'text') {
+        return `${textPreview.value.content}`;
+    }
+    return '';
 });
 
 const dialogTitle = computed(() => {

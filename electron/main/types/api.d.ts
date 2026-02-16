@@ -61,6 +61,7 @@ export interface Database {
     history: {
         path: string;
         createTime: string;
+        id: string;
     }[];
     workflow: {
         id: number;

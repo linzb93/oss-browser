@@ -1,13 +1,11 @@
 import { ref, shallowRef } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import useLogin from '@/views/home/hooks/useLogin';
 import useBreadcrumb from './useBreadcrumb';
 import useTable from './useTable';
 import * as api from '../api';
 import { IHistoryItem } from '../shared/types';
 
-export interface HistoryItem {
-    path: string;
-}
 const visible = shallowRef(false);
 const pageQuery = ref({
     pageSize: 10,
@@ -16,6 +14,8 @@ const pageQuery = ref({
 
 const totalCount = shallowRef(0);
 const list = ref<IHistoryItem[]>([]);
+const selectedIds = ref<string[]>([]);
+
 export default () => {
     const { userInfo } = useLogin();
     const { breadcrumb } = useBreadcrumb();
@@ -27,7 +27,22 @@ export default () => {
     };
     const close = () => {
         visible.value = false;
+        selectedIds.value = [];
     };
+    const handleSelectionChange = (rows: IHistoryItem[]) => {
+        selectedIds.value = rows.map((row) => row.id);
+    };
+    const deleteHistory = async () => {
+        if (!selectedIds.value.length) return;
+        await ElMessageBox.confirm('确定删除选中的历史记录吗？', '提示', {
+            type: 'warning',
+        });
+        await api.removeHistory(selectedIds.value);
+        ElMessage.success('删除成功');
+        selectedIds.value = [];
+        getList();
+    };
+
     return {
         /**
          * 历史记录列表
@@ -49,6 +64,7 @@ export default () => {
             pageQuery.value.pageIndex = 1;
             list.value = [];
             totalCount.value = 0;
+            selectedIds.value = [];
             getList();
         },
         getList,
@@ -72,5 +88,8 @@ export default () => {
          * 关闭弹出层
          */
         close,
+        selectedIds,
+        handleSelectionChange,
+        deleteHistory,
     };
 };

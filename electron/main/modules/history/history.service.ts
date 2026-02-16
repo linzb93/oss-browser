@@ -1,5 +1,6 @@
 import { join, basename } from 'node:path';
 import dayjs from 'dayjs';
+import { v4 as uuidv4 } from 'uuid';
 import sql from '../../helper/sql';
 import { IPage } from '../../types/vo';
 import { ossEvents } from '../oss/oss.repository';
@@ -24,12 +25,13 @@ export async function get(param: IPage) {
             totalCount: 0,
         };
     }
+    const reverseHistory = [...history].reverse();
     const start = (pageIndex - 1) * pageSize;
     const end = start + pageSize;
-    const list = history.slice(start, end);
+    const list = reverseHistory.slice(start, end);
     return {
         list,
-        totalCount: history.length,
+        totalCount: reverseHistory.length,
     };
 }
 export async function add(data: { prefix: string; names: string }) {
@@ -45,6 +47,7 @@ export async function add(data: { prefix: string; names: string }) {
             db.history = list.map((item) => ({
                 path: item,
                 createTime: now,
+                id: uuidv4(),
             }));
             return;
         }
@@ -52,15 +55,15 @@ export async function add(data: { prefix: string; names: string }) {
             list.map((item) => ({
                 path: item,
                 createTime: now,
-            }))
+                id: uuidv4(),
+            })),
         );
     });
 }
-export async function remove(data: string) {
+export async function remove(ids: string[]) {
     const id = await sql((db) => db.defaultAppId);
     await sql(id, (db) => {
         const { history } = db;
-        const realPath = data.split(',');
-        db.history = history.filter((item) => !realPath.includes(item.path));
+        db.history = history.filter((item) => !ids.includes(item.id));
     });
 }

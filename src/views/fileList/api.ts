@@ -35,6 +35,9 @@ export function setCollect(list: CollectItem[]) {
 export function getHistoryList(query: IPage): Promise<IHistroyResponse> {
     return request('get-history', query);
 }
+export function removeHistory(ids: string[]) {
+    return request('remove-history', ids);
+}
 export function getSetting(): Promise<SettingInfo> {
     return request('get-setting');
 }

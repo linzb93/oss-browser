@@ -1,6 +1,10 @@
 <template>
     <el-drawer :size="800" v-model="visible" title="历史记录" @close="close" @closed="init">
-        <el-table :data="list">
+        <div class="mb20">
+            <el-button type="danger" :disabled="!selectedIds.length" @click="deleteHistory">删除</el-button>
+        </div>
+        <el-table :data="list" row-key="id" @selection-change="handleSelectionChange">
+            <el-table-column type="selection" width="55" reserve-selection />
             <el-table-column label="名称" prop="name">
                 <template #default="scope">
                     <el-link type="primary" @click="onSelect(scope.row.path)">{{
@@ -32,7 +36,19 @@ import useHistory from '../hooks/useHistory';
 import useLogin from '@/views/home/hooks/useLogin';
 const { userInfo } = useLogin();
 
-const { getList, pageQuery: query, totalCount, list, onSelect, visible, close, init } = useHistory();
+const {
+    getList,
+    pageQuery: query,
+    totalCount,
+    list,
+    onSelect,
+    visible,
+    close,
+    init,
+    selectedIds,
+    handleSelectionChange,
+    deleteHistory,
+} = useHistory();
 init();
 </script>
 <style lang="scss" scoped>

@@ -145,7 +145,7 @@
     />
     <collect-pane />
     <setting-dialog />
-    <preview-dialog />
+    <preview-dialog :domain="userInfo.domain" />
 </template>
 
 <script setup lang="ts">
@@ -234,7 +234,7 @@ const batchCommand = (command: 'download' | 'delete' | 'copy') => {
 
 // 更多功能
 const moreCommand = async (
-    cmd: 'setting' | 'see-collect' | 'collect' | 'home-page' | 'upload-history' | 'back-login'
+    cmd: 'setting' | 'see-collect' | 'collect' | 'home-page' | 'upload-history' | 'back-login',
 ) => {
     const actions = {
         'setting': showSettingDialog,

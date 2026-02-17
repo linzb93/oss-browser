@@ -7,7 +7,6 @@ import historyController from './modules/history/history.controller';
 import templateController from './modules/template/template.controller';
 import collectController from './modules/collect/collect.controller';
 import utilController from './modules/util/util.controller';
-import workflowController from './modules/workflow/workflow.controller';
 import response from './helper/response';
 
 export default () => {
@@ -71,6 +70,10 @@ export default () => {
     ipcMain.handle('get-history', (_, dataStr) => {
         return response(async () => await historyController.get(dataStr));
     });
+    ipcMain.handle('remove-history', (_, dataStr) => {
+        return response(async () => await historyController.remove(dataStr));
+    });
+
     // 模板
     ipcMain.handle('get-template', (_, dataStr) => {
         return response(async () => await templateController.getDetail(dataStr));
@@ -96,17 +99,5 @@ export default () => {
     });
     ipcMain.handle('open', (_, dataStr) => {
         return response(async () => await utilController.open(dataStr));
-    });
-    ipcMain.handle('get-workflow-list', () => {
-        return response(async () => await workflowController.getList());
-    });
-    ipcMain.handle('add-workflow', (_, dataStr) => {
-        return response(async () => await workflowController.add(dataStr));
-    });
-    ipcMain.handle('edit-workflow', (_, dataStr) => {
-        return response(async () => await workflowController.edit(dataStr));
-    });
-    ipcMain.handle('remove-workflow', (_, dataStr) => {
-        return response(async () => await workflowController.remove(dataStr));
     });
 };

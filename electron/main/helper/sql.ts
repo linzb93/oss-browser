@@ -5,21 +5,51 @@ import { JSONFile } from 'lowdb/node';
 import { root } from '../enums/index.enum';
 import { Database } from '../types/api';
 
+const fileQueue = new Map<string, Promise<unknown>>();
+
+function runSerial<T>(key: string, task: () => Promise<T>): Promise<T> {
+    const prev = fileQueue.get(key) ?? Promise.resolve();
+    const next = prev.catch(() => undefined).then(task);
+    fileQueue.set(key, next as Promise<unknown>);
+    next.finally(() => {
+        if (fileQueue.get(key) === (next as Promise<unknown>)) {
+            fileQueue.delete(key);
+        }
+    });
+    return next;
+}
+
+async function ensureJsonFile(filePath: string) {
+    await fs.ensureDir(dirname(filePath));
+    const exists = await fs.pathExists(filePath);
+    if (!exists) {
+        await fs.writeFile(filePath, '{}');
+        return;
+    }
+    const stat = await fs.stat(filePath).catch(() => null);
+    if (stat && stat.size === 0) {
+        await fs.writeFile(filePath, '{}');
+    }
+}
+
 function initDb() {
     const indexDbPath = join(root, 'index.json');
     const accountDir = join(root, 'app');
-    try {
-        fs.accessSync(indexDbPath);
-    } catch (error) {
-        fs.mkdirSync(dirname(indexDbPath), {
-            recursive: true,
-        });
+    fs.ensureDirSync(dirname(indexDbPath));
+    fs.ensureDirSync(accountDir);
+
+    if (!fs.pathExistsSync(indexDbPath)) {
         fs.writeFileSync(indexDbPath, '{}');
+        return;
     }
+
     try {
-        fs.accessSync(accountDir);
+        const stat = fs.statSync(indexDbPath);
+        if (stat.size === 0) {
+            fs.writeFileSync(indexDbPath, '{}');
+        }
     } catch (error) {
-        fs.mkdirSync(accountDir);
+        fs.writeFileSync(indexDbPath, '{}');
     }
 }
 initDb();
@@ -38,15 +68,19 @@ async function sql<T>(...args: any[]): Promise<T> {
         accountId = args[0];
     }
     const filePath = accountId ? join(root, `app/${accountId}.json`) : join(root, 'index.json');
-    const db = new Low(new JSONFile(filePath), {});
-    await db.read();
-    const data = db.data as unknown as Database;
-    let result: any;
-    if (typeof callback === 'function') {
-        result = await callback(data);
-    }
-    await db.write();
-    return result;
+    return runSerial(filePath, async () => {
+        await ensureJsonFile(filePath);
+        const db = new Low<Database>(new JSONFile<Database>(filePath), {} as Database);
+        await db.read();
+        db.data ||= {} as Database;
+        const data = db.data as unknown as Database;
+        let result: any;
+        if (typeof callback === 'function') {
+            result = await callback(data);
+        }
+        await db.write();
+        return result;
+    });
 }
 export default sql;
 

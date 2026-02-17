@@ -5,4 +5,8 @@ export default {
         const data = JSON.parse(dataStr) as IPage;
         return historyService.get(data);
     },
+    remove(dataStr: string) {
+        const ids = JSON.parse(dataStr) as string[];
+        return historyService.remove(ids);
+    },
 };

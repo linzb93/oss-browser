@@ -78,6 +78,8 @@ export interface WorkflowItem {
     templateType: 'plainText' | 'json';
 }
 export interface IHistoryItem {
+    id: string;
     path: string;
+    createTime: string;
 }
 export type IHistroyResponse = IPageResponse<IHistoryItem>;

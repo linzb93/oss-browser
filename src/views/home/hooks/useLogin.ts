@@ -97,7 +97,7 @@ export default () => {
         try {
             bucketList.value = await request(
                 'get-buckets',
-                pick(userInfo.value, ['region', 'accessKeyId', 'accessKeySecret'])
+                pick(form.value, ['region', 'accessKeyId', 'accessKeySecret']),
             );
         } catch (error) {
             ElMessage.error('信息输入错误，请重新输入');

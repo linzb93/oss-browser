@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 import { defineConfig } from 'vite';
-import path from 'node:path';
 import vue from '@vitejs/plugin-vue';
 import electron from 'vite-plugin-electron/simple';
 import pkg from './package.json';
+import { fileURLToPath, URL } from 'node:url';
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => {
     fs.rmSync('dist-electron', { recursive: true, force: true });
@@ -18,7 +18,7 @@ export default defineConfig(({ command }) => {
         },
         resolve: {
             alias: {
-                '@': path.resolve(__dirname, './src'),
+                '@': fileURLToPath(new URL('./src', import.meta.url)),
             },
         },
         plugins: [
@@ -27,7 +27,7 @@ export default defineConfig(({ command }) => {
                 main: {
                     // Shortcut of `build.lib.entry`
                     entry: {
-                        index: 'electron/main/index.ts',
+                        index: 'src/main/bootstrap/index.ts',
                     },
                     onstart({ startup }) {
                         if (process.env.VSCODE_DEBUG) {
@@ -37,6 +37,11 @@ export default defineConfig(({ command }) => {
                         }
                     },
                     vite: {
+                        resolve: {
+                            alias: {
+                                '@': fileURLToPath(new URL('./src', import.meta.url)),
+                            },
+                        },
                         build: {
                             sourcemap,
                             minify: isBuild,
@@ -54,7 +59,7 @@ export default defineConfig(({ command }) => {
                 preload: {
                     // Shortcut of `build.rollupOptions.input`.
                     // Preload scripts may contain Web assets, so use the `build.rollupOptions.input` instead `build.lib.entry`.
-                    input: 'electron/preload/index.ts',
+                    input: 'src/main/preload/index.ts',
                     vite: {
                         build: {
                             sourcemap: sourcemap ? 'inline' : undefined, // #332

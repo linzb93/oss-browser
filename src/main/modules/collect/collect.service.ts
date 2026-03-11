@@ -13,7 +13,7 @@ export async function add(data: string) {
             name: data
                 .split('/')
                 .filter((item) => !!item)
-                .at(-1),
+                .at(-1) as string,
             path: data,
         };
         if (!db.collect) {

@@ -7,13 +7,10 @@ import OSS, { OssConfig } from 'ali-oss';
 import slash from 'slash';
 import App from './adapter/Base';
 import { type FileItem } from '../../types/vo';
-import { __dirname } from '../../enums/index.enum';
+import { __dirname } from '../../shared/constants/path';
 import { AddOptions, AppConstructorOptions } from './oss.dto';
 import { ossEvents } from './oss.repository';
 import { Database } from '../../types/api';
-// import { v4 as uuidv4 } from 'uuid';
-import * as workflowService from '../workflow/workflow.service';
-import * as settingService from '../setting/setting.service';
 
 let currentApp: App;
 /**
@@ -132,7 +129,7 @@ export async function upload(e: IpcMainEvent, data: AddOptions) {
 
     const timer$ = interval(2000).pipe(
         map((data) => `已经经过了${data}秒`),
-        takeUntil(task$)
+        takeUntil(task$),
     );
     timer$.subscribe({
         next() {

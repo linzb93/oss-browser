@@ -2,7 +2,7 @@ import { join, dirname } from 'node:path';
 import fs from 'fs-extra';
 import { Low } from 'lowdb';
 import { JSONFile } from 'lowdb/node';
-import { root } from '../enums/index.enum';
+import { root } from '../shared/constants/path';
 import { Database } from '../types/api';
 
 const fileQueue = new Map<string, Promise<unknown>>();

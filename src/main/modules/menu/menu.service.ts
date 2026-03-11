@@ -1,6 +1,6 @@
 import { app, shell, type BrowserWindow, Menu, dialog } from 'electron';
 import { spawn } from 'node:child_process';
-import { root } from '../../enums/index.enum';
+import { root } from '../../shared/constants/path';
 import { postRenderer } from '../window/window.service';
 export default (win: BrowserWindow) => {
     const menu = Menu.buildFromTemplate([

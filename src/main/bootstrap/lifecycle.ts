@@ -1,11 +1,11 @@
 import { app, BrowserWindow } from 'electron';
 import { join } from 'node:path';
-import init from '@/main/providers/init';
 import unhandled from 'electron-unhandled';
-import { __dirname } from '@/main/enums/index.enum';
+import { __dirname } from '@/main/shared/constants/path';
 import { setWindow } from '@/main/modules/window/window.service';
 import createMenu from '@/main/modules/menu/menu.service';
 import createContextMenu from '@/main/modules/menu/contextMenu.service';
+import * as historyService from '../modules/history/history.service';
 
 interface IAppOptions {
     router: Function;
@@ -21,12 +21,12 @@ const preload = join(__dirname, '../preload/index.mjs');
 const indexHtml = join(RENDERER_DIST, 'index.html');
 export function createApp(options: IAppOptions) {
     app.whenReady().then(() => {
-        init();
         createWindow();
         setWindow(win);
         createMenu(win);
         createContextMenu(win);
         options.router();
+        historyService.init();
     });
     setting();
 }

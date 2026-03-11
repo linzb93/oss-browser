@@ -1,8 +1,9 @@
 import { join } from 'node:path';
 import { app } from 'electron';
 import unhandled from 'electron-unhandled';
-import { createApp } from '../modules/app/app.service';
+import { createApp } from './lifecycle';
 import router from '../router';
+import { __dirname } from '../shared/constants/path';
 
 const APP_ROOT = join(__dirname, '../..');
 export const RENDERER_DIST = join(APP_ROOT, 'dist');

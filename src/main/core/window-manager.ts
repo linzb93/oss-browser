@@ -1,5 +1,5 @@
 import { join } from 'node:path';
-import { BrowserWindow, screen, shell, app } from 'electron';
+import { BrowserWindow } from 'electron';
 
 import { RENDERER_DIST, VITE_DEV_SERVER_URL } from '@/main/shared/constants/path';
 let mainWindow: BrowserWindow;
@@ -16,10 +16,7 @@ export const windowManager = {
         });
 
         if (VITE_DEV_SERVER_URL) {
-            // #298
             mainWindow.loadURL(VITE_DEV_SERVER_URL);
-            // Open devTool if the app is not packaged
-            // win.webContents.openDevTools();
         } else {
             mainWindow.loadFile(indexHtml);
         }

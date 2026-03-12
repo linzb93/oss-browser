@@ -38,11 +38,6 @@ export interface SettingInfo {
      */
     copyTemplateId: number;
     /**
-     * 自定义的复制工作流ID，可编辑与选择。
-     * @default 0 - 表示不复制。
-     */
-    copyWorkflowId: number;
-    /**
      * 默认首页地址
      */
     homePath: string;
@@ -69,13 +64,6 @@ export interface TemplateItem {
     id: number;
     name: string;
     content: string;
-}
-export interface WorkflowItem {
-    id: number;
-    name: string;
-    nameType: 'index' | 'uid' | 'originName';
-    templateContent: string;
-    templateType: 'plainText' | 'json';
 }
 export interface IHistoryItem {
     id: string;

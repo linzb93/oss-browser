@@ -4,6 +4,7 @@ import { registerCollectController } from './controllers/collect.controller';
 import { registerHistoryController } from './controllers/history.controller';
 import { registerSettingController } from './controllers/setting.controller';
 import { registerTemplateController } from './controllers/template.controller';
+import { registerOssController } from './controllers/oss.controller';
 
 export const registerApi = () => {
     registerAccountController();
@@ -12,4 +13,5 @@ export const registerApi = () => {
     registerHistoryController();
     registerSettingController();
     registerTemplateController();
+    registerOssController();
 };

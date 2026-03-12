@@ -253,7 +253,7 @@ const moreCommand = async (
 };
 const { onSelect: onSelectHistory, show: showHistoryDialog } = useHistory();
 const logout = () => {
-    request('setDefaultAppId', 0);
+    request('account:set-default-app-id', 0);
     router.back();
 };
 

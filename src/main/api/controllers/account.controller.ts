@@ -8,6 +8,7 @@ export const registerAccountController = () => {
     ipcMain.handle('account:save', (event, dataStr: string) => save(dataStr));
     ipcMain.handle('account:get-default-app-id', () => getDefaultAppId());
     ipcMain.handle('account:set-default-app-id', (event, dataStr: string) => setDefaultAppId(dataStr));
+    ipcMain.handle('account:remove', (event, dataStr: string) => remove(dataStr));
 };
 
 const getList = () => {
@@ -32,4 +33,10 @@ const setDefaultAppId = (dataStr: string) => {
         id: number;
     };
     return formatResponse(() => accountService.setDefaultAppId(data.id));
+};
+const remove = (dataStr: string) => {
+    const data = JSON.parse(dataStr) as {
+        id: number;
+    };
+    return formatResponse(() => accountService.remove(data.id));
 };

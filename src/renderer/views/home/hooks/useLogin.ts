@@ -14,11 +14,11 @@ interface LoginParams {
 }
 
 const doLogin = async (params: LoginParams) => {
-    await request('login-save', params);
+    await request('account:save', params);
 };
 
 const getInfo = async (id: number): Promise<LoginParams> => {
-    return await request('login-get', { id });
+    return await request('account:get-item', { id });
 };
 
 const userInfo = ref<LoginParams>({
@@ -96,7 +96,7 @@ export default () => {
         disabled.value = false;
         try {
             bucketList.value = await request(
-                'get-buckets',
+                'oss:get-buckets',
                 pick(form.value, ['region', 'accessKeyId', 'accessKeySecret']),
             );
         } catch (error) {

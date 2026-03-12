@@ -1,31 +1,24 @@
 import { app, BrowserWindow } from 'electron';
 import { join } from 'node:path';
 import unhandled from 'electron-unhandled';
-import { __dirname } from '@/main/shared/constants/path';
 import { setWindow } from '@/main/modules/window/window.service';
 import createMenu from '@/main/modules/menu/menu.service';
 import createContextMenu from '@/main/modules/menu/contextMenu.service';
 import * as historyService from '../modules/history/history.service';
-
-interface IAppOptions {
-    router: Function;
-}
+import { registerApi } from '../api/index';
+import { __dirname, RENDERER_DIST, VITE_DEV_SERVER_URL } from '@/main/shared/constants/path';
 
 let win: BrowserWindow;
-const APP_ROOT = join(__dirname, '../..');
-export const MAIN_DIST = join(APP_ROOT, 'dist-electron');
-export const RENDERER_DIST = join(APP_ROOT, 'dist');
-export const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
 
 const preload = join(__dirname, '../preload/index.mjs');
 const indexHtml = join(RENDERER_DIST, 'index.html');
-export function createApp(options: IAppOptions) {
+export function createApp() {
     app.whenReady().then(() => {
         createWindow();
         setWindow(win);
         createMenu(win);
         createContextMenu(win);
-        options.router();
+        registerApi();
         historyService.init();
     });
     setting();

@@ -66,17 +66,17 @@ const { visible, form } = useLogin();
 const list = ref([]);
 const loaded = shallowRef(false);
 const getList = async () => {
-    const data = await request('home-getList');
+    const data = await request('account:get-list');
     list.value = data;
 };
 onMounted(async () => {
-    const id = await request('getDefaultAppId');
+    const id = await request('account:get-default-app-id');
     loaded.value = true;
     if (!id) {
         await getList();
         return;
     }
-    await request('setDefaultAppId', { id });
+    await request('account:set-default-app-id', { id });
     router.push({
         path: '/fileList',
         query: {
@@ -100,7 +100,7 @@ const getPlatformName = (type) => {
     return '';
 };
 const jump = async (item) => {
-    await request('setDefaultAppId', { id: item.id });
+    await request('account:set-default-app-id', { id: item.id });
     router.push({
         path: '/fileList/',
         query: {
@@ -119,7 +119,7 @@ const handleCommand = (row, cmd) => {
             confirmButtonText: '删除',
         })
             .then(async () => {
-                await request('home-removeAccount', {
+                await request('account:remove', {
                     id: row.id,
                 });
                 ElMessage.success('移除成功');

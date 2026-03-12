@@ -78,7 +78,7 @@ export const requestUtil = {
      * @param {string} text 复制的文本
      */
     copy(text: string) {
-        doRequest('copy', {
+        doRequest('util:copy', {
             content: text,
         });
         ElMessage.success('复制成功');
@@ -91,7 +91,7 @@ export const requestUtil = {
      */
     async download(url: string) {
         try {
-            await doRequest('oss-download', {
+            await doRequest('oss:download', {
                 url,
             });
         } catch (error) {
@@ -104,7 +104,7 @@ export const requestUtil = {
      * @param url 网址或者本地文件地址
      */
     open(type: 'vscode' | 'path' | 'web', url: string) {
-        doRequest('open', {
+        doRequest('util:open', {
             type,
             url,
         });

@@ -24,12 +24,12 @@ export async function save(params: Database['accounts'][number]) {
         if (matchIndex > -1) {
             db.accounts[matchIndex] = params;
         } else {
-            const nextId = db.accounts.at(-1).id + 1;
+            const nextId = (db.accounts.at(-1)?.id ?? 0) + 1;
             db.accounts.push({
                 ...params,
                 id: nextId,
             });
-            createSqlFile(params.id);
+            createSqlFile(nextId);
         }
     });
 }
@@ -43,4 +43,13 @@ export const setDefaultAppId = async (id: number) => {
     if (id) {
         ossService.init();
     }
+};
+
+export const remove = async (id: number) => {
+    await sql((db) => {
+        const matchIndex = db.accounts.findIndex((account) => account.id === id);
+        if (matchIndex > -1) {
+            db.accounts.splice(matchIndex, 1);
+        }
+    });
 };

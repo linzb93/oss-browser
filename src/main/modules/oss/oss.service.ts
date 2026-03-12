@@ -196,5 +196,5 @@ export async function download(paths: string) {
     return await currentApp.download(paths);
 }
 export async function init() {
-    return await currentApp.init();
+    return (await currentApp) && currentApp.init();
 }

@@ -1,13 +1,8 @@
-import { join } from 'node:path';
 import { app } from 'electron';
 import unhandled from 'electron-unhandled';
 import { createApp } from './lifecycle';
-import router from '../router';
-import { __dirname } from '../shared/constants/path';
-
-const APP_ROOT = join(__dirname, '../..');
-export const RENDERER_DIST = join(APP_ROOT, 'dist');
-export const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
+import { RENDERER_DIST, VITE_DEV_SERVER_URL } from '@/main/shared/constants/path';
+export { RENDERER_DIST, VITE_DEV_SERVER_URL };
 
 unhandled();
 
@@ -21,6 +16,4 @@ if (!app.requestSingleInstanceLock()) {
     process.exit(0);
 }
 
-createApp({
-    router,
-});
+createApp();

@@ -18,18 +18,18 @@ const getItem = (dataStr: string) => {
     const data = JSON.parse(dataStr) as {
         id: number;
     };
-    return accountService.getItem(data.id);
+    return formatResponse(() => accountService.getItem(data.id));
 };
 const save = (dataStr: string) => {
     const data = JSON.parse(dataStr) as Database['accounts'][number];
-    return accountService.save(data);
+    return formatResponse(() => accountService.save(data));
 };
 const getDefaultAppId = () => {
-    return accountService.getDefaultAppId();
+    return formatResponse(() => accountService.getDefaultAppId());
 };
 const setDefaultAppId = (dataStr: string) => {
     const data = JSON.parse(dataStr) as {
         id: number;
     };
-    return accountService.setDefaultAppId(data.id);
+    return formatResponse(() => accountService.setDefaultAppId(data.id));
 };

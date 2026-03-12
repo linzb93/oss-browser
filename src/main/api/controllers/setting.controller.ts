@@ -4,7 +4,7 @@ import formatResponse from '@/main/shared/utils/formatResponse';
 import { Database } from '../../types/api';
 export const registerSettingController = () => {
     ipcMain.handle('setting:get', () => get());
-    ipcMain.handle('setting:set', (event, dataStr: string) => set(dataStr));
+    ipcMain.handle('setting:save', (event, dataStr: string) => set(dataStr));
     ipcMain.handle('setting:set-home', (event, dataStr: string) => setHome(dataStr));
 };
 

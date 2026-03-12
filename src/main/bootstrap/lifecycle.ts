@@ -5,6 +5,8 @@ import { setWindow } from '@/main/modules/window/window.service';
 import createMenu from '@/main/modules/menu/menu.service';
 import createContextMenu from '@/main/modules/menu/contextMenu.service';
 import * as historyService from '../modules/history/history.service';
+import * as ossService from '../modules/oss/oss.service';
+import AliOSS from '../modules/oss/adapter/Ali/Impl';
 import { registerApi } from '../api/index';
 import { __dirname, RENDERER_DIST, VITE_DEV_SERVER_URL } from '@/main/shared/constants/path';
 
@@ -20,6 +22,7 @@ export function createApp() {
         createContextMenu(win);
         registerApi();
         historyService.init();
+        ossService.add(AliOSS);
     });
     setting();
 }

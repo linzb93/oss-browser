@@ -1,6 +1,5 @@
 import { FileItem } from '../../../types/vo';
-import { BucketObject } from 'ali-oss';
-import { AppConstructorOptions } from '../oss.dto';
+import { AppConstructorOptions, BucketObject } from '../oss.dto';
 export default abstract class {
     /**
      * 平台id

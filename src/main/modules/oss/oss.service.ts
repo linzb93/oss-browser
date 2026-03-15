@@ -3,7 +3,7 @@ import { type IpcMainEvent } from 'electron';
 import fs from 'fs-extra';
 import { interval, Subject, takeUntil, map } from 'rxjs';
 import { cloneDeep } from 'lodash-es';
-import OSS, { OssConfig } from 'ali-oss';
+import { AliOssClient, OssConfig } from '@/main/infra/ali-oss';
 import slash from 'slash';
 import App from './adapter/Base';
 import { type FileItem } from '../../types/vo';
@@ -157,7 +157,7 @@ export const validate = async (data: Database['accounts'][number]) => {
 };
 
 export const getBuckets = async (ossOptions: OssConfig) => {
-    const client = new OSS(ossOptions);
+    const client = new AliOssClient(ossOptions);
     try {
         const ret = await client.listBuckets();
         return ret.buckets.map((item) => ({

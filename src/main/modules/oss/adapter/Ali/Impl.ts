@@ -1,13 +1,13 @@
 import { basename, join, dirname, extname } from 'node:path';
 import { omit } from 'lodash-es';
 import bytes from 'bytes';
-import OSS from 'ali-oss';
+import { AliOssClient } from '@/main/infra/ali-oss';
 import fs from 'fs-extra';
 import pMap from 'p-map';
 import { sql } from '@/main/infra/sql';
 import BaseOss from '../Base';
-import * as utilService from '../../../util/util.service';
-import { FileItem } from '../../../../types/vo';
+import * as utilService from '@/main/modules/util/util.service';
+import { FileItem } from '@/main/types/vo';
 import slash from 'slash';
 import { AppConstructorOptions } from '../../oss.dto';
 
@@ -22,7 +22,7 @@ export default class extends BaseOss {
     /**
      * 阿里oss客户端实例
      */
-    private client!: OSS;
+    private client!: AliOssClient;
     /**
      * 上传事件回调
      */
@@ -45,7 +45,7 @@ export default class extends BaseOss {
     async init() {
         await sql((db) => {
             const account = db.accounts.find((item) => item.id === db.defaultAppId);
-            this.client = new OSS(omit(account, ['id', 'platform', 'name']));
+            this.client = new AliOssClient(omit(account, ['id', 'platform', 'name']));
         });
     }
     async getFileList(data: { prefix: string; useToken: boolean }): Promise<{

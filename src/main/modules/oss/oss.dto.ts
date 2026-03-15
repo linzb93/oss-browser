@@ -35,3 +35,7 @@ export interface IFileItem {
 export interface AppConstructorOptions {
     sizeBoundary: string;
 }
+
+export interface BucketObject {
+    name: string;
+}

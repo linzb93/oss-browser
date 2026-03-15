@@ -17,23 +17,12 @@
                             <el-link type="primary" :underline="false" class="mr10" @click="edit(scope.row)"
                                 >编辑</el-link
                             >
-                            <el-dropdown @command="(cmd) => handleCommand(scope.row, cmd)" class="more-dropdown">
-                                <el-link type="primary" :underline="false">
-                                    <span>更多操作</span>
-                                    <el-icon :size="14">
-                                        <arrow-down v-if="!scope.row.expanded" />
-                                        <arrow-up v-else />
-                                    </el-icon>
-                                </el-link>
-                                <template #dropdown>
-                                    <el-dropdown-menu>
-                                        <el-dropdown-item command="copy">复制</el-dropdown-item>
-                                        <el-dropdown-item command="delete"
-                                            ><el-text type="danger">移除</el-text></el-dropdown-item
-                                        >
-                                    </el-dropdown-menu>
-                                </template>
-                            </el-dropdown>
+                            <el-link type="primary" :underline="false" @click="handleCommand(scope.row, 'copy')"
+                                >复制</el-link
+                            >
+                            <el-link type="danger" :underline="false" @click="handleCommand(scope.row, 'delete')"
+                                >移除</el-link
+                            >
                         </div>
                     </template>
                 </el-table-column>
@@ -52,11 +41,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, shallowRef } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { omit } from 'lodash-es';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { ArrowDown, ArrowUp } from '@element-plus/icons-vue';
+
 import request from '@/renderer/helpers/request';
 import AddDialog from './components/AddDialog.vue';
 import useLogin from './hooks/useLogin';
@@ -64,7 +53,7 @@ const router = useRouter();
 const { visible, form } = useLogin();
 
 const list = ref([]);
-const loaded = shallowRef(false);
+const loaded = ref(false);
 const getList = async () => {
     const data = await request('account:get-list');
     list.value = data;
@@ -134,9 +123,5 @@ const handleCommand = (row, cmd) => {
 <style lang="scss" scoped>
 .el-link + .el-link {
     margin-left: 10px;
-}
-.more-dropdown {
-    position: relative;
-    top: -1px;
 }
 </style>

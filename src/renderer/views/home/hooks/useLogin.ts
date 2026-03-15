@@ -2,16 +2,7 @@ import { ref, readonly, shallowRef, watch } from 'vue';
 import request from '@/renderer/helpers/request';
 import { cloneDeep, pick } from 'lodash-es';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
-interface LoginParams {
-    name: string;
-    platform: number;
-    region: string;
-    accessKeyId: string;
-    accessKeySecret: string;
-    bucket: string;
-    domain: string;
-    id: number;
-}
+import type { LoginParams } from '@/shared/types';
 
 const doLogin = async (params: LoginParams) => {
     await request('account:save', params);
@@ -62,16 +53,16 @@ export default () => {
         },
         bucket: {
             required: true,
-            message: '请输入bucket',
+            message: '请输入或选择bucket',
         },
         domain: [
             {
                 required: true,
-                message: '请输入前缀',
+                message: '请输入domain前缀',
             },
             {
                 pattern: /^https?\:\/\//,
-                message: '请输入正确的前缀',
+                message: '请输入正确的domain前缀',
             },
         ],
     });
@@ -135,24 +126,18 @@ export default () => {
             });
             close();
         },
-        getFormData() {
-            watch(visible, async (vis) => {
-                if (!vis) {
-                    return;
-                }
-                if (!form.value.id) {
-                    return;
-                }
-                const data = (await getInfo(form.value.id)) as LoginParams;
-                if (data.id) {
-                    userInfo.value = data;
-                    form.value = data;
-                }
-                //@ts-ignore
-                if (ossValidateProps.every((item) => !!data[item])) {
-                    getBuckets(false);
-                }
-            });
+        async initialDialogFormData() {
+            if (!form.value.id) {
+                return;
+            }
+            const data = (await getInfo(form.value.id)) as LoginParams;
+            if (data.id) {
+                userInfo.value = data;
+                form.value = data;
+            }
+            if (ossValidateProps.every((item) => !!data[item as keyof LoginParams])) {
+                getBuckets(false);
+            }
         },
         getUserInfo(id: string) {
             getInfo(Number(id)).then((res) => {

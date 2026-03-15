@@ -41,14 +41,20 @@
 </template>
 
 <script setup>
+import { watch } from 'vue';
 import { useRouter } from 'vue-router';
 import useLogin from '../hooks/useLogin';
 
 const emit = defineEmits(['submit']);
 const router = useRouter();
-const { getFormData, login, form, rules, formRef, getBuckets, bucketList, disabled, close, closed, visible } =
+const { initialDialogFormData, login, form, rules, formRef, getBuckets, bucketList, disabled, close, closed, visible } =
     useLogin(router);
-getFormData();
+watch(visible, (vis) => {
+    if (!vis) {
+        return;
+    }
+    initialDialogFormData();
+});
 const submit = () => {
     login().then(() => {
         emit('submit');

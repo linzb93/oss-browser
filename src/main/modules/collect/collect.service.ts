@@ -1,4 +1,4 @@
-import sql from '../../helper/sql';
+import { sql } from '../../infra/sql';
 import { Database } from '../../types/api';
 
 export async function get() {

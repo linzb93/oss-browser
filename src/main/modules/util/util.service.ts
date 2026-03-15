@@ -1,7 +1,7 @@
 import http from 'node:http';
 import https from 'node:https';
 import { dirname, join } from 'node:path';
-import sql from '../../helper/sql';
+import { sql } from '../../infra/sql';
 import { createWriteStream } from 'node:fs';
 import fsp from 'fs-extra';
 import { clipboard, dialog, shell } from 'electron';
@@ -30,6 +30,9 @@ export async function download(paths: string, dir: string) {
         return {};
     }
     const account = await sql((db) => db.accounts.find((item) => item.id === db.defaultAppId));
+    if (!account) {
+        return {};
+    }
     await pMap(
         pathList,
         (url: string) =>
@@ -39,7 +42,7 @@ export async function download(paths: string, dir: string) {
                 dir,
                 domain: account.domain,
             }),
-        { concurrency: 4 }
+        { concurrency: 4 },
     );
 }
 /**
@@ -83,7 +86,7 @@ export async function open(type: 'path' | 'web', url: string) {
                 shell.openExternal(path);
             }
         },
-        { concurrency: 4 }
+        { concurrency: 4 },
     );
 }
 /**

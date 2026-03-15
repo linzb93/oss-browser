@@ -82,7 +82,7 @@ async function sql<T>(...args: any[]): Promise<T> {
         return result;
     });
 }
-export default sql;
+export { sql };
 
 export const createSqlFile = async (id: number) => {
     const accountDir = join(root, 'app');

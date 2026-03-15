@@ -4,7 +4,7 @@ import bytes from 'bytes';
 import OSS from 'ali-oss';
 import fs from 'fs-extra';
 import pMap from 'p-map';
-import sql from '../../../../helper/sql';
+import { sql } from '@/main/infra/sql';
 import BaseOss from '../Base';
 import * as utilService from '../../../util/util.service';
 import { FileItem } from '../../../../types/vo';
@@ -22,21 +22,21 @@ export default class extends BaseOss {
     /**
      * 阿里oss客户端实例
      */
-    private client: OSS;
+    private client!: OSS;
     /**
      * 上传事件回调
      */
-    private uploadCallback: uploadProgressCallback;
+    private uploadCallback?: uploadProgressCallback;
     protected sizeBoundary = '';
     /**
      * 分页加载用的，根据这个token获取下一批数据
      */
-    private nextContinuationToken: string;
+    private nextContinuationToken: string = '';
     /**
      * 当前prefix和prevFilePrefix相同时，才用nextContinuationToken。
      * 否则不用这个token，并清空prevFilePrefix
      */
-    private prevFilePrefix: string;
+    private prevFilePrefix: string = '';
 
     constructor(options: AppConstructorOptions) {
         super(options);
@@ -75,8 +75,8 @@ export default class extends BaseOss {
         const files = result.objects
             .filter((obj) => obj.size > 0) // 移除顶层目录
             .map((obj) => ({
-                name: basename(obj.name),
-                type: extname(obj.name),
+                name: basename(obj.name || ''),
+                type: extname(obj.name || ''),
                 size: obj.size,
                 lastModified: obj.lastModified,
             }));
@@ -114,7 +114,7 @@ export default class extends BaseOss {
                 ...restParams,
             });
             nextContinuationToken = res.nextContinuationToken;
-            ret.push(res.objects.map((item) => item.name));
+            ret.push(res.objects.map((item) => item.name).filter((name): name is string => !!name));
         }
         return ret.flat();
     }
@@ -137,7 +137,7 @@ export default class extends BaseOss {
                 },
                 {
                     concurrency: 4,
-                }
+                },
             );
         } catch (error) {
             console.log(error);
@@ -153,7 +153,7 @@ export default class extends BaseOss {
         pathItem: {
             ossPath: string;
             localPath: string;
-        }
+        },
     ) {
         const fileStats = await fs.stat(pathItem.localPath);
         const { size } = fileStats;
@@ -183,6 +183,9 @@ export default class extends BaseOss {
      */
     async download(paths: string) {
         const account = await sql((db) => db.accounts.find((item) => item.id === db.defaultAppId));
+        if (!account) {
+            throw new Error('Account not found');
+        }
         const pathList = paths.split(',');
         const dir = dirname(pathList[0].replace(`${account.domain}/`, ''));
         const list = await pMap(
@@ -195,14 +198,14 @@ export default class extends BaseOss {
             },
             {
                 concurrency: 4,
-            }
+            },
         );
         await utilService.download(
             list
                 .flat()
                 .map((item) => `${account.domain}/${item}`)
                 .join(','),
-            dir
+            dir,
         );
     }
     addUploadListener(callback: uploadProgressCallback): void {

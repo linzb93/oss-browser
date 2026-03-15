@@ -1,6 +1,6 @@
 import { omit } from 'lodash-es';
 import { Database } from '../../types/api';
-import sql from '../../helper/sql';
+import { sql } from '../../infra/sql';
 import * as settingService from '../setting/setting.service';
 import * as utilService from '../util/util.service';
 
@@ -43,7 +43,7 @@ export async function add(obj: Database['templates'][number]) {
                 if (!db.templates || !db.templates.length) {
                     return 1;
                 }
-                return db.templates.at(-1).id + 1;
+                return (db.templates as any[]).at(-1).id + 1;
             })(),
         });
     });

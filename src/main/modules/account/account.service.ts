@@ -1,4 +1,4 @@
-import sql, { createSqlFile } from '../../helper/sql';
+import { sql, createSqlFile } from '../../infra/sql';
 import { Database } from '../../types/api';
 import { validate } from '../oss/oss.service';
 import * as ossService from '../oss/oss.service';

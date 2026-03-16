@@ -16,6 +16,7 @@ const loading = shallowRef(true);
 const disabled = computed(() => loading.value || finished.value);
 const selected = ref<TableItem[]>([]);
 const activeIndex = shallowRef(-1);
+let eventBinded = false;
 export default () => {
     const { fullPath } = useBreadcrumb();
     const { userInfo } = useLogin();
@@ -91,6 +92,7 @@ export default () => {
                 //
             });
     };
+
     return {
         /**
          * 文件列表
@@ -107,6 +109,11 @@ export default () => {
         selected,
         activeIndex,
         init() {
+            if (eventBinded) {
+                return;
+            }
+            eventBinded = true;
+            console.log(`初始化事件绑定: ${eventBinded}`);
             handleMainPost('create-dir', () => {
                 createDir();
             });

@@ -22,7 +22,7 @@ export const handleMainPost = (receiveMethod: string, callback: Function) => {
                         requestId,
                         method,
                         data: ret,
-                    })
+                    }),
                 );
             }
         }

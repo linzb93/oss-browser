@@ -13,22 +13,43 @@ const form = ref<WorkflowItem>({
     templateContent: '',
     templateType: 'plainText',
 });
+/**
+ * Hook for workflow operations
+ * @returns {object} The hook object
+ */
 export default () => {
+    /**
+     * Get workflow item by id
+     * @param {object} data - The data object containing id
+     * @param {number} data.id - The workflow item id
+     */
     async function getItem(data: { id: number }) {
         form.value = await api.getWorkflowItem(data);
     }
+    /**
+     * Add a new workflow item
+     */
     async function addItem() {
         console.log(form.value);
         await api.addWorkflowItem(form.value);
         ElMessage.success('添加成功');
     }
+    /**
+     * Edit an existing workflow item
+     */
     async function editItem() {
         await api.editWorkflowItem(form.value);
         ElMessage.success('编辑成功');
     }
+    /**
+     * Close the dialog
+     */
     function close() {
         visible.value = false;
     }
+    /**
+     * Handle dialog closed event
+     */
     function closed() {
         form.value = {
             id: 0,
@@ -38,6 +59,9 @@ export default () => {
             templateType: 'plainText',
         };
     }
+    /**
+     * Get workflow list
+     */
     async function getList() {
         list.value = await api.getWorkflowList();
     }
@@ -49,6 +73,10 @@ export default () => {
         getList,
         close,
         closed,
+        /**
+         * Open the dialog
+         * @param {WorkflowItem} [item] - The workflow item to edit
+         */
         openDialog(item?: WorkflowItem) {
             visible.value = true;
             if (item) {
@@ -58,6 +86,9 @@ export default () => {
         hasWorkflow: computed(() => list.value.length > 0),
         addItem,
         editItem,
+        /**
+         * Save action (add or edit)
+         */
         async saveAction() {
             if (form.value.id) {
                 return editItem();
@@ -65,6 +96,10 @@ export default () => {
                 return addItem();
             }
         },
+        /**
+         * Remove a workflow item
+         * @param {Pick<WorkflowItem, 'id'>} item - The item to remove
+         */
         removeItem(item: Pick<WorkflowItem, 'id'>) {
             ElMessageBox.confirm('确认删除？', '温馨提醒', {
                 confirmButtonText: '删除',

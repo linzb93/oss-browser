@@ -3,21 +3,31 @@ import { Database } from '../../types/api';
 import { validate } from '../oss/oss.service';
 import * as ossService from '../oss/oss.service';
 /**
- * 读取用户信息
+ * 读取所有账户信息列表
+ * @returns {Promise<Database['accounts']>} 账户信息列表
  */
-export async function getList() {
+export async function getList(): Promise<Database['accounts']> {
     return await sql((db) => db.accounts);
 }
-export async function getItem(id: number) {
+
+/**
+ * 根据ID获取指定账户信息
+ * @param {number} id - 账户ID
+ * @returns {Promise<Database['accounts'][number] | undefined>} 匹配的账户信息，未找到则返回 undefined
+ */
+export async function getItem(id: number): Promise<Database['accounts'][number] | undefined> {
     return await sql((db) => {
         const match = db.accounts.find((item) => item.id === id);
         return match;
     });
 }
+
 /**
- * 保存用户信息
+ * 保存或更新账户信息
+ * @param {Database['accounts'][number]} params - 账户信息参数
+ * @returns {Promise<void>} 完成后不返回值
  */
-export async function save(params: Database['accounts'][number]) {
+export async function save(params: Database['accounts'][number]): Promise<void> {
     await validate(params);
     await sql((db) => {
         const matchIndex = db.accounts.findIndex((account) => account.id === params.id);
@@ -33,10 +43,21 @@ export async function save(params: Database['accounts'][number]) {
         }
     });
 }
-export const getDefaultAppId = async () => {
+
+/**
+ * 获取默认应用ID
+ * @returns {Promise<number>} 默认应用ID
+ */
+export const getDefaultAppId = async (): Promise<number> => {
     return await sql((db) => db.defaultAppId);
 };
-export const setDefaultAppId = async (id: number) => {
+
+/**
+ * 设置默认应用ID并初始化OSS服务
+ * @param {number} id - 应用ID
+ * @returns {Promise<void>} 完成后不返回值
+ */
+export const setDefaultAppId = async (id: number): Promise<void> => {
     await sql((db) => {
         db.defaultAppId = Number(id);
     });
@@ -45,7 +66,12 @@ export const setDefaultAppId = async (id: number) => {
     }
 };
 
-export const remove = async (id: number) => {
+/**
+ * 根据ID删除账户信息
+ * @param {number} id - 账户ID
+ * @returns {Promise<void>} 完成后不返回值
+ */
+export const remove = async (id: number): Promise<void> => {
     await sql((db) => {
         const matchIndex = db.accounts.findIndex((account) => account.id === id);
         if (matchIndex > -1) {

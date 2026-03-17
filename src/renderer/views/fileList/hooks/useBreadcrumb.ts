@@ -8,7 +8,14 @@ const fullPath = computed(() => breadcrumb.value.map((item) => `${item}/`).join(
  */
 let onChangeCallback: Function = () => {};
 
+/**
+ * Hook for breadcrumb navigation
+ * @returns {object} The hook object
+ */
 export default () => {
+    /**
+     * Remove the last item from breadcrumb
+     */
     const pop = () => {
         breadcrumb.value.pop();
         onChangeCallback();

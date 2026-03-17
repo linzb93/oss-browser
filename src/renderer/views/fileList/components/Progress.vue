@@ -85,6 +85,9 @@ const list = ref<ListItem[]>([]);
 const finished = shallowRef(false);
 let removeEvt = () => {};
 
+/**
+ * Start upload process
+ */
 const startUpload = () => {
     const { listener, removeListener } = request.send('oss-upload', {
         prefix: props.path,
@@ -126,9 +129,15 @@ watch(visible, (data) => {
         startUpload();
     }
 });
+/**
+ * Close the drawer
+ */
 const close = () => {
     visible.value = false;
 };
+/**
+ * Handle drawer closed event
+ */
 const closed = () => {
     list.value = [];
     removeEvt();

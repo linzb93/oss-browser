@@ -9,6 +9,11 @@ import { handleMainPost } from '@/renderer/helpers/util';
 import useTable from './useTable';
 import usePreview from './usePreview';
 
+/**
+ * Check if the file is a picture
+ * @param {TableItem} item - The file item
+ * @returns {boolean} True if the file is a picture
+ */
 const isPic = (item: TableItem) => {
     return ['jpg', 'png', 'jpeg', 'gif', 'webp'].includes(pathUtil.extname(item.name));
 };
@@ -16,11 +21,19 @@ const isPic = (item: TableItem) => {
 //     return ['txt', 'js', 'ts', 'jsx', 'tsx', 'py', 'json', 'yml', 'yaml'].includes(pathUtil.extname(item.name));
 // };
 const selected = ref<TableItem[]>([]);
+/**
+ * Hook for table item operations
+ * @returns {object} The hook object
+ */
 export default () => {
     const { copyTemplate } = useTemplate();
     const { push: pushBreadcrumb } = useBreadcrumb();
     const { getActiveItem } = useTable();
     const { openPreview } = usePreview();
+    /**
+     * Handle path click event
+     * @param {TableItem} item - The file item
+     */
     const clickPath = (item: TableItem) => {
         if (item.size > 0) {
             const url = item.url;
@@ -34,6 +47,10 @@ export default () => {
         pushBreadcrumb(item.name);
     };
 
+    /**
+     * Get image style and copy template
+     * @param {TableItem} item - The file item
+     */
     const getStyle = (item: TableItem) => {
         const img = new Image();
         img.src = item.url;
@@ -54,6 +71,9 @@ export default () => {
     };
     return {
         selected,
+        /**
+         * Initialize the hook
+         */
         init() {
             handleMainPost('enter', () => {
                 const item = getActiveItem();
@@ -70,17 +90,25 @@ export default () => {
         },
         /**
          * 根据文件后缀名判断是否是图片
+         * @param {TableItem} item - The file item
+         * @returns {boolean} True if the file is a picture
          */
         isPic,
         /**
          * 点击文件名称。如果是目录就进入，如果是图片就打开预览图
+         * @param {TableItem} item - The file item
          */
         clickPath,
+        /**
+         * Download file
+         * @param {TableItem} item - The file item
+         */
         download(item: TableItem) {
             requestUtil.download(item.url);
         },
         /**
          * 读取复制模板，复制图片样式
+         * @param {TableItem} item - The file item
          */
         getStyle,
     };

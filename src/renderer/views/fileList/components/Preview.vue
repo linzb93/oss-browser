@@ -49,6 +49,9 @@ const props = defineProps({
     },
 });
 
+/**
+ * Computed file URL based on type
+ */
 const fileURL = computed(() => {
     if (props.type === 'img') {
         return `${imgPreview.value.url}`;
@@ -59,6 +62,9 @@ const fileURL = computed(() => {
     return '';
 });
 
+/**
+ * Computed dialog title based on type
+ */
 const dialogTitle = computed(() => {
     if (props.type === 'img') {
         return '图片预览';

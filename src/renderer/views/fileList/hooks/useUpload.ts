@@ -7,6 +7,10 @@ import { type TableItem, type UploadedTableItem } from '../shared/types';
 
 const active = shallowRef(false);
 
+/**
+ * Set the drag state
+ * @param {boolean} state - The drag state
+ */
 const setDragState = (state: boolean) => {
     active.value = state;
 };
@@ -14,8 +18,16 @@ const setDragState = (state: boolean) => {
 const progressVisible = shallowRef(false);
 const uploadingList = ref<TableItem[]>([]);
 
+/**
+ * Hook for file upload
+ * @returns {object} The hook object
+ */
 export default function useUpload() {
     const { tableList } = useTable();
+    /**
+     * Handle file drop event
+     * @param {DragEvent} event - The drag event
+     */
     const dropFile = async (event: DragEvent) => {
         active.value = false;
         const files = event.dataTransfer?.files as FileList;

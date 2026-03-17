@@ -55,6 +55,9 @@ watch(visible, (vis) => {
     }
     initialDialogFormData();
 });
+/**
+ * 提交表单并触发 submit 事件
+ */
 const submit = () => {
     login().then(() => {
         emit('submit');

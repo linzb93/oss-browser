@@ -30,6 +30,9 @@ const { visible, form, saveAction, close, closed } = useTemplate();
 const rules = readonly({});
 const formRef = ref(null);
 const emit = defineEmits(['submit']);
+/**
+ * Save template item
+ */
 const save = () =>
     saveAction().then(() => {
         emit('submit');

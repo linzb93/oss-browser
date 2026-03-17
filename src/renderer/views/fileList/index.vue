@@ -221,7 +221,10 @@ onMounted(() => {
         initBreadcrumb(setting.value.homePath);
     });
 });
-// 批量操作
+/**
+ * Handle batch commands
+ * @param {'download' | 'delete' | 'copy'} command - The command to execute
+ */
 const batchCommand = (command: 'download' | 'delete' | 'copy') => {
     const actions = {
         download: batchDownload,
@@ -233,7 +236,10 @@ const batchCommand = (command: 'download' | 'delete' | 'copy') => {
     }
 };
 
-// 更多功能
+/**
+ * Handle more commands
+ * @param {'setting' | 'see-collect' | 'collect' | 'home-page' | 'upload-history' | 'back-login'} cmd - The command to execute
+ */
 const moreCommand = async (
     cmd: 'setting' | 'see-collect' | 'collect' | 'home-page' | 'upload-history' | 'back-login',
 ) => {
@@ -252,6 +258,9 @@ const moreCommand = async (
     }
 };
 const { onSelect: onSelectHistory, show: showHistoryDialog } = useHistory();
+/**
+ * Logout and go back to login page
+ */
 const logout = () => {
     request('account:set-default-app-id', 0);
     router.back();

@@ -16,10 +16,19 @@ const loading = shallowRef(true);
 const disabled = computed(() => loading.value || finished.value);
 const selected = ref<TableItem[]>([]);
 const activeIndex = shallowRef(-1);
+/**
+ * Hook for table operations
+ * @returns {object} The hook object
+ */
 export default () => {
     const { fullPath } = useBreadcrumb();
     const { userInfo } = useLogin();
 
+    /**
+     * Get file list
+     * @param {boolean} isConcat - Whether to concatenate the list
+     * @returns {Promise<void>}
+     */
     async function getList(isConcat: boolean) {
         loading.value = true;
         if (!isConcat) {
@@ -49,6 +58,10 @@ export default () => {
             ElMessage.error('接口故障，请稍后再试');
         }
     }
+    /**
+     * Check if multiple items are selected
+     * @returns {boolean} True if multiple items are selected
+     */
     const checkMultiSelect = () => {
         if (selected.value.length) {
             return true;
@@ -56,9 +69,16 @@ export default () => {
         ElMessage.error('请选择至少一个');
         return false;
     };
+    /**
+     * Get active item
+     * @returns {TableItem} The active item
+     */
     const getActiveItem = () => {
         return tableList.value[activeIndex.value];
     };
+    /**
+     * Create a new directory
+     */
     const createDir = () => {
         ElMessageBox.prompt('请输入目录名称', '温馨提醒', {
             confirmButtonText: '创建',
@@ -102,10 +122,15 @@ export default () => {
         disabled,
         /**
          * 获取文件列表
+         * @param {boolean} isConcat - Whether to concatenate the list
+         * @returns {Promise<void>}
          */
         getList,
         selected,
         activeIndex,
+        /**
+         * Initialize the hook
+         */
         init() {
             handleMainPost('create-dir', () => {
                 createDir();
@@ -209,8 +234,12 @@ export default () => {
         },
         /**
          * 获取某个位置的文件
+         * @returns {TableItem} The active item
          */
         getActiveItem,
+        /**
+         * Reset active index
+         */
         resetActiveIndex() {
             activeIndex.value = -1;
         },

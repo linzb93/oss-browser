@@ -30,6 +30,10 @@ const textPreview = ref({
     visible: false,
     content: '',
 });
+/**
+ * Load image and calculate size
+ * @param {string} url - Image URL
+ */
 const loadImage = (url: string) => {
     const img = new Image();
     img.src = url;
@@ -61,6 +65,10 @@ const loadImage = (url: string) => {
         console.log(imgPreview.value.width);
     };
 };
+/**
+ * Hook for preview operations
+ * @returns {object} The hook object
+ */
 export default () => {
     return {
         imgPreview,
@@ -76,6 +84,10 @@ export default () => {
                 imgPreview.value.bgColor = '#000';
             }
         },
+        /**
+         * Open preview dialog
+         * @param {string} url - Image URL
+         */
         openPreview(url: string) {
             imgPreview.value.url = url;
             imgPreview.value.visible = true;

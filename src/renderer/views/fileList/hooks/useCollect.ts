@@ -12,8 +12,15 @@ const list = ref<CollectItem[]>([]);
 
 const formList = ref<FormCollectItem[]>([]);
 const visible = shallowRef(false);
+/**
+ * Hook for collect operations
+ * @returns {object} The hook object
+ */
 export default () => {
     const { fullPath, init: initBreadcrumb } = useBreadcrumb();
+    /**
+     * Get collect list
+     */
     const getList = async () => {
         const data = await api.getCollect();
         list.value = data;
@@ -22,6 +29,9 @@ export default () => {
             isEdit: false,
         }));
     };
+    /**
+     * Close collect dialog
+     */
     const close = () => {
         visible.value = false;
     };

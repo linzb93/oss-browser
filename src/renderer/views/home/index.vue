@@ -54,6 +54,10 @@ const { visible, form } = useLogin();
 
 const list = ref([]);
 const loaded = ref(false);
+/**
+ * 获取账号列表
+ * @returns {Promise<void>}
+ */
 const getList = async () => {
     const data = await request('account:get-list');
     list.value = data;
@@ -74,20 +78,37 @@ onMounted(async () => {
     });
 });
 
+/**
+ * 显示添加账号弹窗
+ */
 const add = () => {
     visible.value = true;
 };
+/**
+ * 编辑账号
+ * @param {object} item - 账号信息
+ */
 const edit = (item) => {
     form.value = item;
     visible.value = true;
 };
 
+/**
+ * 获取平台名称
+ * @param {number} type - 平台类型
+ * @returns {string} 平台名称
+ */
 const getPlatformName = (type) => {
     if (type === 1) {
         return '阿里云';
     }
     return '';
 };
+/**
+ * 跳转到文件列表
+ * @param {object} item - 账号信息
+ * @returns {Promise<void>}
+ */
 const jump = async (item) => {
     await request('account:set-default-app-id', { id: item.id });
     router.push({
@@ -98,6 +119,11 @@ const jump = async (item) => {
     });
 };
 
+/**
+ * 处理操作命令
+ * @param {object} row - 行数据
+ * @param {string} cmd - 命令类型
+ */
 const handleCommand = (row, cmd) => {
     if (cmd === 'copy') {
         edit(omit(row, ['id']));

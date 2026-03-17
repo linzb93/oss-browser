@@ -17,6 +17,13 @@ const dialogBodyHeight = ref('60vh');
 
 /**
  * Clamp number into [min, max]
+ * @param {number} value - The number to clamp
+ * @param {number} min - The lower bound
+ * @param {number} max - The upper bound
+ * @returns {number} The clamped number
+ * @example
+ * clamp(10, 0, 5) // 5
+ * clamp(-5, 0, 5) // 0
  */
 const clamp = (value: number, min: number, max: number) => {
     return Math.max(min, Math.min(max, value));
@@ -57,6 +64,8 @@ const calculateDialogSize = () => {
 
 /**
  * Open compare dialog and preload both images to fetch natural sizes.
+ * @param {string} preUrl - The previous image url
+ * @param {string} onlineUrl - The current image url
  */
 const openDialog = (preUrl: string, onlineUrl: string) => {
     visible.value = true;
@@ -92,6 +101,10 @@ const openDialog = (preUrl: string, onlineUrl: string) => {
         calculateDialogSize();
     };
 };
+/**
+ * Hook for image comparison dialog
+ * @returns {object} The hook object
+ */
 export default () => {
     return {
         visible,

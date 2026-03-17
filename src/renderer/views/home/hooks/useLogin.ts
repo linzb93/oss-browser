@@ -4,10 +4,20 @@ import { cloneDeep, pick } from 'lodash-es';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
 import type { LoginParams } from '@/shared/types';
 
+/**
+ * 执行登录请求
+ * @param {LoginParams} params - 登录参数
+ * @returns {Promise<void>}
+ */
 const doLogin = async (params: LoginParams) => {
     await request('account:save', params);
 };
 
+/**
+ * 获取账号信息
+ * @param {number} id - 账号ID
+ * @returns {Promise<LoginParams>} 账号信息
+ */
 const getInfo = async (id: number): Promise<LoginParams> => {
     return await request('account:get-item', { id });
 };
@@ -33,6 +43,10 @@ const form = ref<LoginParams>({
     accessKeySecret: '',
     bucket: '',
 });
+/**
+ * 登录相关的 hook
+ * @returns {object} 包含登录表单、验证规则及操作方法
+ */
 export default () => {
     const rules = readonly<FormRules>({
         name: {
@@ -70,6 +84,10 @@ export default () => {
     const bucketList = ref<any[]>([]);
     const disabled = shallowRef(true);
     const ossValidateProps = ['name', 'region', 'accessKeyId', 'accessKeySecret'];
+    /**
+     * 校验OSS配置信息是否完整
+     * @returns {Promise<boolean>} 是否校验通过
+     */
     const ossInfoSetted = async () => {
         try {
             await formRef.value?.validateField(ossValidateProps);
@@ -78,6 +96,11 @@ export default () => {
         }
         return true;
     };
+    /**
+     * 获取Bucket列表
+     * @param {boolean} [shouldValidate] - 是否需要校验
+     * @returns {Promise<void>}
+     */
     const getBuckets = async (shouldValidate?: boolean) => {
         if (shouldValidate) {
             if (!(await ossInfoSetted())) {
@@ -95,6 +118,9 @@ export default () => {
             disabled.value = true;
         }
     };
+    /**
+     * 关闭弹窗
+     */
     const close = () => {
         visible.value = false;
     };
@@ -106,6 +132,10 @@ export default () => {
         bucketList,
         disabled,
         visible,
+        /**
+         * 提交登录表单
+         * @returns {Promise<void>}
+         */
         async login() {
             try {
                 await formRef.value?.validate();
@@ -126,6 +156,10 @@ export default () => {
             });
             close();
         },
+        /**
+         * 初始化弹窗数据
+         * @returns {Promise<void>}
+         */
         async initialDialogFormData() {
             if (!form.value.id) {
                 return;
@@ -139,6 +173,10 @@ export default () => {
                 getBuckets(false);
             }
         },
+        /**
+         * 获取指定ID的用户信息
+         * @param {string} id - 用户ID
+         */
         getUserInfo(id: string) {
             getInfo(Number(id)).then((res) => {
                 userInfo.value = res;
@@ -146,6 +184,9 @@ export default () => {
         },
         getBuckets,
         close,
+        /**
+         * 弹窗关闭后的重置操作
+         */
         closed() {
             form.value = {
                 id: 0,

@@ -16,22 +16,39 @@ const totalCount = shallowRef(0);
 const list = ref<IHistoryItem[]>([]);
 const selectedIds = ref<string[]>([]);
 
+/**
+ * Hook for upload history
+ * @returns {object} The hook object
+ */
 export default () => {
     const { userInfo } = useLogin();
     const { breadcrumb } = useBreadcrumb();
     const { getList: getTableList } = useTable();
+    /**
+     * Get history list
+     */
     const getList = async () => {
         const result = await api.getHistoryList(pageQuery.value);
         totalCount.value = result.totalCount;
         list.value = result.list;
     };
+    /**
+     * Close history dialog
+     */
     const close = () => {
         visible.value = false;
         selectedIds.value = [];
     };
+    /**
+     * Handle selection change
+     * @param {IHistoryItem[]} rows - Selected rows
+     */
     const handleSelectionChange = (rows: IHistoryItem[]) => {
         selectedIds.value = rows.map((row) => row.id);
     };
+    /**
+     * Delete history
+     */
     const deleteHistory = async () => {
         if (!selectedIds.value.length) return;
         await ElMessageBox.confirm('确定删除选中的历史记录吗？', '提示', {

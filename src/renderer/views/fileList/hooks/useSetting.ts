@@ -22,14 +22,24 @@ const formSetting = ref<SettingInfo>({
     copyTemplateId: 0,
     copyWorkflowId: 0,
 });
+/**
+ * Hook for setting operations
+ * @returns {object} The hook object
+ */
 export default () => {
     const { init: initBreadcrumb, fullPath } = useBreadcrumb();
     const { getList } = useTable();
     const { isEditMode: isTemplateEditMode } = useTemplate();
     const { isEditMode: isWorkflowEditMode } = useWorkflow();
+    /**
+     * Close setting dialog
+     */
     const close = () => {
         visible.value = false;
     };
+    /**
+     * Get setting info
+     */
     async function getSetting() {
         const data = await api.getSetting();
         setting.value = {
@@ -49,6 +59,10 @@ export default () => {
         formSetting,
         visible,
         isTemplateEditMode,
+        /**
+         * Initialize setting hook
+         * @param {Function} callback - Callback function
+         */
         init(callback: Function) {
             watch(visible, (vis) => {
                 if (!vis) {
@@ -59,6 +73,9 @@ export default () => {
             });
         },
         getSetting,
+        /**
+         * Get home setting and initialize breadcrumb
+         */
         async homeGetSetting() {
             await getSetting();
             if (setting.value.homePath) {
@@ -67,6 +84,10 @@ export default () => {
                 getList(false);
             }
         },
+        /**
+         * Save setting
+         * @returns {Promise<null>}
+         */
         saveSetting() {
             return new Promise((resolve) => {
                 api.saveSetting(formSetting.value).then(() => {
@@ -99,6 +120,9 @@ export default () => {
          * 关闭设置弹窗
          */
         close,
+        /**
+         * Handle dialog closed event
+         */
         closed() {
             isTemplateEditMode.value = false;
             isWorkflowEditMode.value = false;

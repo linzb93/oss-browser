@@ -44,6 +44,9 @@ const { visible, saveAction, close, closed, form } = useWorkflow();
 const rules = readonly({});
 const formRef = ref(null);
 const emit = defineEmits(['submit']);
+/**
+ * Save workflow item
+ */
 const save = () =>
     saveAction().then(() => {
         emit('submit');

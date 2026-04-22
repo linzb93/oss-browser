@@ -8,6 +8,7 @@ import {
     TemplateItem,
     IHistroyResponse,
 } from '@/renderer/types';
+import type { LoginParams } from '@/shared/types';
 
 /**
  * Get file list from OSS
@@ -155,4 +156,20 @@ export function removeTemplateItem(data: { id: number }): Promise<any> {
  */
 export function copyTemplate(data: { width: number; height: number; url: string }): Promise<any> {
     return request('template:copy', data);
+}
+/**
+ * Get account list
+ * @returns {Promise<LoginParams[]>} List of accounts
+ */
+export function getAccountList(): Promise<LoginParams[]> {
+    return request('home-getList');
+}
+/**
+ * Remove an account
+ * @param {object} data - Data containing account ID
+ * @param {number} data.id - Account ID to remove
+ * @returns {Promise<any>}
+ */
+export function removeAccount(data: { id: number }): Promise<any> {
+    return request('home-removeAccount', data);
 }

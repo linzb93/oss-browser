@@ -32,8 +32,8 @@
 
 <script setup lang="ts">
 import pathUtil from '@/renderer/helpers/path';
-import useHistory from '../hooks/useHistory';
-import useLogin from '@/renderer/views/home/hooks/useLogin';
+import useHistory from '@/renderer/hooks/useHistory';
+import useLogin from '@/renderer/hooks/useLogin';
 const { userInfo } = useLogin();
 
 const {

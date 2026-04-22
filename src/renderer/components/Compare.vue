@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import useCompare from '../hooks/useCompare';
+import useCompare from '@/renderer/hooks/useCompare';
 const { visible, currentImage, compareImage, dialogWidth, dialogBodyHeight } = useCompare();
 
 /**

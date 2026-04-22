@@ -1,10 +1,10 @@
 import { ref, shallowRef } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import useLogin from '@/renderer/views/home/hooks/useLogin';
+import useLogin from '@/renderer/hooks/useLogin';
 import useBreadcrumb from './useBreadcrumb';
 import useTable from './useTable';
-import * as api from '../api';
-import { IHistoryItem } from '../shared/types';
+import * as api from '@/renderer/api';
+import { IHistoryItem } from '@/renderer/types';
 
 const visible = shallowRef(false);
 const pageQuery = ref({

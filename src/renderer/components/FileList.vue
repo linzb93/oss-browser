@@ -12,8 +12,8 @@
 </template>
 
 <script setup lang="ts">
-import useCompare from '../hooks/useCompare';
-import CompareDialog from '../components/Compare.vue';
+import useCompare from '@/renderer/hooks/useCompare';
+import CompareDialog from '@/renderer/components/Compare.vue';
 const { openDialog } = useCompare();
 
 const props = defineProps<{

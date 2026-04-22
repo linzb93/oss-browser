@@ -1,13 +1,13 @@
 import { ref } from 'vue';
-import { TableItem } from '../shared/types';
-import useBreadcrumb from './useBreadcrumb';
+import { TableItem } from '@/renderer/types';
+import useBreadcrumb from '@/renderer/hooks/useBreadcrumb';
 import pathUtil from '@/renderer/helpers/path';
 import { ElMessage } from 'element-plus';
-import useTemplate from './useTemplate';
+import useTemplate from '@/renderer/hooks/useTemplate';
 import { requestUtil } from '@/renderer/helpers/request';
 import { handleMainPost } from '@/renderer/helpers/util';
-import useTable from './useTable';
-import usePreview from './usePreview';
+import useTable from '@/renderer/hooks/useTable';
+import usePreview from '@/renderer/hooks/usePreview';
 
 /**
  * Check if the file is a picture

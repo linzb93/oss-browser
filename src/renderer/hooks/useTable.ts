@@ -3,11 +3,11 @@ import { scrollTo } from '@/renderer/helpers/scroll-to';
 import { requestUtil } from '@/renderer/helpers/request';
 import { handleMainPost } from '@/renderer/helpers/util';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import useBreadcrumb from './useBreadcrumb';
-import { type TableItem } from '../shared/types';
-import MsgBoxFileList from '../components/FileList.vue';
-import useLogin from '@/renderer/views/home/hooks/useLogin';
-import * as api from '../api';
+import useBreadcrumb from '@/renderer/hooks/useBreadcrumb';
+import { type TableItem } from '@/renderer/types';
+import MsgBoxFileList from '@/renderer/components/FileList.vue';
+import useLogin from '@/renderer/hooks/useLogin';
+import * as api from '@/renderer/api';
 import { getSize } from '@/renderer/helpers/size';
 
 const tableList = ref<TableItem[]>([]);

@@ -1,7 +1,7 @@
 import { computed, ref, shallowRef } from 'vue';
-import * as api from '../api';
+import * as api from '@/renderer/api';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { TemplateItem } from '../shared/types';
+import { TemplateItem } from '@/renderer/types';
 type TemplateItemPure = Omit<TemplateItem, 'content'>;
 const templates = ref<TemplateItemPure[]>([]);
 const visible = shallowRef(false);

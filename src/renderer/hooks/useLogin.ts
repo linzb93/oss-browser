@@ -173,6 +173,7 @@ export default () => {
                 getBuckets(false);
             }
         },
+        show: false,
         /**
          * 获取指定ID的用户信息
          * @param {string} id - 用户ID

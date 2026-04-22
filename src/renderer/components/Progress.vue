@@ -62,9 +62,9 @@ import { Check } from '@element-plus/icons-vue';
 import request, { requestUtil } from '@/renderer/helpers/request';
 import pathUtils from '@/renderer/helpers/path';
 import { getSize } from '@/renderer/helpers/size';
-import useLogin from '@/renderer/views/home/hooks/useLogin';
-import useWorkflow from '../hooks/useWorkflow';
-import useSetting from '../hooks/useSetting';
+import useLogin from '@/renderer/hooks/useLogin';
+import useWorkflow from '@/renderer/hooks/useWorkflow';
+import useSetting from '@/renderer/hooks/useSetting';
 const props = defineProps<{
     path: string;
     uploadList: any[];
@@ -101,9 +101,6 @@ const startUpload = () => {
             finished.value = true;
             removeEvt();
             ElMessage.success('上传成功');
-            if (workflowList.value.length && setting.value.copyWorkflowId) {
-                setting.value.copyWorkflowId = 0;
-            }
         }
         list.value = data;
     });
@@ -113,21 +110,7 @@ watch(visible, (data) => {
     if (!data) {
         return;
     }
-    if (workflowList.value.length && setting.value.copyWorkflowId) {
-        // 提醒用户当前有复制工作流，是否取消或继续
-        ElMessageBox.confirm('当前有复制工作流，是否继续？', '提示', {
-            confirmButtonText: '继续',
-            cancelButtonText: '取消',
-        })
-            .then(() => {
-                startUpload();
-            })
-            .catch(() => {
-                close();
-            });
-    } else {
-        startUpload();
-    }
+    startUpload();
 });
 /**
  * Close the drawer

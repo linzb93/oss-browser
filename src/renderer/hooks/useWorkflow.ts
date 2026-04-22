@@ -1,6 +1,6 @@
 import { shallowRef, ref, computed } from 'vue';
-import { WorkflowItem } from '../shared/types';
-import * as api from '../api';
+import { WorkflowItem } from '@/renderer/types';
+import * as api from '@/renderer/api';
 import { ElMessage, ElMessageBox } from 'element-plus';
 
 const visible = shallowRef(false);

@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import { readonly, ref } from 'vue';
-import useTemplate from '../hooks/useTemplate';
+import useTemplate from '@/renderer/hooks/useTemplate';
 
 const { visible, form, saveAction, close, closed } = useTemplate();
 const rules = readonly({});

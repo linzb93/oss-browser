@@ -71,3 +71,10 @@ export interface IHistoryItem {
     createTime: string;
 }
 export type IHistroyResponse = IPageResponse<IHistoryItem>;
+export interface WorkflowItem {
+    id: number;
+    name: string;
+    nameType: string;
+    templateContent: string;
+    templateType: string;
+}

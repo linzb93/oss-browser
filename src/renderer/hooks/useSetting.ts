@@ -1,7 +1,7 @@
 import { ref, shallowRef, watch } from 'vue';
-import * as api from '../api';
+import * as api from '@/renderer/api';
 import useBreadcrumb from './useBreadcrumb';
-import { SettingInfo } from '../shared/types';
+import { SettingInfo } from '@/renderer/types';
 import { cloneDeep } from 'lodash-es';
 import useTable from './useTable';
 import useWorkflow from './useWorkflow';
@@ -13,14 +13,12 @@ const setting = ref<SettingInfo>({
     previewType: 1,
     homePath: '',
     copyTemplateId: 0,
-    copyWorkflowId: 0,
 });
 const formSetting = ref<SettingInfo>({
     pixel: 2,
     previewType: 1,
     homePath: '',
     copyTemplateId: 0,
-    copyWorkflowId: 0,
 });
 /**
  * Hook for setting operations

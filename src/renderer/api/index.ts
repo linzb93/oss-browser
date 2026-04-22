@@ -7,7 +7,6 @@ import {
     SettingInfo,
     TemplateItem,
     IHistroyResponse,
-    WorkflowItem,
 } from '@/renderer/types';
 
 /**
@@ -156,45 +155,4 @@ export function removeTemplateItem(data: { id: number }) {
  */
 export function copyTemplate(data: { width: number; height: number; url: string }) {
     return request('template:copy', data);
-}
-/**
- * Get workflow item by id
- * @param {object} data - Data containing ID
- * @param {number} data.id - Workflow ID
- * @returns {Promise<WorkflowItem>} Workflow details
- */
-export function getWorkflowItem(data: { id: number }): Promise<WorkflowItem> {
-    return request('workflow:get-detail', data);
-}
-/**
- * Get workflow list
- * @returns {Promise<WorkflowItem[]>} List of workflows
- */
-export function getWorkflowList(): Promise<WorkflowItem[]> {
-    return request('workflow:get-list');
-}
-/**
- * Add a new workflow
- * @param {Omit<WorkflowItem, 'id'>} data - Workflow data without ID
- * @returns {Promise<any>}
- */
-export function addWorkflowItem(data: Omit<WorkflowItem, 'id'>) {
-    return request('workflow:add', data);
-}
-/**
- * Edit an existing workflow
- * @param {WorkflowItem} data - Workflow data
- * @returns {Promise<any>}
- */
-export function editWorkflowItem(data: WorkflowItem) {
-    return request('workflow:edit', data);
-}
-/**
- * Remove a workflow
- * @param {object} data - Data containing ID
- * @param {number} data.id - Workflow ID to remove
- * @returns {Promise<any>}
- */
-export function removeWorkflowItem(data: { id: number }) {
-    return request('workflow:remove', data);
 }

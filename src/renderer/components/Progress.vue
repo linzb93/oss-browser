@@ -63,7 +63,6 @@ import request, { requestUtil } from '@/renderer/helpers/request';
 import pathUtils from '@/renderer/helpers/path';
 import { getSize } from '@/renderer/helpers/size';
 import useLogin from '@/renderer/hooks/useLogin';
-import useWorkflow from '@/renderer/hooks/useWorkflow';
 import useSetting from '@/renderer/hooks/useSetting';
 const props = defineProps<{
     path: string;
@@ -78,7 +77,6 @@ interface ListItem {
 }
 const { userInfo } = useLogin();
 
-const { list: workflowList } = useWorkflow();
 const { setting } = useSetting();
 
 const list = ref<ListItem[]>([]);

@@ -52,31 +52,20 @@
         </template>
     </el-dialog>
     <template-editor @submit="getTemplates" />
-    <workflow-editor @submit="getWorkflow" />
 </template>
 
 <script setup lang="ts">
 import TemplateEditor from '@/renderer/components/TemplateEditor.vue';
 import useTemplate from '@/renderer/hooks/useTemplate';
 import useSetting from '@/renderer/hooks/useSetting';
-import useWorkflow from '@/renderer/hooks/useWorkflow';
-import WorkflowEditor from '@/renderer/components/WorkflowEditor.vue';
 import { Edit, Remove } from '@element-plus/icons-vue';
 
 const { getList: getTemplates, templates, openDialog: addTemplate, removeItem: removeTemplate } = useTemplate();
 
 const { saveSetting, formSetting, visible, close, closed, init, isTemplateEditMode } = useSetting();
-const {
-    getList: getWorkflow,
-    list: workflows,
-    isEditMode: isWorkflowEditMode,
-    openDialog: addWorkflow,
-    removeItem: removeWorkflow,
-} = useWorkflow();
 
 init(() => {
     getTemplates();
-    getWorkflow();
 });
 </script>
 <style lang="scss" scoped>

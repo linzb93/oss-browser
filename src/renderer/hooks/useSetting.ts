@@ -4,7 +4,6 @@ import useBreadcrumb from './useBreadcrumb';
 import { SettingInfo } from '@/renderer/types';
 import { cloneDeep } from 'lodash-es';
 import useTable from './useTable';
-import useWorkflow from './useWorkflow';
 import { ElMessage } from 'element-plus';
 import useTemplate from './useTemplate';
 const visible = shallowRef(false);
@@ -28,7 +27,6 @@ export default () => {
     const { init: initBreadcrumb, fullPath } = useBreadcrumb();
     const { getList } = useTable();
     const { isEditMode: isTemplateEditMode } = useTemplate();
-    const { isEditMode: isWorkflowEditMode } = useWorkflow();
     /**
      * Close setting dialog
      */
@@ -123,7 +121,6 @@ export default () => {
          */
         closed() {
             isTemplateEditMode.value = false;
-            isWorkflowEditMode.value = false;
         },
     };
 };

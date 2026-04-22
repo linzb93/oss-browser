@@ -27,7 +27,7 @@ export function getList(params: { prefix: string; useToken: boolean }): Promise<
  * @param {AddParams} params - Parameters for adding directory
  * @returns {Promise<any>}
  */
-export const addDirectory = async (params: AddParams) => {
+export const addDirectory = async (params: AddParams): Promise<any> => {
     return request('oss:add-directory', params);
 };
 /**
@@ -36,7 +36,7 @@ export const addDirectory = async (params: AddParams) => {
  * @param {string} data.paths - Comma separated paths
  * @returns {Promise<any>}
  */
-export const deleteItem = async (data: { paths: string }) => {
+export const deleteItem = async (data: { paths: string }): Promise<any> => {
     return request('oss:delete', data);
 };
 /**
@@ -52,7 +52,7 @@ export function getCollect(): Promise<CollectItem[]> {
  * @param {string} data.path - Path to collect
  * @returns {Promise<any>}
  */
-export function addCollect(data: { path: string }) {
+export function addCollect(data: { path: string }): Promise<any> {
     return request('collect:add', data);
 }
 /**
@@ -60,7 +60,7 @@ export function addCollect(data: { path: string }) {
  * @param {CollectItem[]} list - New list of collections
  * @returns {Promise<any>}
  */
-export function setCollect(list: CollectItem[]) {
+export function setCollect(list: CollectItem[]): Promise<any> {
     return request('collect:set', list);
 }
 
@@ -77,7 +77,7 @@ export function getHistoryList(query: IPage): Promise<IHistroyResponse> {
  * @param {string[]} ids - List of history IDs to remove
  * @returns {Promise<any>}
  */
-export function removeHistory(ids: string[]) {
+export function removeHistory(ids: string[]): Promise<any> {
     return request('history:remove', ids);
 }
 /**
@@ -92,7 +92,7 @@ export function getSetting(): Promise<SettingInfo> {
  * @param {SettingInfo} data - Settings to save
  * @returns {Promise<any>}
  */
-export function saveSetting(data: SettingInfo) {
+export function saveSetting(data: SettingInfo): Promise<any> {
     return request('setting:save', data);
 }
 /**
@@ -101,7 +101,7 @@ export function saveSetting(data: SettingInfo) {
  * @param {string} data.path - New home path
  * @returns {Promise<any>}
  */
-export function setHome(data: { path: string }) {
+export function setHome(data: { path: string }): Promise<any> {
     return request('setting:set-home', data);
 }
 /**
@@ -125,7 +125,7 @@ export function getTemplateList(): Promise<Omit<TemplateItem, 'content'>[]> {
  * @param {Omit<TemplateItem, 'id'>} data - Template data without ID
  * @returns {Promise<any>}
  */
-export function addTemplateItem(data: Omit<TemplateItem, 'id'>) {
+export function addTemplateItem(data: Omit<TemplateItem, 'id'>): Promise<any> {
     return request('template:add', data);
 }
 /**
@@ -133,7 +133,7 @@ export function addTemplateItem(data: Omit<TemplateItem, 'id'>) {
  * @param {TemplateItem} data - Template data
  * @returns {Promise<any>}
  */
-export function editTemplateItem(data: TemplateItem) {
+export function editTemplateItem(data: TemplateItem): Promise<any> {
     return request('template:edit', data);
 }
 /**
@@ -142,7 +142,7 @@ export function editTemplateItem(data: TemplateItem) {
  * @param {number} data.id - Template ID to remove
  * @returns {Promise<any>}
  */
-export function removeTemplateItem(data: { id: number }) {
+export function removeTemplateItem(data: { id: number }): Promise<any> {
     return request('template:remove', data);
 }
 /**
@@ -153,6 +153,6 @@ export function removeTemplateItem(data: { id: number }) {
  * @param {string} data.url - Image URL
  * @returns {Promise<any>}
  */
-export function copyTemplate(data: { width: number; height: number; url: string }) {
+export function copyTemplate(data: { width: number; height: number; url: string }): Promise<any> {
     return request('template:copy', data);
 }

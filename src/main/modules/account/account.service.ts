@@ -62,7 +62,7 @@ export const setDefaultAppId = async (id: number): Promise<void> => {
         db.defaultAppId = Number(id);
     });
     if (id) {
-        ossService.init();
+        await ossService.init();
     }
 };
 

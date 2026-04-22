@@ -23,6 +23,7 @@ export function createApp() {
         registerApi();
         historyService.init();
         ossService.add(AliOSS);
+        ossService.init();
     });
     setting();
 }

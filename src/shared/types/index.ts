@@ -1,12 +1,7 @@
-export interface UserInfo {}
-
-export interface LoginParams {
-    name: string;
-    platform: number;
-    region: string;
-    accessKeyId: string;
-    accessKeySecret: string;
-    bucket: string;
-    domain: string;
-    id: number;
-}
+export * from './account';
+export * from './history';
+export * from './collect';
+export * from './template';
+export * from './setting';
+export * from './common';
+export * from './oss';

@@ -2,7 +2,7 @@ import { shallowRef, ref, h } from 'vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import MsgBoxFileList from '@/renderer/components/FileList.vue';
 import useTable from './useTable';
-import { getSize } from '@/renderer/helpers/size';
+import { getSize } from '@/renderer/utils/size';
 import { type TableItem, type UploadedTableItem } from '@/renderer/types';
 
 const active = shallowRef(false);

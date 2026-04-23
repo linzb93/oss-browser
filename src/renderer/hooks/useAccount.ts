@@ -23,13 +23,6 @@ export default () => {
         addDialogVisible.value = true;
     };
 
-    const getPlatformName = (type: number) => {
-        if (type === 1) {
-            return '阿里云';
-        }
-        return '';
-    };
-
     const jump = (item: any) => {
         // handled by parent component
     };
@@ -40,17 +33,6 @@ export default () => {
             return;
         }
         if (cmd === 'delete') {
-            ElMessageBox.confirm(`确认删除账号【${row.name}】？`, '温馨提醒', {
-                confirmButtonText: '删除',
-            })
-                .then(async () => {
-                    await removeAccount({ id: row.id });
-                    ElMessage.success('移除成功');
-                    getList();
-                })
-                .catch(() => {
-                    //
-                });
         }
     };
 
@@ -59,7 +41,6 @@ export default () => {
         getList,
         add,
         edit,
-        getPlatformName,
         jump,
         handleCommand,
         addDialogVisible,

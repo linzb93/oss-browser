@@ -1,14 +1,14 @@
 import { ref, shallowRef, h, computed } from 'vue';
-import { scrollTo } from '@/renderer/helpers/scroll-to';
-import { requestUtil } from '@/renderer/helpers/request';
-import { handleMainPost } from '@/renderer/helpers/util';
+import { scrollTo } from '@/renderer/utils/scroll-to';
+import { requestUtil } from '@/renderer/utils/request';
+import { handleMainPost } from '@/renderer/utils/util';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import useBreadcrumb from '@/renderer/hooks/useBreadcrumb';
 import { type TableItem } from '@/renderer/types';
 import MsgBoxFileList from '@/renderer/components/FileList.vue';
 import useLogin from '@/renderer/hooks/useLogin';
 import * as api from '@/renderer/api';
-import { getSize } from '@/renderer/helpers/size';
+import { getSize } from '@/renderer/utils/size';
 
 const tableList = ref<TableItem[]>([]);
 const finished = shallowRef(false);

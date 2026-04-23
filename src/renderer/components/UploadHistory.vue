@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import pathUtil from '@/renderer/helpers/path';
+import pathUtil from '@/renderer/utils/path';
 import useHistory from '@/renderer/hooks/useHistory';
 import useLogin from '@/renderer/hooks/useLogin';
 const { userInfo } = useLogin();

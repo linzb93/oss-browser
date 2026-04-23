@@ -34,7 +34,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import usePreview from '@/renderer/hooks/usePreview';
-import { requestUtil } from '@/renderer/helpers/request';
+import { requestUtil } from '@/renderer/utils/request';
 import { ArrowDown } from '@element-plus/icons-vue';
 const { imgPreview, textPreview, changeBgColor } = usePreview();
 

@@ -1,5 +1,5 @@
 import { ref, readonly, shallowRef, watch } from 'vue';
-import request from '@/renderer/helpers/request';
+import request from '@/renderer/utils/request';
 import { cloneDeep, pick } from 'lodash-es';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
 import type { LoginParams } from '@/shared/types';

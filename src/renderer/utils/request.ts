@@ -1,7 +1,7 @@
 import { ref, unref, isReactive, shallowRef } from 'vue';
 import { ElMessage } from 'element-plus';
 import { sleep } from '@linzb93/utils';
-import { loading } from './util';
+import { loading } from '.';
 
 interface Option {
     delay?: number;

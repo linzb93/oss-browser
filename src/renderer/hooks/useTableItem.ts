@@ -1,11 +1,11 @@
 import { ref } from 'vue';
 import { TableItem } from '@/renderer/types';
 import useBreadcrumb from '@/renderer/hooks/useBreadcrumb';
-import pathUtil from '@/renderer/helpers/path';
+import pathUtil from '@/renderer/utils/path';
 import { ElMessage } from 'element-plus';
 import useTemplate from '@/renderer/hooks/useTemplate';
-import { requestUtil } from '@/renderer/helpers/request';
-import { handleMainPost } from '@/renderer/helpers/util';
+import { requestUtil } from '@/renderer/utils/request';
+import { handleMainPost } from '@/renderer/utils/util';
 import useTable from '@/renderer/hooks/useTable';
 import usePreview from '@/renderer/hooks/usePreview';
 

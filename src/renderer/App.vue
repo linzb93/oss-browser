@@ -158,14 +158,14 @@ import { onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import dayjs from 'dayjs';
 import { Folder, ArrowRight, HomeFilled, ArrowDown, Back } from '@element-plus/icons-vue';
-import { getSize } from '@/renderer/helpers/size';
+import { getSize } from '@/renderer/utils/size';
 import useLogin from '@/renderer/hooks/useLogin';
 import useUpload from '@/renderer/hooks/useUpload';
 import useBreadcrumb from '@/renderer/hooks/useBreadcrumb';
-import pathUtil from '@/renderer/helpers/path';
+import pathUtil from '@/renderer/utils/path';
 import useHistory from '@/renderer/hooks/useHistory';
 import UploadHistory from '@/renderer/components/UploadHistory.vue';
-import { requestUtil } from '@/renderer/helpers/request';
+import { requestUtil } from '@/renderer/utils/request';
 import FileTypeIcon from '@/renderer/components/FileTypeIcon.vue';
 import DeleteConfirm from '@/renderer/components/DeleteConfirm.vue';
 import ProgressDrawer from '@/renderer/components/Progress.vue';
@@ -179,7 +179,7 @@ import useTemplate from '@/renderer/hooks/useTemplate';
 import useTableItem from '@/renderer/hooks/useTableItem';
 import { type TableItem } from '@/renderer/types';
 import AddDialog from '@/renderer/components/AddDialog.vue';
-import request from '@/renderer/helpers/request';
+import request from '@/renderer/utils/request';
 
 const {
     init: tableInit,

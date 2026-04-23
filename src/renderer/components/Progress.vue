@@ -59,9 +59,9 @@
 import { ref, shallowRef, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Check } from '@element-plus/icons-vue';
-import request, { requestUtil } from '@/renderer/helpers/request';
-import pathUtils from '@/renderer/helpers/path';
-import { getSize } from '@/renderer/helpers/size';
+import request, { requestUtil } from '@/renderer/utils/request';
+import pathUtils from '@/renderer/utils/path';
+import { getSize } from '@/renderer/utils/size';
 import useLogin from '@/renderer/hooks/useLogin';
 import useSetting from '@/renderer/hooks/useSetting';
 const props = defineProps<{

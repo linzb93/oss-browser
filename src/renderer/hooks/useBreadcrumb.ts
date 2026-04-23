@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue';
-import { handleMainPost } from '@/renderer/helpers/util';
+import { handleMainPost } from '@/renderer/utils/util';
 
 const breadcrumb = ref<string[]>([]);
 const fullPath = computed(() => breadcrumb.value.map((item) => `${item}/`).join(''));

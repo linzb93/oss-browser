@@ -1,10 +1,10 @@
 import { ref, shallowRef, h, computed } from 'vue';
 import { scrollTo } from '@/renderer/utils/scroll-to';
 import { requestUtil } from '@/renderer/utils/request';
-import { handleMainPost } from '@/renderer/utils/util';
+import { handleMainPost } from '@/renderer/utils';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import useBreadcrumb from '@/renderer/hooks/useBreadcrumb';
-import { type TableItem } from '@/renderer/types';
+import { type TableItem } from '@/shared/types';
 import MsgBoxFileList from '@/renderer/components/FileList.vue';
 import useLogin from '@/renderer/hooks/useLogin';
 import * as api from '@/renderer/api';

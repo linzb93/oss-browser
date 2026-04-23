@@ -28,3 +28,6 @@ export interface AddParams {
     names: string;
     type: 'directory' | 'files';
 }
+export interface BucketItem {
+    name: string;
+}

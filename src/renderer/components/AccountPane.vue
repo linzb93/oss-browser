@@ -2,7 +2,7 @@
     <el-dialog
         v-model="visible"
         :title="isEdit ? '账号管理' : '选择账号'"
-        width="800px"
+        :width="isEdit ? '800px' : '400px'"
         @close="handleClose"
         @closed="onClosed"
     >
@@ -28,7 +28,7 @@
             </el-table>
         </template>
         <el-form v-else :model="selectedAccount" ref="selectedAccountForm" label-width="120px">
-            <el-select v-model="selectedAccount.id" placeholder="请选择账号">
+            <el-select v-model="selectedAccount.id" placeholder="请选择账号" style="width: 200px">
                 <el-option v-for="item in list" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
         </el-form>
@@ -51,7 +51,7 @@ import { useAccount } from '@/renderer/hooks/useAccount-v2';
 import { AccountItem } from '@/shared/types';
 import { getAccountList, removeAccount } from '@/renderer/api';
 
-const visible = defineModel<boolean>({ required: true, default: false });
+const visible = defineModel<boolean>('visible', { required: true, default: false });
 const emit = defineEmits(['close', 'jump']);
 
 const { currentAccount } = useAccount();

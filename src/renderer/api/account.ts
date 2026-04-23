@@ -6,7 +6,7 @@ import type { AccountItem } from '@/shared/types';
  * @returns {Promise<AccountItem[]>} 账号列表
  */
 export function getAccountList(): Promise<AccountItem[]> {
-    return request('home-getList');
+    return request('account:get-list');
 }
 /**
  * 删除账号
@@ -15,5 +15,9 @@ export function getAccountList(): Promise<AccountItem[]> {
  * @returns {Promise<void>}
  */
 export function removeAccount(data: { id: number }): Promise<void> {
-    return request('home-removeAccount', data);
+    return request('account:remove', data);
+}
+
+export function getAppDefaultId(): Promise<number> {
+    return request('account:get-default-app-id');
 }

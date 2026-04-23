@@ -177,7 +177,7 @@ import useCollect from '@/renderer/hooks/useCollect';
 import useTable from '@/renderer/hooks/useTable';
 import useTemplate from '@/renderer/hooks/useTemplate';
 import useTableItem from '@/renderer/hooks/useTableItem';
-import { type TableItem } from '@/renderer/types';
+import { type TableItem } from '@/shared/types';
 import AddDialog from '@/renderer/components/AddDialog.vue';
 import request from '@/renderer/utils/request';
 

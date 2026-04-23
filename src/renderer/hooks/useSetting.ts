@@ -1,7 +1,7 @@
 import { ref, shallowRef, watch } from 'vue';
 import * as api from '@/renderer/api';
 import useBreadcrumb from './useBreadcrumb';
-import { SettingInfo } from '@/renderer/types';
+import { SettingInfo } from '@/shared/types';
 import { cloneDeep } from 'lodash-es';
 import useTable from './useTable';
 import { ElMessage } from 'element-plus';
@@ -23,7 +23,7 @@ const formSetting = ref<SettingInfo>({
  * Hook for setting operations
  * @returns {object} The hook object
  */
-export default () => {
+export const useSetting = () => {
     const { init: initBreadcrumb, fullPath } = useBreadcrumb();
     const { getList } = useTable();
     const { isEditMode: isTemplateEditMode } = useTemplate();

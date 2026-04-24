@@ -140,16 +140,7 @@
             </div>
         </div>
     </div>
-    <upload-history :domain="userInfo.domain" @select="onSelectHistory" />
-    <progress-drawer
-        v-model:visible="progressVisible"
-        :upload-list="uploadingList"
-        :path="fullPath"
-        @refresh="getList(false)"
-    />
-    <collect-pane />
-    <setting-dialog />
-    <preview-dialog :domain="userInfo.domain" />
+
     <add-dialog @submit="onAddDialogSubmit" />
 </template>
 

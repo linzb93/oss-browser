@@ -8,7 +8,7 @@ import type { ResponseTableItem, AddParams, AccountItem, BucketItem } from '@/sh
  * @param {boolean} params.useToken - 是否使用分页token
  * @returns {Promise<{list: ResponseTableItem[], token: string}>} 文件列表和下一页token的Promise
  */
-export function getList(params: { prefix: string; useToken: boolean }): Promise<{
+export function getOSSList(params: { prefix: string; useToken: boolean }): Promise<{
     list: ResponseTableItem[];
     token: string;
 }> {

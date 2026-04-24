@@ -1,29 +1,29 @@
-import { shallowRef, ref, h } from 'vue';
+import { ref, h } from 'vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import MsgBoxFileList from '@/renderer/components/FileList.vue';
-import useTable from './useTable';
+import { useOSSStore } from '@/renderer/store/useOSS';
 import { getSize } from '@/renderer/utils/size';
-import { type TableItem, type UploadedTableItem } from '@/renderer/types';
+import { type TableItem, type UploadedTableItem } from '@/shared/types';
 
-const active = shallowRef(false);
+const { ossList: tableList } = useOSSStore();
+
+const active = ref(false);
 
 /**
- * Set the drag state
- * @param {boolean} state - The drag state
+ * 设置拖拽状态
+ * @param {boolean} state - 拖拽状态
  */
 const setDragState = (state: boolean) => {
     active.value = state;
 };
 
-const progressVisible = shallowRef(false);
+const progressVisible = ref(false);
 const uploadingList = ref<TableItem[]>([]);
 
 /**
  * Hook for file upload
- * @returns {object} The hook object
  */
-export default function useUpload() {
-    const { tableList } = useTable();
+export function useUpload() {
     /**
      * Handle file drop event
      * @param {DragEvent} event - The drag event
@@ -34,14 +34,14 @@ export default function useUpload() {
         const upOriginList = Array.from(files) as UploadedTableItem[];
         const resolveList = await new Promise<UploadedTableItem[]>((resolve) => {
             // 过滤重名文件，其他正常上传
-            const duplicateFiles = upOriginList.filter((item) => tableList.value.find((sub) => sub.name === item.name));
+            const duplicateFiles = upOriginList.filter((item) => tableList.find((sub) => sub.name === item.name));
             if (duplicateFiles.length) {
                 ElMessageBox({
                     message: h(MsgBoxFileList, {
                         list: duplicateFiles.map((item) => ({
                             name: item.name,
                             path: URL.createObjectURL(item as unknown as Blob),
-                            onlineUrl: tableList.value.find((sub) => sub.name === item.name)?.url,
+                            onlineUrl: tableList.find((sub) => sub.name === item.name)?.url,
                         })),
                         tips: '下列文件已存在，是否覆盖？',
                     }),
@@ -76,7 +76,7 @@ export default function useUpload() {
     };
     return {
         progressVisible,
-        active,
+        dragActive: active,
         setDragState,
         dropFile,
         uploadingList,

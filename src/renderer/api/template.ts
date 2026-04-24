@@ -1,4 +1,4 @@
-import request from '@/renderer/utils/request';
+import { request } from '@/renderer/utils/request';
 import type { TemplateItem } from '@/shared/types';
 /**
  * 获取模板详情

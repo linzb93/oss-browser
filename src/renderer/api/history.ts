@@ -1,4 +1,4 @@
-import request from '@/renderer/utils/request';
+import { request } from '@/renderer/utils/request';
 import type { IHistroyResponse, HistoryItem, IPageRequest } from '@/shared/types';
 /**
  * 获取上传历史列表

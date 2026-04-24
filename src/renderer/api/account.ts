@@ -1,4 +1,4 @@
-import request from '@/renderer/utils/request';
+import { request } from '@/renderer/utils/request';
 import type { AccountItem } from '@/shared/types';
 
 /**
@@ -20,4 +20,8 @@ export function removeAccount(data: { id: number }): Promise<void> {
 
 export function getAppDefaultId(): Promise<number> {
     return request('account:get-default-app-id');
+}
+
+export function getCurrentAccount(): Promise<AccountItem> {
+    return request('account:get-current');
 }

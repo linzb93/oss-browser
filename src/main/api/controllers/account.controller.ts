@@ -5,6 +5,7 @@ import { Database } from '../../types/api';
 export const registerAccountController = () => {
     ipcMain.handle('account:get-list', () => getList());
     ipcMain.handle('account:get-item', (event, dataStr: string) => getItem(dataStr));
+    ipcMain.handle('account:get-current', () => getCurrentAccount());
     ipcMain.handle('account:save', (event, dataStr: string) => save(dataStr));
     ipcMain.handle('account:get-default-app-id', () => getDefaultAppId());
     ipcMain.handle('account:set-default-app-id', (event, dataStr: string) => setDefaultAppId(dataStr));
@@ -39,4 +40,7 @@ const remove = (dataStr: string) => {
         id: number;
     };
     return formatResponse(() => accountService.remove(data.id));
+};
+const getCurrentAccount = () => {
+    return formatResponse(() => accountService.getCurrentAccount());
 };

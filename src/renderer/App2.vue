@@ -14,17 +14,18 @@
     </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted, onBeforeMount } from 'vue';
 import AccountPane from '@/renderer/components/AccountPane.vue';
 import AddAccountDialog from '@/renderer/components/AddAccountDialog.vue';
 import Breadcrumb from '@/renderer/components/Breadcrumb.vue';
 import OssTable from '@/renderer/components/OSSTable.vue';
+import { useGlobalConfigStore } from '@/renderer/store/useGlobalConfig';
 
-import { useAccount } from '@/renderer/hooks/useAccount-v2';
-
-const { hasNoAccount, boostrap } = useAccount();
-boostrap();
+const { loadCurrentAccount, hasNoAccount } = useGlobalConfigStore();
+onBeforeMount(async () => {
+    await loadCurrentAccount();
+});
 const manageVisible = ref(false);
 const addVisible = ref(false);
 </script>

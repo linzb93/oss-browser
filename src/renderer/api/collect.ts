@@ -1,4 +1,4 @@
-import request from '@/renderer/utils/request';
+import { request } from '@/renderer/utils/request';
 import type { CollectItem } from '@/shared/types';
 
 /**

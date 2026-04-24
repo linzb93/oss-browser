@@ -1,4 +1,4 @@
-import request from '@/renderer/utils/request';
+import { request } from '@/renderer/utils/request';
 import type { ResponseTableItem, AddParams, AccountItem, BucketItem } from '@/shared/types';
 
 /**

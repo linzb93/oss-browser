@@ -79,3 +79,14 @@ export const remove = async (id: number): Promise<void> => {
         }
     });
 };
+
+/**
+ * 获取当前默认账户
+ * @returns {Promise<Database['accounts'][number]>} 当前默认账户
+ */
+export const getCurrentAccount = async (): Promise<Database['accounts'][number]> => {
+    return (
+        (await sql((db) => db.accounts.find((item) => item.id === db.defaultAppId))) ||
+        ({} as Database['accounts'][number])
+    );
+};

@@ -1,4 +1,4 @@
-import { ref, shallowRef, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { cloneDeep, omit } from 'lodash-es';
 import { ElMessage } from 'element-plus';
 import useBreadcrumb from './useBreadcrumb';
@@ -11,7 +11,7 @@ export interface FormCollectItem extends CollectItem {
 const list = ref<CollectItem[]>([]);
 
 const formList = ref<FormCollectItem[]>([]);
-const visible = shallowRef(false);
+const visible = ref(false);
 /**
  * 收藏功能的hook。
  */

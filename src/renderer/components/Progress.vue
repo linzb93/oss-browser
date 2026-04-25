@@ -56,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Check } from '@element-plus/icons-vue';
 import request, { requestUtil } from '@/renderer/utils/request';
@@ -80,7 +80,7 @@ const { userInfo } = useLogin();
 const { setting } = useSetting();
 
 const list = ref<ListItem[]>([]);
-const finished = shallowRef(false);
+const finished = ref(false);
 let removeEvt = () => {};
 
 /**

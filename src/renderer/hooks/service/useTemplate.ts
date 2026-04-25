@@ -1,17 +1,17 @@
-import { computed, ref, shallowRef } from 'vue';
+import { computed, ref } from 'vue';
 import * as api from '@/renderer/api';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { TemplateItem } from '@/renderer/types';
 type TemplateItemPure = Omit<TemplateItem, 'content'>;
 const templates = ref<TemplateItemPure[]>([]);
-const visible = shallowRef(false);
+const visible = ref(false);
 
 const form = ref<TemplateItem>({
     id: 0,
     name: '',
     content: '',
 });
-const isEditMode = shallowRef(false);
+const isEditMode = ref(false);
 /**
  * Hook for template operations
  * @returns {object} The hook object

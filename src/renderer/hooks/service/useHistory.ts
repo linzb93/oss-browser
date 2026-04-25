@@ -1,4 +1,4 @@
-import { ref, shallowRef } from 'vue';
+import { ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import useLogin from '@/renderer/hooks/useLogin';
 import useBreadcrumb from './useBreadcrumb';
@@ -6,13 +6,13 @@ import useTable from './useTable';
 import * as api from '@/renderer/api';
 import { IHistoryItem } from '@/renderer/types';
 
-const visible = shallowRef(false);
+const visible = ref(false);
 const pageQuery = ref({
     pageSize: 10,
     pageIndex: 1,
 });
 
-const totalCount = shallowRef(0);
+const totalCount = ref(0);
 const list = ref<IHistoryItem[]>([]);
 const selectedIds = ref<string[]>([]);
 

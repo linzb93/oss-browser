@@ -1,11 +1,8 @@
 import { ref, h } from 'vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import MsgBoxFileList from '@/renderer/components/FileList.vue';
-import { useOSSStore } from '@/renderer/store/useOSS';
 import { getSize } from '@/renderer/utils/size';
 import { type TableItem, type UploadedTableItem } from '@/shared/types';
-
-const { ossList: tableList } = useOSSStore();
 
 const active = ref(false);
 
@@ -21,14 +18,14 @@ const progressVisible = ref(false);
 const uploadingList = ref<TableItem[]>([]);
 
 /**
- * Hook for file upload
+ * 文件上传操作钩子
  */
 export function useUpload() {
     /**
-     * Handle file drop event
-     * @param {DragEvent} event - The drag event
+     * 处理文件拖拽事件
+     * @param {DragEvent} event - 拖拽事件
      */
-    const dropFile = async (event: DragEvent) => {
+    const dropFile = async (event: DragEvent, tableList: TableItem[]) => {
         active.value = false;
         const files = event.dataTransfer?.files as FileList;
         const upOriginList = Array.from(files) as UploadedTableItem[];

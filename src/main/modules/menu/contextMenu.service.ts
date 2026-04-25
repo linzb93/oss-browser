@@ -6,7 +6,7 @@ export default (win: BrowserWindow) => {
             {
                 label: '创建目录(Ctrl + D)',
                 click() {
-                    postRenderer('create-dir');
+                    postRenderer('create-directory');
                 },
             },
             {

@@ -31,8 +31,8 @@ const textPreview = ref({
     content: '',
 });
 /**
- * Load image and calculate size
- * @param {string} url - Image URL
+ * 加载图片并计算宽度和高度
+ * @param {string} url - 图片 URL
  */
 const loadImage = (url: string) => {
     const img = new Image();
@@ -56,7 +56,7 @@ const loadImage = (url: string) => {
             if (imgHeight > offsetHeight * 0.8) {
                 imgPreview.value.width = Math.max(
                     parseInt((((offsetHeight * 0.8 - 32) * imgWidth) / imgHeight).toString()),
-                    400
+                    400,
                 );
             } else {
                 imgPreview.value.width = Math.max(400, imgWidth);
@@ -66,10 +66,9 @@ const loadImage = (url: string) => {
     };
 };
 /**
- * Hook for preview operations
- * @returns {object} The hook object
+ * 预览操作钩子
  */
-export default () => {
+export const usePreview = () => {
     return {
         imgPreview,
         textPreview,

@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch, ref } from 'vue';
+import { ref } from 'vue';
 import type { AccountItem, BucketItem } from '@/shared/types';
 import { ElMessage } from 'element-plus';
 import type { FormInstance, FormRules } from 'element-plus';

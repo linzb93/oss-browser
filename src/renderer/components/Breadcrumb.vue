@@ -29,7 +29,7 @@
 <script setup lang="ts">
 // import { ref } from 'vue';
 import { Folder, ArrowRight, HomeFilled, Back } from '@element-plus/icons-vue';
-import useBreadcrumb from '@/renderer/hooks/useBreadcrumb';
-const { breadcrumb, set: setBreadcrumb, pop: popBreadcrumb } = useBreadcrumb();
+import { useOSSBreadcrumb } from '@/renderer/hooks/service/useBreadcrumb';
+const { breadcrumb, set: setBreadcrumb, pop: popBreadcrumb } = useOSSBreadcrumb();
 </script>
 <style lang="scss" scoped></style>

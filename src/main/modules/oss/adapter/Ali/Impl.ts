@@ -83,7 +83,7 @@ export default class extends BaseOss {
         const dirs = result.prefixes
             ? result.prefixes.map((subDir) => ({
                   name: subDir.split('/').slice(-2)[0],
-                  type: 'dir',
+                  type: 'directory',
                   size: 0,
               }))
             : [];

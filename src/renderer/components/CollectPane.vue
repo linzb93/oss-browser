@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import useCollect from '@/renderer/hooks/useCollect';
+import useCollect from '@/renderer/hooks/service/useCollect';
 import { Edit, Delete, Right } from '@element-plus/icons-vue';
 const { formList, save, deleteItem, visible, init, enter, close } = useCollect();
 init();

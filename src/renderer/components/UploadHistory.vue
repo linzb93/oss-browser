@@ -32,7 +32,7 @@
 
 <script setup lang="ts">
 import pathUtil from '@/renderer/utils/path';
-import useHistory from '@/renderer/hooks/useHistory';
+import useHistory from '@/renderer/hooks/service/useHistory';
 import useLogin from '@/renderer/hooks/useLogin';
 const { userInfo } = useLogin();
 

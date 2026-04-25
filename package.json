@@ -47,7 +47,6 @@
         "lodash-es": "^4.17.21",
         "lowdb": "^7.0.1",
         "p-map": "^7.0.2",
-        "pinia": "^3.0.4",
         "rxjs": "^7.8.1",
         "slash": "^5.1.0",
         "standard-version": "^9.5.0",

@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import TemplateEditor from '@/renderer/components/TemplateEditor.vue';
-import useTemplate from '@/renderer/hooks/useTemplate';
+import useTemplate from '@/renderer/hooks/service/useTemplate';
 import useSetting from '@/renderer/hooks/useSetting';
 import { Edit, Remove } from '@element-plus/icons-vue';
 

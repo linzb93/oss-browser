@@ -21,7 +21,7 @@ export function copy(content: string) {
 /**
  * 批量下载文件
  */
-export async function download(paths: string, dir: string) {
+export async function download(paths: string, directory: string) {
     const pathList = castArray(paths.split(','));
     const result = await dialog.showOpenDialog({
         properties: ['openDirectory'],
@@ -39,7 +39,7 @@ export async function download(paths: string, dir: string) {
             downloadOne({
                 url,
                 savedPath: result.filePaths[0],
-                dir,
+                directory,
                 domain: account.domain,
             }),
         { concurrency: 4 },
@@ -50,11 +50,11 @@ export async function download(paths: string, dir: string) {
  * 不使用`win.webContents.downloadURL 方法是因为存在批量下载，不可能每个文件都选择一次下载目录。
  * @param path - 文件地址
  */
-function downloadOne(data: { url: string; savedPath: string; dir: string; domain: string }) {
+function downloadOne(data: { url: string; savedPath: string; directory: string; domain: string }) {
     return new Promise((resolve) => {
         const callback = async (resp: http.IncomingMessage) => {
             if (resp.statusCode === 200) {
-                const localPath = join(data.savedPath, data.url.replace(`${data.domain}/${data.dir}/`, ''));
+                const localPath = join(data.savedPath, data.url.replace(`${data.domain}/${data.directory}/`, ''));
                 try {
                     await fsp.access(dirname(localPath));
                 } catch (error) {

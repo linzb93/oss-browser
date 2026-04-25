@@ -1,7 +1,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { isEmptyObject } from '@linzb93/utils';
 import { AccountItem } from '@/shared/types/account';
-import { useSetting } from './useSetting';
+import { useSetting } from '../useSetting';
 import { getAppDefaultId, getAccountList } from '@/renderer/api';
 
 const { homeGetSetting } = useSetting();

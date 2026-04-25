@@ -47,7 +47,7 @@
 <script setup lang="ts">
 import { watch, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { useAccount } from '@/renderer/hooks/useAccount-v2';
+import { useAccount } from '@/renderer/hooks/service/useAccount';
 import { AccountItem } from '@/shared/types';
 import { getAccountList, removeAccount } from '@/renderer/api';
 

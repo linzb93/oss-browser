@@ -13,13 +13,12 @@ const list = ref<CollectItem[]>([]);
 const formList = ref<FormCollectItem[]>([]);
 const visible = shallowRef(false);
 /**
- * Hook for collect operations
- * @returns {object} The hook object
+ * 收藏功能的hook。
  */
 export default () => {
     const { fullPath, init: initBreadcrumb } = useBreadcrumb();
     /**
-     * Get collect list
+     * 获取收藏列表。
      */
     const getList = async () => {
         const data = await api.getCollect();
@@ -93,7 +92,6 @@ export default () => {
          */
         enter(item: CollectItem) {
             close();
-            initBreadcrumb(item.path);
         },
         /**
          * 打开弹窗

@@ -58,7 +58,7 @@ export default (win: BrowserWindow) => {
                     accelerator: 'Ctrl + D',
                     visible: false,
                     click: () => {
-                        postRenderer('create-dir');
+                        postRenderer('create-directory');
                     },
                 },
                 {

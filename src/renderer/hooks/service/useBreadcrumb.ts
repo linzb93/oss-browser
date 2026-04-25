@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue';
-import { handleMainPost } from '@/renderer/utils';
+// import { handleMainPost } from '@/renderer/utils';
 
 const breadcrumb = ref<string[]>([]);
 const fullPath = computed(() => breadcrumb.value.map((item) => `${item}/`).join(''));
@@ -9,12 +9,11 @@ const fullPath = computed(() => breadcrumb.value.map((item) => `${item}/`).join(
 let onChangeCallback: Function = () => {};
 
 /**
- * Hook for breadcrumb navigation
- * @returns {object} The hook object
+ * 面包屑导航
  */
-export default () => {
+export const useBreadcrumb = () => {
     /**
-     * Remove the last item from breadcrumb
+     * 返回上一级
      */
     const pop = () => {
         breadcrumb.value.pop();
@@ -35,9 +34,9 @@ export default () => {
         init(path: string) {
             breadcrumb.value = path.split('/').filter((item) => !!item);
             onChangeCallback();
-            handleMainPost('back', () => {
-                pop();
-            });
+            // handleMainPost('back', () => {
+            //     pop();
+            // });
         },
         /**
          * 进入下一级

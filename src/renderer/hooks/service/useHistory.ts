@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import useLogin from '@/renderer/hooks/useLogin';
-import useBreadcrumb from './useBreadcrumb';
+import { useBreadcrumb } from '../common/useBreadcrumb';
 import useTable from './useTable';
 import * as api from '@/renderer/api';
 import { IHistoryItem } from '@/renderer/types';

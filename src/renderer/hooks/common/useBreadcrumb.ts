@@ -1,15 +1,10 @@
 import { ref, computed } from 'vue';
-// import { handleMainPost } from '@/renderer/utils';
 
 const breadcrumb = ref<string[]>([]);
 const fullPath = computed(() => breadcrumb.value.map((item) => `${item}/`).join(''));
-/**
- * 当面包屑变化时，触发的回调函数
- */
-let onChangeCallback: Function = () => {};
 
 /**
- * 面包屑导航
+ * 面包屑状态管理
  */
 export const useBreadcrumb = () => {
     /**
@@ -17,7 +12,6 @@ export const useBreadcrumb = () => {
      */
     const pop = () => {
         breadcrumb.value.pop();
-        onChangeCallback();
     };
     return {
         /**
@@ -33,10 +27,6 @@ export const useBreadcrumb = () => {
          */
         init(path: string) {
             breadcrumb.value = path.split('/').filter((item) => !!item);
-            onChangeCallback();
-            // handleMainPost('back', () => {
-            //     pop();
-            // });
         },
         /**
          * 进入下一级
@@ -44,7 +34,6 @@ export const useBreadcrumb = () => {
          */
         push(name: string) {
             breadcrumb.value.push(name);
-            onChangeCallback();
         },
         /**
          * 返回上一级
@@ -55,14 +44,6 @@ export const useBreadcrumb = () => {
          */
         set(index: number) {
             breadcrumb.value = breadcrumb.value.slice(0, index + 1);
-            onChangeCallback();
-        },
-        /**
-         * 当面包屑变化时，触发的回调函数
-         * @param {Function} fn - 回调函数
-         */
-        onChange(fn: Function) {
-            onChangeCallback = fn;
         },
     };
 };

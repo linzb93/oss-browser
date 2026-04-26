@@ -1,7 +1,7 @@
 import { computed, ref } from 'vue';
 import * as api from '@/renderer/api';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { TemplateItem } from '@/renderer/types';
+import { TemplateItem } from '@/shared/types';
 type TemplateItemPure = Omit<TemplateItem, 'content'>;
 const templates = ref<TemplateItemPure[]>([]);
 const visible = ref(false);

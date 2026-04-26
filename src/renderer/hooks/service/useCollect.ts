@@ -1,8 +1,8 @@
 import { ref, watch } from 'vue';
 import { cloneDeep, omit } from 'lodash-es';
 import { ElMessage } from 'element-plus';
-import useBreadcrumb from './useBreadcrumb';
-import { CollectItem } from '@/renderer/types';
+import { useBreadcrumb } from '../common/useBreadcrumb';
+import { CollectItem } from '@/shared/types';
 import * as api from '@/renderer/api';
 
 export interface FormCollectItem extends CollectItem {

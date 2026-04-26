@@ -4,15 +4,12 @@ import MsgBoxFileList from '@/renderer/components/MsgBoxFileList.vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { requestActions } from '@/renderer/utils/request';
 import { getOSSList as apiGetOSSList, addDirectory, deleteItem as deleteItemApi, copyTemplate } from '@/renderer/api';
-import { isPic } from '@/renderer/utils/picture';
-import { useBreadcrumb } from './useBreadcrumb';
-import { usePreview } from './usePreview';
+import { useBreadcrumb } from '../common/useBreadcrumb';
 import { useGlobalConfigStore } from '../common/useGlobalConfig';
 import { scrollTo } from '@/renderer/utils/scroll-to';
-const { breadcrumb, fullPath, push: pushBreadcrumb } = useBreadcrumb();
-const { openPreview } = usePreview();
 import { getSize } from '@/renderer/utils/size';
 
+const { fullPath } = useBreadcrumb();
 const { currentAccount } = useGlobalConfigStore();
 export type BatchCommandKey = 'download' | 'delete' | 'copy';
 const ossList = ref<TableItem[]>([]);
@@ -183,23 +180,7 @@ export const getStyle = (item: TableItem) => {
             });
     };
 };
-/**
- * 处理路径点击事件
- * @param {TableItem} item - 列表项
- */
-export const clickPath = (item: TableItem) => {
-    if (item.size > 0) {
-        const url = item.url;
-        // 是图片
-        if (isPic(item)) {
-            openPreview(item.url);
-            return;
-        }
-        return;
-    }
-    pushBreadcrumb(item.name);
-};
 
 export const useOSSStore = () => {
-    return { ossList, getOSSList, fullPath, breadcrumb, disabled };
+    return { ossList, getOSSList, fullPath, disabled };
 };

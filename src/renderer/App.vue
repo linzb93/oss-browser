@@ -150,28 +150,24 @@ import { getSize } from '@/renderer/utils/size';
 import Breadcrumb from '@/renderer/components/Breadcrumb.vue';
 import { useGlobalConfigStore } from '@/renderer/hooks/common/useGlobalConfig';
 import { handleMainPost } from '@/renderer/utils';
-import {
-    useOSSStore,
-    clickPath,
-    batchCommand,
-    deleteItem,
-    createDirectory,
-    getStyle,
-} from '@/renderer/hooks/service/useOSS';
+import { useOSSStore, batchCommand, deleteItem, createDirectory, getStyle } from '@/renderer/hooks/service/useOSS';
 import { useUpload } from '@/renderer/hooks/service/useUpload';
 import pathUtil from '@/renderer/utils/path';
 import { isPic } from '@/renderer/helpers/picture';
 import type { BatchCommandKey } from '@/renderer/hooks/service/useOSS';
 import PreviewDialog from '@/renderer/components/Preview.vue';
 import SettingDialog from '@/renderer/components/Setting.vue';
-import { useOSSBreadcrumb } from '@/renderer/hooks/service/useBreadcrumb';
+import { useBreadcrumb } from '@/renderer/hooks/common/useBreadcrumb';
 import { TableItem } from '@/shared/types';
+import { usePreview } from '@/renderer/hooks/service/usePreview';
 
+const { openPreview } = usePreview();
 const { ossList, getOSSList, disabled } = useOSSStore();
-const { breadcrumb, pop: popBreadcrumb } = useOSSBreadcrumb();
+const { breadcrumb, pop: popBreadcrumb, push: pushBreadcrumb } = useBreadcrumb();
 const { loadCurrentAccount, hasNoAccount, hasTemplate, getSetting, getCurrentTemplate } = useGlobalConfigStore();
 // 拖拽上传
 const { progressVisible, dragActive, setDragState, dropFile } = useUpload();
+
 onBeforeMount(async () => {
     await loadCurrentAccount();
     if (!hasNoAccount) {
@@ -222,6 +218,18 @@ const selected = ref<TableItem[]>([]);
  */
 const handleSelectionChange = (selection: TableItem[]) => {
     selected.value = selection.filter((item) => item.type !== 'directory');
+};
+
+export const clickPath = (item: TableItem) => {
+    if (item.size > 0) {
+        // 是图片
+        if (isPic(item)) {
+            openPreview(item.url);
+            return;
+        }
+        return;
+    }
+    pushBreadcrumb(item.name);
 };
 
 const activeIndex = ref(-1);

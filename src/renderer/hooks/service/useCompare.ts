@@ -16,11 +16,11 @@ const dialogWidth = ref('80%');
 const dialogBodyHeight = ref('60vh');
 
 /**
- * Clamp number into [min, max]
- * @param {number} value - The number to clamp
- * @param {number} min - The lower bound
- * @param {number} max - The upper bound
- * @returns {number} The clamped number
+ * 对数字进行范围限制
+ * @param {number} value - 要限制的数字
+ * @param {number} min - 下限
+ * @param {number} max - 最大值
+ * @returns {number} 数字限制后的结果
  * @example
  * clamp(10, 0, 5) // 5
  * clamp(-5, 0, 5) // 0
@@ -30,8 +30,7 @@ const clamp = (value: number, min: number, max: number) => {
 };
 
 /**
- * Calculate dialog width and content height based on image natural sizes,
- * clamped into 50%~80% of current client size.
+ * 计算对话框宽度和内容高度，根据图片自然尺寸，限制在50%~80%的当前客户端大小
  */
 const calculateDialogSize = () => {
     const innerWidth = window.innerWidth || 0;
@@ -63,9 +62,9 @@ const calculateDialogSize = () => {
 };
 
 /**
- * Open compare dialog and preload both images to fetch natural sizes.
- * @param {string} preUrl - The previous image url
- * @param {string} onlineUrl - The current image url
+ * 打开对比对话框并预加载两张图片
+ * @param {string} preUrl - 上一张图片的 URL
+ * @param {string} onlineUrl - 当前图片的 URL
  */
 const openDialog = (preUrl: string, onlineUrl: string) => {
     visible.value = true;
@@ -102,10 +101,9 @@ const openDialog = (preUrl: string, onlineUrl: string) => {
     };
 };
 /**
- * Hook for image comparison dialog
- * @returns {object} The hook object
+ * 图片对比对话框钩子
  */
-export default () => {
+export const useCompare = () => {
     return {
         visible,
         currentImage,

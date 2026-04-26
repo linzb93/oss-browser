@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import useCompare from '@/renderer/hooks/service/useCompare';
+import { useCompare } from '@/renderer/hooks/service/useCompare';
 import CompareDialog from '@/renderer/components/Compare.vue';
 const { openDialog } = useCompare();
 

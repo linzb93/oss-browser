@@ -55,18 +55,31 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watch } from 'vue';
+import { cloneDeep } from 'lodash-es';
 import TemplateEditor from '@/renderer/components/TemplateEditor.vue';
-import useTemplate from '@/renderer/hooks/service/useTemplate';
-import useSetting from '@/renderer/hooks/useSetting';
+import { useTemplate } from '@/renderer/hooks/service/useTemplate';
+import { useGlobalConfigStore } from '@/renderer/hooks/common/useGlobalConfig';
 import { Edit, Remove } from '@element-plus/icons-vue';
-
+import type { SettingInfo } from '@/shared/types';
 const { getList: getTemplates, templates, openDialog: addTemplate, removeItem: removeTemplate } = useTemplate();
 
-const { saveSetting, formSetting, visible, close, closed, init, isTemplateEditMode } = useSetting();
+const { saveSetting, setting } = useGlobalConfigStore();
 
-init(() => {
-    getTemplates();
+const formSetting = ref<SettingInfo>({} as SettingInfo);
+const visible = defineModel<boolean>('visible', { required: true, default: false });
+const isTemplateEditMode = ref(false);
+
+watch(visible, (newVal) => {
+    formSetting.value = newVal ? cloneDeep(setting.value) : ({} as SettingInfo);
 });
+
+const close = () => {
+    visible.value = false;
+};
+const closed = () => {
+    formSetting.value = {} as SettingInfo;
+};
 </script>
 <style lang="scss" scoped>
 .copy-con {

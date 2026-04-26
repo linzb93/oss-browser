@@ -154,19 +154,21 @@ import { useOSSStore, batchCommand, deleteItem, createDirectory, getStyle } from
 import { useUpload } from '@/renderer/hooks/service/useUpload';
 import pathUtil from '@/renderer/utils/path';
 import { isPic } from '@/renderer/helpers/picture';
+import ProgressDrawer from '@/renderer/components/Progress.vue';
 import type { BatchCommandKey } from '@/renderer/hooks/service/useOSS';
 import PreviewDialog from '@/renderer/components/Preview.vue';
 import SettingDialog from '@/renderer/components/Setting.vue';
 import { useBreadcrumb } from '@/renderer/hooks/common/useBreadcrumb';
 import { TableItem } from '@/shared/types';
 import { usePreview } from '@/renderer/hooks/service/usePreview';
-
+import { useTemplate } from '@/renderer/hooks/service/useTemplate';
 const { openPreview } = usePreview();
 const { ossList, getOSSList, disabled } = useOSSStore();
 const { breadcrumb, pop: popBreadcrumb, push: pushBreadcrumb } = useBreadcrumb();
-const { loadCurrentAccount, hasNoAccount, hasTemplate, getSetting, getCurrentTemplate } = useGlobalConfigStore();
+const { loadCurrentAccount, hasNoAccount, getSetting } = useGlobalConfigStore();
+const { hasTemplate, getCurrentTemplate } = useTemplate();
 // 拖拽上传
-const { progressVisible, dragActive, setDragState, dropFile } = useUpload();
+const { dragActive, setDragState, dropFile } = useUpload();
 
 onBeforeMount(async () => {
     await loadCurrentAccount();
@@ -210,6 +212,7 @@ const historyVisible = ref(false);
 const collectVisible = ref(false);
 const settingVisible = ref(false);
 const previewVisible = ref(false);
+const progressVisible = ref(false);
 
 const selected = ref<TableItem[]>([]);
 /**

@@ -24,14 +24,14 @@
 
 <script setup lang="ts">
 import { readonly, ref } from 'vue';
-import useTemplate from '@/renderer/hooks/service/useTemplate';
+import { useTemplate } from '@/renderer/hooks/service/useTemplate';
 
 const { visible, form, saveAction, close, closed } = useTemplate();
 const rules = readonly({});
 const formRef = ref(null);
 const emit = defineEmits(['submit']);
 /**
- * Save template item
+ * 保存模板项
  */
 const save = () =>
     saveAction().then(() => {

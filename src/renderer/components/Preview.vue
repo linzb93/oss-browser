@@ -14,7 +14,7 @@
         <template #footer>
             <div class="flexalign-center flexpack-end">
                 <el-button @click="changeBgColor">背景色替换</el-button>
-                <el-button type="primary" @click="requestUtil.open('web', fileURL)">在浏览器打开</el-button>
+                <el-button type="primary" @click="requestActions.open('web', fileURL)">在浏览器打开</el-button>
                 <el-dropdown class="ml10">
                     <span class="curp">
                         更多功能
@@ -33,8 +33,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import usePreview from '@/renderer/hooks/usePreview';
-import { requestUtil } from '@/renderer/utils/request';
+import { usePreview } from '@/renderer/hooks/service/usePreview';
+import { requestActions } from '@/renderer/utils/request';
 import { ArrowDown } from '@element-plus/icons-vue';
 const { imgPreview, textPreview, changeBgColor } = usePreview();
 
@@ -50,7 +50,7 @@ const props = defineProps({
 });
 
 /**
- * Computed file URL based on type
+ * 计算文件 URL，根据类型
  */
 const fileURL = computed(() => {
     if (props.type === 'img') {
@@ -63,7 +63,7 @@ const fileURL = computed(() => {
 });
 
 /**
- * Computed dialog title based on type
+ * 计算对话框标题，根据类型
  */
 const dialogTitle = computed(() => {
     if (props.type === 'img') {

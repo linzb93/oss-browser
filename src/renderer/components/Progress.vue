@@ -3,7 +3,7 @@
         title="上传进度"
         size="50%"
         style="width: 800px; left: auto"
-        :model-value="visible"
+        v-model="visible"
         direction="btt"
         @close="close"
         @closed="closed"
@@ -11,7 +11,7 @@
         <div class="ctrl-bar flexalign-center">
             <el-button
                 type="primary"
-                @click="requestUtil.copy(list.map((item) => `${userInfo.domain}/${item.path}`).join('\n'))"
+                @click="requestActions.copy(list.map((item) => `${currentAccount.domain}/${item.path}`).join('\n'))"
                 >复制全部</el-button
             >
         </div>
@@ -46,7 +46,7 @@
                     <el-link
                         type="primary"
                         :underline="false"
-                        @click="requestUtil.copy(`${userInfo.domain}/${scope.row.path}`)"
+                        @click="requestActions.copy(`${currentAccount.domain}/${scope.row.path}`)"
                         >复制</el-link
                     >
                 </template>
@@ -57,27 +57,23 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage } from 'element-plus';
 import { Check } from '@element-plus/icons-vue';
-import request, { requestUtil } from '@/renderer/utils/request';
+import { request, requestActions } from '@/renderer/utils/request';
 import pathUtils from '@/renderer/utils/path';
 import { getSize } from '@/renderer/utils/size';
-import useLogin from '@/renderer/hooks/useLogin';
-import useSetting from '@/renderer/hooks/useSetting';
-const props = defineProps<{
-    path: string;
-    uploadList: any[];
-}>();
+import { useAccount } from '@/renderer/hooks/service/useAccount';
+import { useGlobalConfigStore } from '@/renderer/hooks/common/useGlobalConfig';
 
 const emit = defineEmits(['refresh']);
-const visible = defineModel('visible');
+const visible = defineModel<boolean>('visible', { required: true, default: false });
 
 interface ListItem {
     path: string;
 }
-const { userInfo } = useLogin();
+const { currentAccount } = useAccount();
 
-const { setting } = useSetting();
+const { setting } = useGlobalConfigStore();
 
 const list = ref<ListItem[]>([]);
 const finished = ref(false);
@@ -87,22 +83,22 @@ let removeEvt = () => {};
  * Start upload process
  */
 const startUpload = () => {
-    const { listener, removeListener } = request.send('oss-upload', {
-        prefix: props.path,
-        names: props.uploadList.map((item) => item.path).join(','),
-        type: 'file',
-    });
-    listener((obj: { data: any; type: 'upload-finished' | 'uploading' }) => {
-        const { type, data } = obj;
-        if (type === 'upload-finished') {
-            // 上传完成，显示批量操作按钮
-            finished.value = true;
-            removeEvt();
-            ElMessage.success('上传成功');
-        }
-        list.value = data;
-    });
-    removeEvt = removeListener;
+    // const { listener, removeListener } = request.send('oss-upload', {
+    //     prefix: props.path,
+    //     names: props.uploadList.map((item) => item.path).join(','),
+    //     type: 'file',
+    // });
+    // listener((obj: { data: any; type: 'upload-finished' | 'uploading' }) => {
+    //     const { type, data } = obj;
+    //     if (type === 'upload-finished') {
+    //         // 上传完成，显示批量操作按钮
+    //         finished.value = true;
+    //         removeEvt();
+    //         ElMessage.success('上传成功');
+    //     }
+    //     list.value = data;
+    // });
+    // removeEvt = removeListener;
 };
 watch(visible, (data) => {
     if (!data) {

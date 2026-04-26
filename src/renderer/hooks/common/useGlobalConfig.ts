@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue';
-import { getCurrentAccount, getSetting as getSettingApi, getTemplateItem } from '@/renderer/api';
+import { getCurrentAccount, getSetting as getSettingApi, saveSetting as saveSettingApi } from '@/renderer/api';
 import type { AccountItem, SettingInfo, TemplateItem } from '@/shared/types';
 
 const setting = ref<SettingInfo>({} as SettingInfo);
@@ -15,17 +15,11 @@ const hasNoAccount = computed(() => {
 const getSetting = async () => {
     setting.value = await getSettingApi();
 };
-const currentTemplate = ref<TemplateItem>({} as TemplateItem);
-const hasTemplate = computed(() => {
-    return setting.value.copyTemplateId !== 0;
-});
-const getCurrentTemplate = async () => {
-    if (!setting.value.copyTemplateId) {
-        return;
-    }
-    currentTemplate.value = await getTemplateItem({ id: setting.value.copyTemplateId });
+
+const saveSetting = async (setting: SettingInfo) => {
+    await saveSettingApi(setting);
 };
 
 export const useGlobalConfigStore = () => {
-    return { setting, currentAccount, loadCurrentAccount, hasNoAccount, getSetting, hasTemplate, getCurrentTemplate };
+    return { setting, currentAccount, loadCurrentAccount, hasNoAccount, getSetting, saveSetting };
 };

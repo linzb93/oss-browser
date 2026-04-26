@@ -10,9 +10,9 @@ export function getHistoryList(query: IPageRequest): Promise<IHistroyResponse> {
 }
 /**
  * 删除上传历史记录
- * @param {Pick<HistoryItem, 'id'>[]} ids - 上传历史记录ID列表，用于删除指定的上传历史记录
+ * @param {string[]} ids - 上传历史记录ID列表，用于删除指定的上传历史记录
  * @returns {Promise<void>}
  */
-export function removeHistory(ids: Pick<HistoryItem, 'id'>[]): Promise<void> {
+export function removeHistory(ids: string[]): Promise<void> {
     return request('history:remove', ids);
 }

@@ -1,10 +1,10 @@
 import { ref, computed, onMounted } from 'vue';
 import { isEmptyObject } from '@linzb93/utils';
 import { AccountItem } from '@/shared/types/account';
-import { useSetting } from '../useSetting';
+import { useGlobalConfigStore } from '../common/useGlobalConfig';
 import { getAppDefaultId, getAccountList } from '@/renderer/api';
 
-const { homeGetSetting } = useSetting();
+const { getSetting } = useGlobalConfigStore();
 
 const currentAccount = ref<AccountItem>({} as AccountItem);
 const formAccount = ref<AccountItem>({} as AccountItem);
@@ -28,7 +28,7 @@ const boostrap = () => {
             return;
         }
         currentAccount.value = match;
-        homeGetSetting();
+        getSetting();
     });
 };
 

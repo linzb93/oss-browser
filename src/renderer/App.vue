@@ -118,7 +118,7 @@
                                     :underline="false"
                                     class="mr10"
                                     style="margin-left: 0"
-                                    v-if="isPic(scope.row) && hasTemplate"
+                                    v-if="isPic(scope.row) && currentTemplate.id"
                                     @click="getStyle(scope.row)"
                                     >复制样式</el-link
                                 >
@@ -142,12 +142,18 @@
 <script setup lang="ts">
 import { ref, onBeforeMount } from 'vue';
 import { ElMessage } from 'element-plus';
+import { Folder, ArrowDown } from '@element-plus/icons-vue';
 import dayjs from 'dayjs';
 import AccountPane from '@/renderer/components/AccountPane.vue';
 import AddAccountDialog from '@/renderer/components/AddAccountDialog.vue';
 import { requestActions } from '@/renderer/utils/request';
 import { getSize } from '@/renderer/utils/size';
 import Breadcrumb from '@/renderer/components/Breadcrumb.vue';
+import FileTypeIcon from '@/renderer/components/FileTypeIcon.vue';
+import DeleteConfirm from '@/renderer/components/DeleteConfirm.vue';
+import UploadHistory from '@/renderer/components/UploadHistory.vue';
+import CollectPane from '@/renderer/components/CollectPane.vue';
+import { addCollect, setHome } from '@/renderer/api';
 import { useGlobalConfigStore } from '@/renderer/hooks/common/useGlobalConfig';
 import { handleMainPost } from '@/renderer/utils';
 import { useOSSStore, batchCommand, deleteItem, createDirectory, getStyle } from '@/renderer/hooks/service/useOSS';
@@ -164,17 +170,18 @@ import { usePreview } from '@/renderer/hooks/service/usePreview';
 import { useTemplate } from '@/renderer/hooks/service/useTemplate';
 const { openPreview } = usePreview();
 const { ossList, getOSSList, disabled } = useOSSStore();
-const { breadcrumb, pop: popBreadcrumb, push: pushBreadcrumb } = useBreadcrumb();
-const { loadCurrentAccount, hasNoAccount, getSetting } = useGlobalConfigStore();
-const { hasTemplate, getCurrentTemplate } = useTemplate();
+const { breadcrumb, fullPath, pop: popBreadcrumb, push: pushBreadcrumb, setPath } = useBreadcrumb();
+const { loadCurrentAccount, hasNoAccount, getSetting, setting } = useGlobalConfigStore();
+const { currentTemplate, getCurrentTemplate } = useTemplate();
 // 拖拽上传
 const { dragActive, setDragState, dropFile } = useUpload();
 
 onBeforeMount(async () => {
     await loadCurrentAccount();
-    if (!hasNoAccount) {
-        await getOSSList();
+    if (!hasNoAccount.value) {
         await getSetting();
+        setPath(setting.value.homePath);
+        await getOSSList(false);
         await getCurrentTemplate();
         handleMainPost('back', () => {
             popBreadcrumb();
@@ -183,7 +190,7 @@ onBeforeMount(async () => {
             createDirectory();
         });
         handleMainPost('reload', () => {
-            getOSSList(false);
+            getOSSList();
         });
         handleMainPost('location', (data: { isDown: boolean }) => {
             const { isDown } = data;
@@ -223,7 +230,7 @@ const handleSelectionChange = (selection: TableItem[]) => {
     selected.value = selection.filter((item) => item.type !== 'directory');
 };
 
-export const clickPath = (item: TableItem) => {
+const clickPath = (item: TableItem) => {
     if (item.size > 0) {
         // 是图片
         if (isPic(item)) {
@@ -233,6 +240,7 @@ export const clickPath = (item: TableItem) => {
         return;
     }
     pushBreadcrumb(item.name);
+    getOSSList(false);
 };
 
 const activeIndex = ref(-1);
@@ -253,8 +261,14 @@ const moreCommand = async (
     const actions = {
         'setting': () => (settingVisible.value = true),
         'see-collect': () => (collectVisible.value = true),
-        'collect': () => {},
-        'home-page': () => {},
+        'collect': async () => {
+            await addCollect({ path: fullPath.value });
+            ElMessage.success('保存成功');
+        },
+        'home-page': async () => {
+            await setHome({ path: fullPath.value });
+            ElMessage.success('设置成功');
+        },
         'upload-history': () => (historyVisible.value = true),
         'add-account': () => (addVisible.value = true),
     };
@@ -268,6 +282,58 @@ const moreCommand = async (
 <style lang="scss" scoped>
 .cont {
     padding: 10px 10px 0;
+}
+@import '@/renderer/styles/mixin.scss';
+.el-link + .el-link {
+    margin-left: 10px;
+}
+.file-name {
+    cursor: pointer;
+    &:hover,
+    &.active {
+        color: #409eff;
+    }
+}
+.other-wrap {
+    position: absolute;
+    top: 65px;
+    bottom: 0;
+    left: 0;
+    right: -10px;
+    overflow: auto;
+}
+.dropdown-icon {
+    margin-left: 5px;
+    color: #fff;
+}
+.wrap {
+    min-height: 100%;
+    position: relative;
+    &.active {
+        .layer {
+            display: flex;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            z-index: 4;
+            background: rgba(255, 255, 100, 0.7);
+        }
+        .tips {
+            display: block;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+    }
+    .layer {
+        display: none;
+        pointer-events: none;
+    }
+    .tips {
+        display: none;
+    }
 }
 </style>
 <style>

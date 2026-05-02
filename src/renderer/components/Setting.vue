@@ -48,7 +48,7 @@
         </el-form>
         <template #footer>
             <el-button @click="close">取消</el-button>
-            <el-button type="primary" @click="saveSetting">保存</el-button>
+            <el-button type="primary" @click="save">保存</el-button>
         </template>
     </el-dialog>
     <template-editor @submit="getTemplates" />
@@ -56,6 +56,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+import { ElMessage } from 'element-plus';
 import { cloneDeep } from 'lodash-es';
 import TemplateEditor from '@/renderer/components/TemplateEditor.vue';
 import { useTemplate } from '@/renderer/hooks/service/useTemplate';
@@ -71,6 +72,7 @@ const visible = defineModel<boolean>('visible', { required: true, default: false
 const isTemplateEditMode = ref(false);
 
 watch(visible, (newVal) => {
+    getTemplates();
     formSetting.value = newVal ? cloneDeep(setting.value) : ({} as SettingInfo);
 });
 
@@ -79,6 +81,16 @@ const close = () => {
 };
 const closed = () => {
     formSetting.value = {} as SettingInfo;
+};
+const save = async () => {
+    await saveSetting(formSetting.value);
+    ElMessage.success({
+        message: '保存成功',
+        duration: 1500,
+        onClose() {
+            visible.value = false;
+        },
+    });
 };
 </script>
 <style lang="scss" scoped>

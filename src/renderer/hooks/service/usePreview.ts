@@ -62,7 +62,6 @@ const loadImage = (url: string) => {
                 imgPreview.value.width = Math.max(400, imgWidth);
             }
         }
-        console.log(imgPreview.value.width);
     };
 };
 /**

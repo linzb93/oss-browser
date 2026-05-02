@@ -15,7 +15,7 @@
             :key="item"
             @click="setBreadcrumb(index)"
         >
-            <el-icon :size="16">
+            <el-icon :size="16" class="mr5">
                 <folder />
             </el-icon>
             <span class="path-name">{{ item }}</span>
@@ -29,6 +29,17 @@
 <script setup lang="ts">
 import { Folder, ArrowRight, HomeFilled, Back } from '@element-plus/icons-vue';
 import { useBreadcrumb } from '@/renderer/hooks/common/useBreadcrumb';
-const { breadcrumb, set: setBreadcrumb, pop: popBreadcrumb } = useBreadcrumb();
+import { useOSSStore } from '@/renderer/hooks/service/useOSS';
+const { getOSSList } = useOSSStore();
+const { breadcrumb, set, pop } = useBreadcrumb();
+
+const setBreadcrumb = (index: number) => {
+    set(index);
+    getOSSList(false);
+};
+const popBreadcrumb = () => {
+    pop();
+    getOSSList(false);
+};
 </script>
 <style lang="scss" scoped></style>

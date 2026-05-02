@@ -1,6 +1,6 @@
 import { ref, computed, h } from 'vue';
 import type { TableItem } from '@/shared/types';
-import MsgBoxFileList from '@/renderer/components/MsgBoxFileList.vue';
+import MsgBoxFileList from '@/renderer/components/FileList.vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { requestActions } from '@/renderer/utils/request';
 import { getOSSList as apiGetOSSList, addDirectory, deleteItem as deleteItemApi, copyTemplate } from '@/renderer/api';

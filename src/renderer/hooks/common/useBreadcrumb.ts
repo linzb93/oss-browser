@@ -7,9 +7,6 @@ const fullPath = computed(() => breadcrumb.value.map((item) => `${item}/`).join(
  * 面包屑状态管理
  */
 export const useBreadcrumb = () => {
-    /**
-     * 返回上一级
-     */
     const pop = () => {
         breadcrumb.value.pop();
     };
@@ -23,12 +20,6 @@ export const useBreadcrumb = () => {
          */
         fullPath,
         /**
-         * 设置面包屑
-         */
-        init(path: string) {
-            breadcrumb.value = path.split('/').filter((item) => !!item);
-        },
-        /**
          * 进入下一级
          * @param {string} name - 下一级的名称
          */
@@ -41,9 +32,17 @@ export const useBreadcrumb = () => {
         pop,
         /**
          * 点击面包屑的某一级
+         * @param {number} index - 点击的面包屑索引
          */
         set(index: number) {
             breadcrumb.value = breadcrumb.value.slice(0, index + 1);
+        },
+        /**
+         * 设置面包屑路径
+         * @param {string} path - 面包屑路径，以"/"分隔
+         */
+        setPath(path: string) {
+            breadcrumb.value = path.split('/').filter((item) => !!item);
         },
     };
 };

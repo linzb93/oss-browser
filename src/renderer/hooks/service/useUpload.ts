@@ -59,13 +59,15 @@ export function useUpload() {
             }
         });
         if (resolveList.length) {
-            uploadingList.value = resolveList.map((item) => ({
-                name: item.name,
-                path: item.path,
-                size: item.size,
-                url: '',
-                sizeFormat: getSize(item),
-            }));
+            uploadingList.value = Array.from(
+                resolveList.map((item) => ({
+                    name: item.name,
+                    path: item.path,
+                    size: item.size,
+                    url: '',
+                    sizeFormat: getSize(item),
+                })),
+            );
             progressVisible.value = true;
         } else {
             ElMessage.warning('没有文件需要上传');

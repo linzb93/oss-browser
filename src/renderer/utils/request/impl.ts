@@ -36,21 +36,23 @@ export async function request<T = any>(path: string, params?: any, options?: Opt
 }
 
 request.send = (path: string, params: any) => {
+    console.groupCollapsed(`发送.send请求：%c${path}%c`, 'color:green', '');
     window.ipcRenderer.send(path, params);
     let receiveCallback: Function;
     const fn = (_: any, args: any) => {
+        console.groupCollapsed(`收到.send请求结果：%c${path}%c`, 'color:green', '');
         if (typeof receiveCallback === 'function') {
             receiveCallback(args);
         }
     };
-    window.ipcRenderer.on(`${path}-receiver`, fn);
+    window.ipcRenderer.on(`oss-upload-receiver`, fn);
     return {
         listener(callback: Function) {
             receiveCallback = callback;
         },
         removeListener() {
             receiveCallback = () => {};
-            window.ipcRenderer.off(`${path}-receiver`, fn);
+            window.ipcRenderer.off(`oss-upload-receiver`, fn);
         },
     };
 };

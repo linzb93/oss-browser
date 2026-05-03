@@ -56,13 +56,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, unref } from 'vue';
 import { ElMessage } from 'element-plus';
 import { Check } from '@element-plus/icons-vue';
 import { request, requestActions } from '@/renderer/utils/request';
 import pathUtils from '@/renderer/utils/path';
 import { getSize } from '@/renderer/utils/size';
 import { useAccount } from '@/renderer/hooks/service/useAccount';
+import { useUpload } from '@/renderer/hooks/service/useUpload';
+import { useBreadcrumb } from '@/renderer/hooks/common/useBreadcrumb';
 import { useGlobalConfigStore } from '@/renderer/hooks/common/useGlobalConfig';
 
 const emit = defineEmits(['refresh']);
@@ -73,32 +75,33 @@ interface ListItem {
 }
 const { currentAccount } = useAccount();
 
-const { setting } = useGlobalConfigStore();
+const { uploadingList } = useUpload();
+const { fullPath } = useBreadcrumb();
 
 const list = ref<ListItem[]>([]);
 const finished = ref(false);
 let removeEvt = () => {};
 
 /**
- * Start upload process
+ * 开始上传文件
  */
 const startUpload = () => {
-    // const { listener, removeListener } = request.send('oss-upload', {
-    //     prefix: props.path,
-    //     names: props.uploadList.map((item) => item.path).join(','),
-    //     type: 'file',
-    // });
-    // listener((obj: { data: any; type: 'upload-finished' | 'uploading' }) => {
-    //     const { type, data } = obj;
-    //     if (type === 'upload-finished') {
-    //         // 上传完成，显示批量操作按钮
-    //         finished.value = true;
-    //         removeEvt();
-    //         ElMessage.success('上传成功');
-    //     }
-    //     list.value = data;
-    // });
-    // removeEvt = removeListener;
+    const { listener, removeListener } = request.send('oss:upload', {
+        prefix: fullPath.value,
+        names: uploadingList.value.map((item) => item.path).join(','),
+        type: 'file',
+    });
+    listener((obj: { data: any; type: 'upload-finished' | 'uploading' }) => {
+        const { type, data } = obj;
+        if (type === 'upload-finished') {
+            // 上传完成，显示批量操作按钮
+            finished.value = true;
+            removeEvt();
+            ElMessage.success('上传成功');
+        }
+        list.value = data;
+    });
+    removeEvt = removeListener;
 };
 watch(visible, (data) => {
     if (!data) {
@@ -107,13 +110,13 @@ watch(visible, (data) => {
     startUpload();
 });
 /**
- * Close the drawer
+ * 关闭抽屉组件
  */
 const close = () => {
     visible.value = false;
 };
 /**
- * Handle drawer closed event
+ * 处理抽屉组件关闭事件
  */
 const closed = () => {
     list.value = [];

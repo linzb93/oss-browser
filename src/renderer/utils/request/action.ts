@@ -23,6 +23,7 @@ export const requestActions = {
                 url,
             });
         } catch (error) {
+            console.log(error);
             return;
         }
         ElMessage.success('下载成功');

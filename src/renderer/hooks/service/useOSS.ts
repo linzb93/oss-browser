@@ -121,7 +121,7 @@ const batchDownload = async (selected: TableItem[]) => {
 export async function deleteItem(item: TableItem) {
     const name = `${item.name}${item.type === 'directory' ? '/' : ''}`;
     await deleteItemApi({
-        paths: `${fullPath}${name}`,
+        paths: `${fullPath.value}${name}`,
     });
     ElMessage.success('删除成功');
     getOSSList(false);

@@ -44,9 +44,6 @@ export async function deleteFile(paths: string): Promise<any> {
  */
 export async function upload(e: IpcMainEvent, data: AddOptions) {
     const { names, prefix } = data;
-    // 读取workflowId
-    // const { copyWorkflowId } = await settingService.get();
-    // const workflowItem = await workflowService.getById(copyWorkflowId);
     let list = names
         .split(',')
         .map((name) => {
@@ -173,7 +170,6 @@ export const getBuckets = async (ossOptions: OssConfig) => {
  */
 function readDirectoryRecursively(directory: string): string[] {
     let fileList: string[] = [];
-
     const files = fs.readdirSync(directory);
 
     files.forEach((file) => {

@@ -129,7 +129,7 @@
                 </div>
             </div>
             <upload-history v-model:visible="historyVisible" />
-            <progress-drawer v-model:visible="progressVisible" />
+            <progress-drawer v-model:visible="progressVisible" @refresh="getOSSList()" />
             <collect-pane v-model:visible="collectVisible" />
             <setting-dialog v-model:visible="settingVisible" />
             <preview-dialog v-model:visible="previewVisible" />
@@ -159,7 +159,7 @@ import { handleMainPost } from '@/renderer/utils';
 import { useOSSStore, batchCommand, deleteItem, createDirectory, getStyle } from '@/renderer/hooks/service/useOSS';
 import { useUpload } from '@/renderer/hooks/service/useUpload';
 import pathUtil from '@/renderer/utils/path';
-import { isPic } from '@/renderer/helpers/picture';
+import { isPic } from '@/renderer/utils/picture';
 import ProgressDrawer from '@/renderer/components/Progress.vue';
 import type { BatchCommandKey } from '@/renderer/hooks/service/useOSS';
 import PreviewDialog from '@/renderer/components/Preview.vue';
@@ -168,13 +168,13 @@ import { useBreadcrumb } from '@/renderer/hooks/common/useBreadcrumb';
 import { TableItem } from '@/shared/types';
 import { usePreview } from '@/renderer/hooks/service/usePreview';
 import { useTemplate } from '@/renderer/hooks/service/useTemplate';
+
 const { openPreview } = usePreview();
 const { ossList, getOSSList, disabled } = useOSSStore();
 const { breadcrumb, fullPath, pop: popBreadcrumb, push: pushBreadcrumb, setPath } = useBreadcrumb();
 const { loadCurrentAccount, hasNoAccount, getSetting, setting } = useGlobalConfigStore();
 const { currentTemplate, getCurrentTemplate } = useTemplate();
-// 拖拽上传
-const { dragActive, setDragState, dropFile } = useUpload();
+const { dragActive, setDragState, dropFile, progressVisible } = useUpload();
 
 onBeforeMount(async () => {
     await loadCurrentAccount();
@@ -219,7 +219,6 @@ const historyVisible = ref(false);
 const collectVisible = ref(false);
 const settingVisible = ref(false);
 const previewVisible = ref(false);
-const progressVisible = ref(false);
 
 const selected = ref<TableItem[]>([]);
 /**

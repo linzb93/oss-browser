@@ -157,7 +157,7 @@ export default class extends BaseOss {
     ) {
         const fileStats = await fs.stat(pathItem.localPath);
         const { size } = fileStats;
-        if (size < bytes(this.sizeBoundary)) {
+        if (size < (bytes(this.sizeBoundary) as number)) {
             await this.client.put(`${prefix}${pathItem.ossPath}`, pathItem.localPath);
             this.postUploadProgress({
                 path: slash(join(prefix, pathItem.ossPath)),

@@ -11,6 +11,7 @@ import { __dirname } from '../../shared/constants/path';
 import { AddOptions, AppConstructorOptions } from './oss.dto';
 import { ossEvents } from './oss.repository';
 import { Database } from '../../types/api';
+import { accountEvents } from '../account/events';
 
 let currentApp: App;
 /**
@@ -20,6 +21,9 @@ let currentApp: App;
 export function add(AppCtor: new (options: AppConstructorOptions) => App) {
     currentApp = new AppCtor({
         sizeBoundary: '20MB',
+    });
+    accountEvents.on('set-current', () => {
+        currentApp.init();
     });
 }
 /**

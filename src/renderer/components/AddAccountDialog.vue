@@ -130,4 +130,3 @@ const closed = () => {
     form.value = {} as AccountItem;
 };
 </script>
-<style lang="scss" scoped></style>

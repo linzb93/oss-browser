@@ -54,7 +54,7 @@ import { getAccountList, removeAccount } from '@/renderer/api';
 const visible = defineModel<boolean>('visible', { required: true, default: false });
 const emit = defineEmits(['close', 'jump']);
 
-const { currentAccount } = useAccount();
+const { currentAccount, setCurrentAccount } = useAccount();
 
 const platformMap = {
     1: '阿里云',
@@ -99,11 +99,20 @@ watch(
 const isEdit = ref(false);
 
 const handleClose = () => {
+    visible.value = false;
     emit('close');
 };
 
 const confirm = () => {
-    emit('jump');
+    setCurrentAccount(selectedAccount.value);
+    ElMessage.success({
+        message: '选择成功',
+        duration: 1000,
+        onClose: () => {
+            handleClose();
+            emit('jump');
+        },
+    });
 };
 
 const onClosed = () => {

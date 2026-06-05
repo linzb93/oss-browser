@@ -52,7 +52,7 @@
                                 <el-dropdown-item command="collect">收藏</el-dropdown-item>
                                 <el-dropdown-item command="home-page">设为首页</el-dropdown-item>
                                 <el-dropdown-item command="upload-history">上传历史</el-dropdown-item>
-                                <el-dropdown-item command="add-account">添加账号</el-dropdown-item>
+                                <el-dropdown-item command="manage-account">管理账号</el-dropdown-item>
                             </el-dropdown-menu>
                         </template>
                     </el-dropdown>
@@ -129,12 +129,12 @@
                 </div>
             </div>
             <upload-history v-model:visible="historyVisible" />
-            <progress-drawer v-model:visible="progressVisible" @refresh="getOSSList()" />
+            <progress-drawer v-model:visible="progressVisible" @refresh="getOSSList(false)" />
             <collect-pane v-model:visible="collectVisible" />
             <setting-dialog v-model:visible="settingVisible" />
             <preview-dialog v-model:visible="previewVisible" />
         </template>
-        <account-pane v-model:visible="manageVisible" />
+        <account-pane v-model:visible="manageVisible" @jump="getOSSList(false)" />
         <add-account-dialog v-model:visible="addVisible" />
     </div>
 </template>
@@ -252,10 +252,10 @@ const resetActiveIndex = () => {
 };
 /**
  * 处理更多命令
- * @param {'setting' | 'see-collect' | 'collect' | 'home-page' | 'upload-history' | 'add-account'} cmd - 命令名称
+ * @param {'setting' | 'see-collect' | 'collect' | 'home-page' | 'upload-history' | 'manage-account'} cmd - 命令名称
  */
 const moreCommand = async (
-    cmd: 'setting' | 'see-collect' | 'collect' | 'home-page' | 'upload-history' | 'add-account',
+    cmd: 'setting' | 'see-collect' | 'collect' | 'home-page' | 'upload-history' | 'manage-account',
 ) => {
     const actions = {
         'setting': () => (settingVisible.value = true),
@@ -269,7 +269,7 @@ const moreCommand = async (
             ElMessage.success('设置成功');
         },
         'upload-history': () => (historyVisible.value = true),
-        'add-account': () => (addVisible.value = true),
+        'manage-account': () => (manageVisible.value = true),
     };
     if (typeof actions[cmd] === 'function') {
         actions[cmd]();
@@ -279,10 +279,10 @@ const moreCommand = async (
 };
 </script>
 <style lang="scss" scoped>
+@use '@/renderer/styles/mixin.scss' as *;
 .cont {
     padding: 10px 10px 0;
 }
-@import '@/renderer/styles/mixin.scss';
 .el-link + .el-link {
     margin-left: 10px;
 }

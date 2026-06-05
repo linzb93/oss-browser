@@ -2,6 +2,7 @@ import { sql, createSqlFile } from '../../infra/sql';
 import { Database } from '../../types/api';
 import { validate } from '../oss/oss.service';
 import * as ossService from '../oss/oss.service';
+import { accountEvents } from './events';
 /**
  * 读取所有账户信息列表
  * @returns {Promise<Database['accounts']>} 账户信息列表
@@ -89,4 +90,10 @@ export const getCurrentAccount = async (): Promise<Database['accounts'][number]>
         (await sql((db) => db.accounts.find((item) => item.id === db.defaultAppId))) ||
         ({} as Database['accounts'][number])
     );
+};
+export const setCurrentAccount = async (account: Database['accounts'][number]): Promise<void> => {
+    await sql((db) => {
+        db.defaultAppId = account.id;
+    });
+    accountEvents.emit('set-current');
 };

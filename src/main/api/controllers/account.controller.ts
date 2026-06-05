@@ -6,6 +6,7 @@ export const registerAccountController = () => {
     ipcMain.handle('account:get-list', () => getList());
     ipcMain.handle('account:get-item', (event, dataStr: string) => getItem(dataStr));
     ipcMain.handle('account:get-current', () => getCurrentAccount());
+    ipcMain.handle('account:set-current', (event, dataStr: string) => setCurrentAccount(dataStr));
     ipcMain.handle('account:save', (event, dataStr: string) => save(dataStr));
     ipcMain.handle('account:get-default-app-id', () => getDefaultAppId());
     ipcMain.handle('account:set-default-app-id', (event, dataStr: string) => setDefaultAppId(dataStr));
@@ -43,4 +44,8 @@ const remove = (dataStr: string) => {
 };
 const getCurrentAccount = () => {
     return formatResponse(() => accountService.getCurrentAccount());
+};
+const setCurrentAccount = (dataStr: string) => {
+    const data = JSON.parse(dataStr) as Database['accounts'][number];
+    return formatResponse(() => accountService.setCurrentAccount(data));
 };

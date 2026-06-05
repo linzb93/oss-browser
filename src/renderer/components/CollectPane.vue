@@ -102,7 +102,7 @@ const close = () => {
 };
 </script>
 <style lang="scss" scoped>
-@import '@/renderer/styles/mixin';
+@use '@/renderer/styles/mixin.scss' as *;
 li {
     font-size: 16px;
 }

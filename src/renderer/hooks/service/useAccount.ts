@@ -2,7 +2,7 @@ import { ref, computed, onMounted } from 'vue';
 import { isEmptyObject } from '@linzb93/utils';
 import { AccountItem } from '@/shared/types/account';
 import { useGlobalConfigStore } from '../common/useGlobalConfig';
-import { getAppDefaultId, getAccountList } from '@/renderer/api';
+import { getAppDefaultId, getAccountList, setAppDefaultId } from '@/renderer/api';
 
 const { getSetting } = useGlobalConfigStore();
 
@@ -10,6 +10,10 @@ const currentAccount = ref<AccountItem>({} as AccountItem);
 const formAccount = ref<AccountItem>({} as AccountItem);
 const setFormAccount = (account: AccountItem) => {
     formAccount.value = account;
+};
+const setCurrentAccount = (account: AccountItem) => {
+    currentAccount.value = account;
+    setAppDefaultId({ id: account.id });
 };
 
 const hasNoAccount = computed(() => isEmptyObject(currentAccount.value));
@@ -38,6 +42,7 @@ export const useAccount = () => {
         hasNoAccount,
         formAccount,
         setFormAccount,
+        setCurrentAccount,
         boostrap,
     };
 };

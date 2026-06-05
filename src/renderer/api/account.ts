@@ -25,3 +25,6 @@ export function getAppDefaultId(): Promise<number> {
 export function getCurrentAccount(): Promise<AccountItem> {
     return request('account:get-current');
 }
+export function setAppDefaultId(params: { id: number }): Promise<void> {
+    return request('account:set-default-app-id', params);
+}

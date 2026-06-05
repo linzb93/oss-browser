@@ -1,5 +1,5 @@
-@import './flex.scss';
-@import './reset.scss';
-@import './animation.scss';
-@import './atom.scss';
-@import './reset-element.scss';
+@use './flex.scss' as *;
+@use './reset.scss' as *;
+@use './animation.scss' as *;
+@use './atom.scss' as *;
+@use './reset-element.scss' as *;

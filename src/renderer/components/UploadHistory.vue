@@ -33,9 +33,10 @@
 <script setup lang="ts">
 import pathUtil from '@/renderer/utils/path';
 import { ref, watch } from 'vue';
-import { useGlobalConfigStore } from '@/renderer/hooks/common/useGlobalConfig';
+import { useAccount } from '@/renderer/hooks/service/useAccount';
+import { useBreadcrumb } from '@/renderer/hooks/common/useBreadcrumb';
 import type { HistoryItem } from '@/shared/types';
-const { currentAccount } = useGlobalConfigStore();
+const { currentAccount } = useAccount();
 import { getHistoryList, removeHistory } from '@/renderer/api';
 import { ElMessage, ElMessageBox } from 'element-plus';
 const visible = defineModel<boolean>('visible', { required: true, default: false });
@@ -43,7 +44,8 @@ const pageQuery = ref({
     pageSize: 10,
     pageIndex: 1,
 });
-
+const emit = defineEmits(['select']);
+const { setPath } = useBreadcrumb();
 const totalCount = ref(0);
 const list = ref<HistoryItem[]>([]);
 const selectedIds = ref<string[]>([]);
@@ -65,9 +67,9 @@ const getList = async () => {
  */
 const onSelect = (filePath: string) => {
     const { pathname } = new URL(`${currentAccount.value.domain}/${filePath}`);
-    // breadcrumb.value = pathname.split('/').slice(1, -1);
+    setPath(pathUtil.dirname(pathname));
     close();
-    getList();
+    emit('select');
 };
 /**
  * 关闭历史记录抽屉

@@ -49,23 +49,27 @@ import { watch, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { useAccount } from '@/renderer/hooks/service/useAccount';
 import { AccountItem } from '@/shared/types';
-import { getAccountList, removeAccount } from '@/renderer/api';
+import { removeAccount } from '@/renderer/api';
+import { useOSSStore } from '@/renderer/hooks/service/useOSS';
+import { useGlobalConfigStore } from '@/renderer/hooks/common/useGlobalConfig';
+
+import { useBreadcrumb } from '@/renderer/hooks/common/useBreadcrumb';
+const { setTableLoading } = useOSSStore();
+const { setPath } = useBreadcrumb();
+const { setting, getSetting } = useGlobalConfigStore();
 
 const visible = defineModel<boolean>('visible', { required: true, default: false });
-const emit = defineEmits(['close', 'jump']);
+const emit = defineEmits(['close', 'jump', 'add']);
 
-const { currentAccount, setCurrentAccount } = useAccount();
+const { currentAccount, setCurrentAccount, loadCurrentAccount, accountList: list, getAccountList } = useAccount();
 
 const platformMap = {
     1: '阿里云',
 };
 
 const selectedAccount = ref<AccountItem>({} as AccountItem);
-
-const list = ref<AccountItem[]>([]);
 const getList = async () => {
-    const res = await getAccountList();
-    list.value = res || [];
+    await getAccountList();
 };
 
 const confirmDelete = (row: AccountItem) => {
@@ -82,7 +86,9 @@ const confirmDelete = (row: AccountItem) => {
         });
 };
 
-const add = () => {};
+const add = () => {
+    emit('add');
+};
 const edit = (row: AccountItem) => {};
 
 watch(
@@ -103,8 +109,12 @@ const handleClose = () => {
     emit('close');
 };
 
-const confirm = () => {
+const confirm = async () => {
     setCurrentAccount(selectedAccount.value);
+    await loadCurrentAccount();
+    await getSetting();
+    await setTableLoading();
+    setPath(setting.value.homePath);
     ElMessage.success({
         message: '选择成功',
         duration: 1000,

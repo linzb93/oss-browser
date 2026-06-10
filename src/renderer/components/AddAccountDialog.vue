@@ -46,10 +46,11 @@ import type { AccountItem, BucketItem } from '@/shared/types';
 import { ElMessage } from 'element-plus';
 import type { FormInstance, FormRules } from 'element-plus';
 import { getBuckets as apiGetBuckets } from '@/renderer/api';
+import { useAccount } from '../hooks/service/useAccount';
 
 const visible = defineModel<boolean>('visible', { required: true, default: false });
 const emit = defineEmits(['submit']);
-
+const { saveAccount, getAccountList } = useAccount();
 const form = ref<AccountItem>({} as AccountItem);
 const formRef = ref<FormInstance>();
 const rules: FormRules = {
@@ -120,8 +121,15 @@ const getBuckets = async () => {
     }
 };
 
-const submit = () => {
-    emit('submit');
+const submit = async () => {
+    await saveAccount(form.value);
+    ElMessage.success({
+        message: '保存成功',
+        onClose: () => {
+            close();
+            getAccountList();
+        },
+    });
 };
 const close = () => {
     visible.value = false;

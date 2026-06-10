@@ -9,7 +9,7 @@ import {
 } from '@/renderer/api';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { TemplateItem } from '@/shared/types';
-import { useGlobalConfigStore } from '@/renderer/hooks/common/useGlobalConfig';
+import { useGlobalConfigStore } from '../common/useGlobalConfig';
 const { setting } = useGlobalConfigStore();
 
 type TemplateItemPure = Omit<TemplateItem, 'content'>;
@@ -59,7 +59,7 @@ export const useTemplate = () => {
         if (!setting.value.copyTemplateId) {
             return;
         }
-        currentTemplate.value = await getTemplateItem({ id: setting.value.copyTemplateId });
+        currentTemplate.value = (await getTemplateItem({ id: setting.value.copyTemplateId })) || {};
     };
     /**
      * 处理抽屉关闭事件

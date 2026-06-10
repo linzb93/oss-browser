@@ -10,7 +10,7 @@
                 class="wrap"
                 :class="{ active: dragActive }"
                 @dragover.prevent="setDragState(true)"
-                @drop.prevent="(e) => dropFile(e, ossList)"
+                @drop.prevent="(e) => dropFile(e, ossList, currentAccount.domain)"
                 @dragleave.prevent="setDragState(false)"
             >
                 <div class="layer flex-center" @keyup="setDragState(false)">
@@ -22,7 +22,7 @@
                         <el-button type="primary" @click="createDirectory">创建目录</el-button>
                         <el-dropdown
                             class="ml10"
-                            @command="(cmd: BatchCommandKey) => batchCommand(cmd, selected)"
+                            @command="(cmd: BatchCommandKey) => batchCommand(cmd, selected, currentAccount.domain)"
                             v-if="selected.length"
                         >
                             <el-button type="primary">
@@ -64,7 +64,7 @@
                     :infinite-scroll-distance="200"
                     v-infinite-scroll="() => getOSSList(true)"
                 >
-                    <el-table :data="ossList" @selection-change="handleSelectionChange">
+                    <el-table :data="ossList" v-loading="tableLoading" @selection-change="handleSelectionChange">
                         <el-table-column
                             type="selection"
                             :selectable="(row: TableItem) => row.type !== 'directory'"
@@ -119,7 +119,7 @@
                                     class="mr10"
                                     style="margin-left: 0"
                                     v-if="isPic(scope.row) && currentTemplate.id"
-                                    @click="getStyle(scope.row)"
+                                    @click="getStyle(scope.row, currentAccount.domain)"
                                     >复制样式</el-link
                                 >
                                 <delete-confirm @confirm="deleteItem(scope.row)"></delete-confirm>
@@ -128,13 +128,13 @@
                     </el-table>
                 </div>
             </div>
-            <upload-history v-model:visible="historyVisible" />
+            <upload-history v-model:visible="historyVisible" @select="getOSSList(false)" />
             <progress-drawer v-model:visible="progressVisible" @refresh="getOSSList(false)" />
             <collect-pane v-model:visible="collectVisible" />
             <setting-dialog v-model:visible="settingVisible" />
             <preview-dialog v-model:visible="previewVisible" />
         </template>
-        <account-pane v-model:visible="manageVisible" @jump="getOSSList(false)" />
+        <account-pane v-model:visible="manageVisible" @jump="getOSSList(false)" @add="addVisible = true" />
         <add-account-dialog v-model:visible="addVisible" />
     </div>
 </template>
@@ -157,6 +157,7 @@ import { addCollect, setHome } from '@/renderer/api';
 import { useGlobalConfigStore } from '@/renderer/hooks/common/useGlobalConfig';
 import { handleMainPost } from '@/renderer/utils';
 import { useOSSStore, batchCommand, deleteItem, createDirectory, getStyle } from '@/renderer/hooks/service/useOSS';
+import { useAccount } from '@/renderer/hooks/service/useAccount';
 import { useUpload } from '@/renderer/hooks/service/useUpload';
 import pathUtil from '@/renderer/utils/path';
 import { isPic } from '@/renderer/utils/picture';
@@ -170,9 +171,10 @@ import { usePreview } from '@/renderer/hooks/service/usePreview';
 import { useTemplate } from '@/renderer/hooks/service/useTemplate';
 
 const { openPreview } = usePreview();
-const { ossList, getOSSList, disabled } = useOSSStore();
+const { ossList, getOSSList, disabled, tableLoading } = useOSSStore();
+const { currentAccount, loadCurrentAccount, hasNoAccount } = useAccount();
 const { breadcrumb, fullPath, pop: popBreadcrumb, push: pushBreadcrumb, setPath } = useBreadcrumb();
-const { loadCurrentAccount, hasNoAccount, getSetting, setting } = useGlobalConfigStore();
+const { getSetting, setting } = useGlobalConfigStore();
 const { currentTemplate, getCurrentTemplate } = useTemplate();
 const { dragActive, setDragState, dropFile, progressVisible } = useUpload();
 
@@ -228,12 +230,12 @@ const selected = ref<TableItem[]>([]);
 const handleSelectionChange = (selection: TableItem[]) => {
     selected.value = selection.filter((item) => item.type !== 'directory');
 };
-
+const getFileFullUrl = (item: TableItem) => `${currentAccount.value.domain}/${item.path}`;
 const clickPath = (item: TableItem) => {
     if (item.size > 0) {
         // 是图片
         if (isPic(item)) {
-            openPreview(item.url);
+            openPreview(getFileFullUrl(item));
             return;
         }
         return;

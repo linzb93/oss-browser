@@ -22,6 +22,10 @@ export function getAppDefaultId(): Promise<number> {
     return request('account:get-default-app-id');
 }
 
+export function saveAccount(data: AccountItem): Promise<void> {
+    return request('account:save', data);
+}
+
 export function getCurrentAccount(): Promise<AccountItem> {
     return request('account:get-current');
 }

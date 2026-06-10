@@ -13,10 +13,6 @@ export interface TableItem {
      */
     sizeFormat: string;
     /**
-     * 在线地址
-     */
-    url: string;
-    /**
      * 文件类型
      */
     type?: string;

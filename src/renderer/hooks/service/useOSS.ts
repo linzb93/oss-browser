@@ -1,16 +1,15 @@
 import { ref, computed, h } from 'vue';
+import { sleep } from '@linzb93/utils';
 import type { TableItem } from '@/shared/types';
 import MsgBoxFileList from '@/renderer/components/FileList.vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { requestActions } from '@/renderer/utils/request';
 import { getOSSList as apiGetOSSList, addDirectory, deleteItem as deleteItemApi, copyTemplate } from '@/renderer/api';
 import { useBreadcrumb } from '../common/useBreadcrumb';
-import { useGlobalConfigStore } from '../common/useGlobalConfig';
 import { scrollTo } from '@/renderer/utils/scroll-to';
 import { getSize } from '@/renderer/utils/size';
 
 const { fullPath } = useBreadcrumb();
-const { currentAccount } = useGlobalConfigStore();
 export type BatchCommandKey = 'download' | 'delete' | 'copy';
 const ossList = ref<TableItem[]>([]);
 const finished = ref(false);
@@ -35,7 +34,6 @@ const getOSSList = async (isConcat: boolean = true) => {
                 ...item,
                 path,
                 sizeFormat: getSize(item),
-                url: `${currentAccount.value.domain}/${path}`,
             };
         });
         ossList.value = isConcat ? ossList.value.concat(list) : list;
@@ -51,15 +49,16 @@ const getOSSList = async (isConcat: boolean = true) => {
  * 执行批量命令
  * @param {BatchCommandKey} command - 命令键
  * @param {TableItem[]} selected - 选中的文件列表
+ * @param {string} prefix - 域名前缀
  */
-export const batchCommand = (command: BatchCommandKey, selected: TableItem[]) => {
+export const batchCommand = (command: BatchCommandKey, selected: TableItem[], prefix: string) => {
     const actions = {
         download: batchDownload,
         delete: batchDelete,
         copy: batchCopy,
     };
     if (actions[command]) {
-        actions[command](selected);
+        actions[command](selected, prefix);
     }
 };
 
@@ -74,11 +73,11 @@ const checkMultiSelect = (selected: TableItem[]): boolean => {
     ElMessage.error('请选择至少一个');
     return false;
 };
-const batchCopy = (selected: TableItem[]) => {
+const batchCopy = (selected: TableItem[], prefix: string) => {
     if (!checkMultiSelect(selected)) {
         return;
     }
-    requestActions.copy(selected.map((item) => item.url).join('\n'));
+    requestActions.copy(selected.map((item) => `${prefix}${item.path}`).join('\n'));
 };
 /**
  * 批量删除
@@ -107,11 +106,11 @@ const batchDelete = (selected: TableItem[]) => {
 /**
  * 批量下载文件
  */
-const batchDownload = async (selected: TableItem[]) => {
+const batchDownload = async (selected: TableItem[], prefix: string) => {
     if (!checkMultiSelect(selected)) {
         return;
     }
-    await requestActions.download(selected.map((item) => item.url).join(','));
+    await requestActions.download(selected.map((item) => `${prefix}${item.path}`).join(','));
 };
 
 /**
@@ -126,6 +125,9 @@ export async function deleteItem(item: TableItem) {
     ElMessage.success('删除成功');
     getOSSList(false);
 }
+/**
+ * 创建目录
+ */
 export const createDirectory = () => {
     ElMessageBox.prompt('请输入目录名称', '温馨提醒', {
         confirmButtonText: '创建',
@@ -162,15 +164,15 @@ export const createDirectory = () => {
  * 获取图片样式并复制模板
  * @param {TableItem} item - 列表项
  */
-export const getStyle = (item: TableItem) => {
+export const getStyle = (item: TableItem, prefix: string) => {
     const img = new Image();
-    img.src = item.url;
+    img.src = `${prefix}${item.path}`;
     img.onload = function () {
         const { width, height } = img;
         copyTemplate({
             width,
             height,
-            url: item.url,
+            url: img.src,
         })
             .then(() => {
                 ElMessage.success('复制成功');
@@ -180,7 +182,12 @@ export const getStyle = (item: TableItem) => {
             });
     };
 };
-
+const tableLoading = ref(false);
+const setTableLoading = async () => {
+    tableLoading.value = true;
+    await sleep(800);
+    tableLoading.value = false;
+};
 export const useOSSStore = () => {
-    return { ossList, getOSSList, fullPath, disabled };
+    return { ossList, getOSSList, fullPath, disabled, tableLoading, setTableLoading };
 };

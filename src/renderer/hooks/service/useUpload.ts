@@ -24,8 +24,10 @@ export function useUpload() {
     /**
      * 处理文件拖拽事件
      * @param {DragEvent} event - 拖拽事件
+     * @param {TableItem[]} tableList - 目标文件列表
+     * @param {string} prefix - 前缀路径
      */
-    const dropFile = async (event: DragEvent, tableList: TableItem[]) => {
+    const dropFile = async (event: DragEvent, tableList: TableItem[], prefix: string) => {
         active.value = false;
         const files = event.dataTransfer?.files as FileList;
         const upOriginList = Array.from(files) as UploadedTableItem[];
@@ -38,7 +40,7 @@ export function useUpload() {
                         list: duplicateFiles.map((item) => ({
                             name: item.name,
                             path: URL.createObjectURL(item as unknown as Blob),
-                            onlineUrl: tableList.find((sub) => sub.name === item.name)?.url,
+                            onlineUrl: `${prefix}${tableList.find((sub) => sub.name === item.name)?.path}`,
                         })),
                         tips: '下列文件已存在，是否覆盖？',
                     }),

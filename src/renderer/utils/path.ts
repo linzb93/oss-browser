@@ -18,4 +18,13 @@ export default {
         const name = base.split('.').at(-1) as string;
         return name ? name.toLowerCase() : '';
     },
+    /**
+     * 获取文件名所在目录
+     * @param path 文件路径
+     * @returns 文件名所在目录
+     */
+    dirname(path: string) {
+        const seg = path.split(/\\|\//);
+        return seg.slice(0, -1).join('/');
+    },
 };

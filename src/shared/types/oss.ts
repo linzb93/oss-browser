@@ -19,6 +19,7 @@ export interface TableItem {
 }
 export type ResponseTableItem = Pick<TableItem, 'name' | 'type' | 'size'>;
 export type UploadedTableItem = ResponseTableItem & Pick<TableItem, 'path'>;
+export type ExtraTableItem = UploadedTableItem & { url: string };
 export interface AddParams {
     prefix: string;
     names: string;

@@ -1,6 +1,6 @@
 import { ref, computed, h } from 'vue';
 import { sleep } from '@linzb93/utils';
-import type { TableItem } from '@/shared/types';
+import type { TableItem, ExtraTableItem } from '@/shared/types';
 import MsgBoxFileList from '@/renderer/components/FileList.vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { requestActions } from '@/renderer/utils/request';
@@ -48,17 +48,16 @@ const getOSSList = async (isConcat: boolean = true) => {
 /**
  * 执行批量命令
  * @param {BatchCommandKey} command - 命令键
- * @param {TableItem[]} selected - 选中的文件列表
- * @param {string} prefix - 域名前缀
+ * @param {ExtraTableItem[]} selected - 选中的文件列表
  */
-export const batchCommand = (command: BatchCommandKey, selected: TableItem[], prefix: string) => {
+export const batchCommand = (command: BatchCommandKey, selected: ExtraTableItem[]) => {
     const actions = {
         download: batchDownload,
         delete: batchDelete,
         copy: batchCopy,
     };
     if (actions[command]) {
-        actions[command](selected, prefix);
+        actions[command](selected);
     }
 };
 
@@ -66,23 +65,23 @@ export const batchCommand = (command: BatchCommandKey, selected: TableItem[], pr
  * 检查是否选择了多个文件
  * @returns {boolean} 如果选择了多个文件则返回 true
  */
-const checkMultiSelect = (selected: TableItem[]): boolean => {
+const checkMultiSelect = (selected: ExtraTableItem[]): boolean => {
     if (selected.length) {
         return true;
     }
     ElMessage.error('请选择至少一个');
     return false;
 };
-const batchCopy = (selected: TableItem[], prefix: string) => {
+const batchCopy = (selected: ExtraTableItem[]) => {
     if (!checkMultiSelect(selected)) {
         return;
     }
-    requestActions.copy(selected.map((item) => `${prefix}${item.path}`).join('\n'));
+    requestActions.copy(selected.map((item) => item.url).join('\n'));
 };
 /**
  * 批量删除
  */
-const batchDelete = (selected: TableItem[]) => {
+const batchDelete = (selected: ExtraTableItem[]) => {
     if (!checkMultiSelect(selected)) {
         return;
     }
@@ -106,11 +105,11 @@ const batchDelete = (selected: TableItem[]) => {
 /**
  * 批量下载文件
  */
-const batchDownload = async (selected: TableItem[], prefix: string) => {
+const batchDownload = async (selected: ExtraTableItem[]) => {
     if (!checkMultiSelect(selected)) {
         return;
     }
-    await requestActions.download(selected.map((item) => `${prefix}${item.path}`).join(','));
+    await requestActions.download(selected.map((item) => item.url).join(','));
 };
 
 /**

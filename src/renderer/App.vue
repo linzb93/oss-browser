@@ -22,7 +22,7 @@
                         <el-button type="primary" @click="createDirectory">创建目录</el-button>
                         <el-dropdown
                             class="ml10"
-                            @command="(cmd: BatchCommandKey) => batchCommand(cmd, selected, currentAccount.domain)"
+                            @command="(cmd: BatchCommandKey) => batchCommand(cmd, selected)"
                             v-if="selected.length"
                         >
                             <el-button type="primary">
@@ -64,10 +64,10 @@
                     :infinite-scroll-distance="200"
                     v-infinite-scroll="() => getOSSList(true)"
                 >
-                    <el-table :data="ossList" v-loading="tableLoading" @selection-change="handleSelectionChange">
+                    <el-table :data="list" v-loading="tableLoading" @selection-change="handleSelectionChange">
                         <el-table-column
                             type="selection"
-                            :selectable="(row: TableItem) => row.type !== 'directory'"
+                            :selectable="(row: ExtraTableItem) => row.type !== 'directory'"
                             width="35"
                         />
                         <el-table-column label="名称">
@@ -118,7 +118,7 @@
                                     :underline="false"
                                     class="mr10"
                                     style="margin-left: 0"
-                                    v-if="isPic(scope.row) && currentTemplate.id"
+                                    v-if="isPic(scope.row) && !isNil(currentTemplate.id)"
                                     @click="getStyle(scope.row, currentAccount.domain)"
                                     >复制样式</el-link
                                 >
@@ -140,7 +140,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount } from 'vue';
+import { ref, onBeforeMount, computed } from 'vue';
 import { ElMessage } from 'element-plus';
 import { Folder, ArrowDown } from '@element-plus/icons-vue';
 import dayjs from 'dayjs';
@@ -166,7 +166,8 @@ import type { BatchCommandKey } from '@/renderer/hooks/service/useOSS';
 import PreviewDialog from '@/renderer/components/Preview.vue';
 import SettingDialog from '@/renderer/components/Setting.vue';
 import { useBreadcrumb } from '@/renderer/hooks/common/useBreadcrumb';
-import { TableItem } from '@/shared/types';
+import { isNil } from 'lodash-es';
+import { ExtraTableItem } from '@/shared/types';
 import { usePreview } from '@/renderer/hooks/service/usePreview';
 import { useTemplate } from '@/renderer/hooks/service/useTemplate';
 
@@ -177,6 +178,13 @@ const { breadcrumb, fullPath, pop: popBreadcrumb, push: pushBreadcrumb, setPath 
 const { getSetting, setting } = useGlobalConfigStore();
 const { currentTemplate, getCurrentTemplate } = useTemplate();
 const { dragActive, setDragState, dropFile, progressVisible } = useUpload();
+
+const list = computed<ExtraTableItem[]>(() =>
+    ossList.value.map((item) => ({
+        ...item,
+        url: `${currentAccount.value.domain}/${item.path}`,
+    })),
+);
 
 onBeforeMount(async () => {
     await loadCurrentAccount();
@@ -222,20 +230,19 @@ const collectVisible = ref(false);
 const settingVisible = ref(false);
 const previewVisible = ref(false);
 
-const selected = ref<TableItem[]>([]);
+const selected = ref<ExtraTableItem[]>([]);
 /**
  * 多选项发生改变时触发的方法。目前不操作目录
- * @param {TableItem[]} selection - 已选中项
+ * @param {ExtraTableItem[]} selection - 已选中项
  */
-const handleSelectionChange = (selection: TableItem[]) => {
+const handleSelectionChange = (selection: ExtraTableItem[]) => {
     selected.value = selection.filter((item) => item.type !== 'directory');
 };
-const getFileFullUrl = (item: TableItem) => `${currentAccount.value.domain}/${item.path}`;
-const clickPath = (item: TableItem) => {
+const clickPath = (item: ExtraTableItem) => {
     if (item.size > 0) {
         // 是图片
         if (isPic(item)) {
-            openPreview(getFileFullUrl(item));
+            openPreview(item.url);
             return;
         }
         return;

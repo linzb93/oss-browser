@@ -7,6 +7,7 @@ import {
     removeTemplateItem,
     copyTemplate,
 } from '@/renderer/api';
+import { isNil } from 'lodash-es';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { TemplateItem } from '@/shared/types';
 import { useGlobalConfigStore } from '../common/useGlobalConfig';
@@ -56,7 +57,7 @@ export const useTemplate = () => {
         visible.value = false;
     }
     const getCurrentTemplate = async () => {
-        if (!setting.value.copyTemplateId) {
+        if (isNil(setting.value.copyTemplateId)) {
             return;
         }
         currentTemplate.value = (await getTemplateItem({ id: setting.value.copyTemplateId })) || {};

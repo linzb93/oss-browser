@@ -25,7 +25,7 @@ const dialogBodyHeight = ref('60vh');
  * clamp(10, 0, 5) // 5
  * clamp(-5, 0, 5) // 0
  */
-const clamp = (value: number, min: number, max: number) => {
+const clamp = (value: number, min: number, max: number): number => {
     return Math.max(min, Math.min(max, value));
 };
 

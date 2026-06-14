@@ -1,7 +1,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { isEmptyObject } from '@linzb93/utils';
 import { AccountItem } from '@/shared/types/account';
-import { useGlobalConfigStore } from '../common/useGlobalConfig';
+import { useSettingStore } from '../common/useSetting';
 import {
     getAppDefaultId,
     getCurrentAccount,
@@ -10,13 +10,10 @@ import {
     saveAccount as saveAccountApi,
 } from '@/renderer/api';
 
-const { getSetting } = useGlobalConfigStore();
+const { getSetting } = useSettingStore();
 
 const currentAccount = ref<AccountItem>({} as AccountItem);
-const formAccount = ref<AccountItem>({} as AccountItem);
-const setFormAccount = (account: AccountItem) => {
-    formAccount.value = account;
-};
+
 const setCurrentAccount = (account: AccountItem) => {
     currentAccount.value = account;
     setAppDefaultId({ id: account.id });
@@ -55,8 +52,6 @@ export const useAccount = () => {
     return {
         currentAccount,
         hasNoAccount,
-        formAccount,
-        setFormAccount,
         setCurrentAccount,
         boostrap,
         loadCurrentAccount,

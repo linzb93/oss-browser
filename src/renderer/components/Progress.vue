@@ -65,7 +65,7 @@ import { getSize } from '@/renderer/utils/size';
 import { useAccount } from '@/renderer/hooks/service/useAccount';
 import { useUpload } from '@/renderer/hooks/service/useUpload';
 import { useBreadcrumb } from '@/renderer/hooks/common/useBreadcrumb';
-import { useGlobalConfigStore } from '@/renderer/hooks/common/useGlobalConfig';
+import { useSettingStore } from '@/renderer/hooks/common/useSetting';
 
 const emit = defineEmits(['refresh']);
 const visible = defineModel<boolean>('visible', { required: true, default: false });

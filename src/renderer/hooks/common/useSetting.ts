@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { getSetting as getSettingApi, saveSetting as saveSettingApi } from '@/renderer/api';
 import type { SettingInfo } from '@/shared/types';
 
@@ -12,6 +12,6 @@ const saveSetting = async (setting: SettingInfo) => {
     await saveSettingApi(setting);
 };
 
-export const useGlobalConfigStore = () => {
+export const useSettingStore = () => {
     return { setting, getSetting, saveSetting };
 };

@@ -165,7 +165,7 @@ export const createDirectory = () => {
  */
 export const getStyle = (item: TableItem, prefix: string) => {
     const img = new Image();
-    img.src = `${prefix}${item.path}`;
+    img.src = `${prefix}/${item.path}`;
     img.onload = function () {
         const { width, height } = img;
         copyTemplate({

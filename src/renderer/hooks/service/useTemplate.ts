@@ -1,4 +1,6 @@
 import { computed, ref } from 'vue';
+import { isNil } from 'lodash-es';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
     getTemplateItem,
     getTemplateList,
@@ -7,11 +9,10 @@ import {
     removeTemplateItem,
     copyTemplate,
 } from '@/renderer/api';
-import { isNil } from 'lodash-es';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { useSettingStore } from '../common/useSetting';
 import { TemplateItem } from '@/shared/types';
-import { useGlobalConfigStore } from '../common/useGlobalConfig';
-const { setting } = useGlobalConfigStore();
+
+const { setting } = useSettingStore();
 
 type TemplateItemPure = Omit<TemplateItem, 'content'>;
 const templates = ref<TemplateItemPure[]>([]);

@@ -34,7 +34,7 @@ export const useBreadcrumb = () => {
          * 点击面包屑的某一级
          * @param {number} index - 点击的面包屑索引
          */
-        set(index: number) {
+        setIndex(index: number) {
             breadcrumb.value = breadcrumb.value.slice(0, index + 1);
         },
         /**

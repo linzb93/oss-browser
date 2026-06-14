@@ -40,7 +40,7 @@ export function useUpload() {
                         list: duplicateFiles.map((item) => ({
                             name: item.name,
                             path: URL.createObjectURL(item as unknown as Blob),
-                            onlineUrl: `${prefix}${tableList.find((sub) => sub.name === item.name)?.path}`,
+                            onlineUrl: `${prefix}/${tableList.find((sub) => sub.name === item.name)?.path}`,
                         })),
                         tips: '下列文件已存在，是否覆盖？',
                     }),

@@ -51,12 +51,12 @@ import { useAccount } from '@/renderer/hooks/service/useAccount';
 import { AccountItem } from '@/shared/types';
 import { removeAccount } from '@/renderer/api';
 import { useOSSStore } from '@/renderer/hooks/service/useOSS';
-import { useGlobalConfigStore } from '@/renderer/hooks/common/useGlobalConfig';
+import { useSettingStore } from '@/renderer/hooks/common/useSetting';
 
 import { useBreadcrumb } from '@/renderer/hooks/common/useBreadcrumb';
 const { setTableLoading } = useOSSStore();
 const { setPath } = useBreadcrumb();
-const { setting, getSetting } = useGlobalConfigStore();
+const { setting, getSetting } = useSettingStore();
 
 const visible = defineModel<boolean>('visible', { required: true, default: false });
 const emit = defineEmits(['close', 'jump', 'add']);

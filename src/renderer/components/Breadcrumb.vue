@@ -31,10 +31,10 @@ import { Folder, ArrowRight, HomeFilled, Back } from '@element-plus/icons-vue';
 import { useBreadcrumb } from '@/renderer/hooks/common/useBreadcrumb';
 import { useOSSStore } from '@/renderer/hooks/service/useOSS';
 const { getOSSList } = useOSSStore();
-const { breadcrumb, set, pop } = useBreadcrumb();
+const { breadcrumb, setIndex, pop } = useBreadcrumb();
 
 const setBreadcrumb = (index: number) => {
-    set(index);
+    setIndex(index);
     getOSSList(false);
 };
 const popBreadcrumb = () => {

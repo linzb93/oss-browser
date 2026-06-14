@@ -60,12 +60,12 @@ import { ElMessage } from 'element-plus';
 import { cloneDeep } from 'lodash-es';
 import TemplateEditor from '@/renderer/components/TemplateEditor.vue';
 import { useTemplate } from '@/renderer/hooks/service/useTemplate';
-import { useGlobalConfigStore } from '@/renderer/hooks/common/useGlobalConfig';
+import { useSettingStore } from '@/renderer/hooks/common/useSetting';
 import { Edit, Remove } from '@element-plus/icons-vue';
 import type { SettingInfo } from '@/shared/types';
 const { getList: getTemplates, templates, openDialog: addTemplate, removeItem: removeTemplate } = useTemplate();
 
-const { saveSetting, setting } = useGlobalConfigStore();
+const { saveSetting, setting } = useSettingStore();
 
 const formSetting = ref<SettingInfo>({} as SettingInfo);
 const visible = defineModel<boolean>('visible', { required: true, default: false });

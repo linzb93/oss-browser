@@ -4,12 +4,16 @@ import vue from '@vitejs/plugin-vue';
 import electron from 'vite-plugin-electron/simple';
 import pkg from './package.json';
 import { fileURLToPath, URL } from 'node:url';
-// https://vitejs.dev/config/
-export default defineConfig(({ command }) => {
-    fs.rmSync('dist-electron', { recursive: true, force: true });
 
-    const isServe = command === 'serve';
-    const isBuild = command === 'build';
+// Set third-party env vars from package.json#config per npm docs recommendation
+if (pkg.config) {
+    process.env.ELECTRON_MIRROR ||= pkg.config.electron_mirror;
+    process.env.ELECTRON_BUILDER_BINARIES_MIRROR ||= pkg.config.electron_builder_binaries_mirror;
+}
+
+// https://vitejs.dev/config/
+export default defineConfig(() => {
+    fs.rmSync('dist-electron', { recursive: true, force: true });
     const sourcemap = false;
 
     return {
@@ -44,7 +48,7 @@ export default defineConfig(({ command }) => {
                         },
                         build: {
                             sourcemap,
-                            minify: isBuild,
+                            minify: false,
                             outDir: 'dist-electron/main',
                             rollupOptions: {
                                 // Some third-party Node.js libraries may not be built correctly by Vite, especially `C/C++` addons,
@@ -63,7 +67,7 @@ export default defineConfig(({ command }) => {
                     vite: {
                         build: {
                             sourcemap: sourcemap ? 'inline' : undefined, // #332
-                            minify: isBuild,
+                            minify: false,
                             outDir: 'dist-electron/preload',
                             rollupOptions: {
                                 external: Object.keys('dependencies' in pkg ? pkg.dependencies : {}),
@@ -77,15 +81,25 @@ export default defineConfig(({ command }) => {
                 renderer: {},
             }),
         ],
-        server:
-            process.env.VSCODE_DEBUG &&
-            (() => {
+        server: process.env.VSCODE_DEBUG
+            ? (() => {
                 const url = new URL(pkg.debug.env.VITE_DEV_SERVER_URL);
                 return {
                     host: url.hostname,
                     port: +url.port,
                 };
-            })(),
+            })()
+            : undefined,
+        build: {
+            rollupOptions: {
+                output: {
+                    manualChunks: {
+                        vue: ['vue'],
+                        'element-plus': ['element-plus'],
+                    },
+                },
+            },
+        },
         clearScreen: false,
     };
 });

@@ -24,7 +24,9 @@
         ],
         artifactName: '${productName}-Windows-${version}-Setup.${ext}',
         icon: 'public/logo.ico',
+        signAndEditExecutable: false,
     },
+    afterPack: 'scripts/after-pack.mjs',
     nsis: {
         oneClick: false,
         perMachine: false,

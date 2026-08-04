@@ -18,6 +18,9 @@ export async function getList(): Promise<Database['accounts']> {
  */
 export async function getItem(id: number): Promise<Database['accounts'][number] | undefined> {
     return await sql((db) => {
+        if (!db.accounts) {
+            db.accounts = [];
+        }
         const match = db.accounts.find((item) => item.id === id);
         return match;
     });
@@ -31,6 +34,9 @@ export async function getItem(id: number): Promise<Database['accounts'][number] 
 export async function save(params: Database['accounts'][number]): Promise<void> {
     await validate(params);
     await sql((db) => {
+        if (!db.accounts) {
+            db.accounts = [];
+        }
         const matchIndex = db.accounts.findIndex((account) => account.id === params.id);
         if (matchIndex > -1) {
             db.accounts[matchIndex] = params;
@@ -40,6 +46,7 @@ export async function save(params: Database['accounts'][number]): Promise<void> 
                 ...params,
                 id: nextId,
             });
+            db.defaultAppId = nextId;
             createSqlFile(nextId);
         }
     });

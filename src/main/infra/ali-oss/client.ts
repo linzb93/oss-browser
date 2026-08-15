@@ -10,6 +10,8 @@ import OSS, {
     ListBucketsResult,
     RequestOptions,
     ListBucketsQueryType,
+    CopyObjectResult,
+    HeadObjectResult,
 } from 'ali-oss';
 
 export class AliOssClient {
@@ -31,6 +33,14 @@ export class AliOssClient {
         return this.client.delete(name, options);
     }
 
+    async copy(name: string, sourceName: string, options?: RequestOptions): Promise<CopyObjectResult> {
+        return this.client.copy(name, sourceName, options);
+    }
+
+    async head(name: string, options?: RequestOptions): Promise<HeadObjectResult> {
+        return this.client.head(name, options);
+    }
+
     async multipartUpload(name: string, file: any, options?: MultipartUploadOptions): Promise<MultipartUploadResult> {
         return this.client.multipartUpload(name, file, options);
     }
@@ -48,4 +58,6 @@ export type {
     PutObjectResult,
     DeleteResult,
     ListV2Options,
+    CopyObjectResult,
+    HeadObjectResult,
 };

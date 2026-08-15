@@ -122,6 +122,19 @@ export default class extends BaseOss {
         const { client } = this;
         await client.put(`${params.prefix}${params.names}/`, Buffer.from(''));
     }
+    async copyFile(sourcePath: string, targetPath: string): Promise<void> {
+        const { client } = this;
+        await client.copy(targetPath, sourcePath);
+    }
+    async head(name: string): Promise<boolean> {
+        const { client } = this;
+        try {
+            await client.head(name);
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
     async deleteFile(paths: string): Promise<any> {
         const { client } = this;
         const pathList = paths.split(',');

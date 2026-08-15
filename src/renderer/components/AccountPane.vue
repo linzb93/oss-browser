@@ -89,7 +89,9 @@ const confirmDelete = (row: AccountItem) => {
 const add = () => {
     emit('add');
 };
-const edit = (row: AccountItem) => {};
+const edit = (row: AccountItem) => {
+    emit('add', row);
+};
 
 watch(
     visible,

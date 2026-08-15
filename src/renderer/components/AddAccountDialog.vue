@@ -41,14 +41,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref,watch } from 'vue';
 import type { AccountItem, BucketItem } from '@/shared/types';
 import { ElMessage } from 'element-plus';
 import type { FormInstance, FormRules } from 'element-plus';
 import { getBuckets as apiGetBuckets } from '@/renderer/api';
 import { useAccount } from '../hooks/service/useAccount';
 
+const props = defineProps<{
+    detail: AccountItem;
+}>();
+
 const visible = defineModel<boolean>('visible', { required: true, default: false });
+
+watch(visible, (vis) => {
+    if (!vis) {
+        return;
+    }
+    form.value = { ...props.detail };
+})
+
 const emit = defineEmits(['submit']);
 const { saveAccount, getAccountList } = useAccount();
 const form = ref<AccountItem>({} as AccountItem);
@@ -136,5 +148,6 @@ const close = () => {
 };
 const closed = () => {
     form.value = {} as AccountItem;
+    formRef.value?.resetFields();
 };
 </script>

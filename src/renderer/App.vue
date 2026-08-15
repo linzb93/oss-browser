@@ -109,6 +109,13 @@
                                 <el-link
                                     type="primary"
                                     :underline="false"
+                                    v-if="scope.row.type !== 'directory'"
+                                    @click="copyFile(scope.row)"
+                                    >复制文件</el-link
+                                >
+                                <el-link
+                                    type="primary"
+                                    :underline="false"
                                     class="mr10"
                                     @click="requestActions.download(scope.row.url)"
                                     >下载</el-link
@@ -134,14 +141,14 @@
             <setting-dialog v-model:visible="settingVisible" />
             <preview-dialog v-model:visible="previewVisible" />
         </template>
-        <account-pane v-model:visible="manageVisible" @jump="getOSSList(false)" @add="addVisible = true" />
-        <add-account-dialog v-model:visible="addVisible" />
+        <account-pane v-model:visible="manageVisible" @jump="getOSSList(false)" @add="onAdd" />
+        <add-account-dialog v-model:visible="addVisible" :detail="currentAccountForm" />
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onBeforeMount, computed } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import dayjs from 'dayjs';
 import { isNil } from 'lodash-es';
 import { Folder, ArrowDown } from '@element-plus/icons-vue';
@@ -163,13 +170,20 @@ import { isPic } from '@/renderer/utils/picture';
 import { addCollect, setHome } from '@/renderer/api';
 import { useSettingStore } from '@/renderer/hooks/common/useSetting';
 import { useBreadcrumb } from '@/renderer/hooks/common/useBreadcrumb';
-import { useOSSStore, batchCommand, deleteItem, createDirectory, getStyle } from '@/renderer/hooks/service/useOSS';
+import {
+    useOSSStore,
+    batchCommand,
+    deleteItem,
+    createDirectory,
+    getStyle,
+    copyFile,
+} from '@/renderer/hooks/service/useOSS';
 import { useAccount } from '@/renderer/hooks/service/useAccount';
 import { useUpload } from '@/renderer/hooks/service/useUpload';
 import type { BatchCommandKey } from '@/renderer/hooks/service/useOSS';
 import { usePreview } from '@/renderer/hooks/service/usePreview';
 import { useTemplate } from '@/renderer/hooks/service/useTemplate';
-import { ExtraTableItem } from '@/shared/types';
+import { ExtraTableItem, AccountItem } from '@/shared/types';
 
 const { openPreview } = usePreview();
 const { ossList, getOSSList, disabled, tableLoading } = useOSSStore();
@@ -186,6 +200,24 @@ const list = computed<ExtraTableItem[]>(() =>
     })),
 );
 
+/**
+ * 保证粘贴后文件名拓展名与原文件一致，若被修改则恢复并提示
+ * @param {string} originName - 原文件名
+ * @param {string} newName - 用户输入的新文件名
+ * @returns {string} 修正后的文件名
+ */
+const restoreExtension = (originName: string, newName: string) => {
+    const dotIndex = originName.lastIndexOf('.');
+    const ext = dotIndex > 0 ? originName.slice(dotIndex) : '';
+    const newDotIndex = newName.lastIndexOf('.');
+    const newExt = newDotIndex > 0 ? newName.slice(newDotIndex) : '';
+    if (newExt.toLowerCase() !== ext.toLowerCase()) {
+        ElMessage.warning(`拓展名不可修改，已自动恢复为「${ext || '无拓展名'}」`);
+        return ext ? `${newName.slice(0, newDotIndex)}${ext}` : newName;
+    }
+    return newName;
+};
+
 onBeforeMount(async () => {
     await loadCurrentAccount();
     if (!hasNoAccount.value) {
@@ -200,7 +232,34 @@ onBeforeMount(async () => {
             createDirectory();
         });
         handleMainPost('reload', () => {
-            getOSSList();
+            getOSSList(false);
+        });
+        handleMainPost('paste-rename', async ({ name }: { name: string }) => {
+            try {
+                const { value } = await ElMessageBox.prompt('请确认文件名称', '粘贴文件', {
+                    inputValue: name,
+                    confirmButtonText: '粘贴',
+                    cancelButtonText: '取消',
+                });
+                if (!value) {
+                    return null;
+                }
+                return restoreExtension(name, value);
+            } catch (error) {
+                return null;
+            }
+        });
+        handleMainPost('paste-confirm', async ({ name }: { name: string }) => {
+            try {
+                await ElMessageBox.confirm(`当前目录已存在「${name}」，是否覆盖？`, '温馨提示', {
+                    confirmButtonText: '覆盖',
+                    cancelButtonText: '取消',
+                    type: 'warning',
+                });
+                return true;
+            } catch (error) {
+                return false;
+            }
         });
         handleMainPost('location', (data: { isDown: boolean }) => {
             const { isDown } = data;
@@ -259,6 +318,12 @@ const activeIndex = ref(-1);
 const resetActiveIndex = () => {
     activeIndex.value = -1;
 };
+
+const currentAccountForm = ref<AccountItem>({} as AccountItem);
+const onAdd = (row: AccountItem) => {
+    currentAccountForm.value = row;
+    addVisible.value = true;
+}
 /**
  * 处理更多命令
  * @param {'setting' | 'see-collect' | 'collect' | 'home-page' | 'upload-history' | 'manage-account'} cmd - 命令名称

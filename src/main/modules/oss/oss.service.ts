@@ -15,6 +15,42 @@ import { accountEvents } from '../account/events';
 
 let currentApp: App;
 /**
+ * 复制的文件信息（剪贴板）
+ */
+let copiedFile: { name: string; path: string } | null = null;
+/**
+ * 当前目录（渲染层导航时上报）
+ */
+let currentPath: string = '';
+
+/**
+ * 设置复制的文件
+ * @param file 文件信息，含文件名与对象 key
+ */
+export function setCopiedFile(file: { name: string; path: string } | null) {
+    copiedFile = file;
+}
+/**
+ * 获取复制的文件
+ */
+export function getCopiedFile() {
+    return copiedFile;
+}
+/**
+ * 设置当前目录
+ * @param path 目录路径，以"/"收尾
+ */
+export function setCurrentPath(path: string) {
+    currentPath = path;
+}
+/**
+ * 获取当前目录
+ */
+export function getCurrentPath() {
+    return currentPath;
+}
+
+/**
  * 添加OSS App
  * @param app OSS App适配器
  */
@@ -37,6 +73,21 @@ export async function getFileList(data: { prefix: string; useToken: boolean }): 
 }
 export async function addDirectory(params: AddOptions): Promise<void> {
     await currentApp.addDirectory(params);
+}
+/**
+ * 复制文件到目标路径
+ * @param sourcePath 源对象 key
+ * @param targetPath 目标对象 key
+ */
+export async function copyFile(sourcePath: string, targetPath: string): Promise<void> {
+    await currentApp.copyFile(sourcePath, targetPath);
+}
+/**
+ * 判断对象是否存在
+ * @param name 对象 key
+ */
+export async function objectExists(name: string): Promise<boolean> {
+    return await currentApp.head(name);
 }
 export async function deleteFile(paths: string): Promise<any> {
     const unsuccessfulList = await currentApp.deleteFile(paths);

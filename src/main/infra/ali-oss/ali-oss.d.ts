@@ -56,6 +56,14 @@ declare module 'ali-oss' {
         [key: string]: any;
     }
 
+    export interface CopyObjectResult {
+        [key: string]: any;
+    }
+
+    export interface HeadObjectResult {
+        [key: string]: any;
+    }
+
     export interface ListV2Options {
         'prefix': string;
         'delimiter'?: string;
@@ -81,6 +89,10 @@ declare module 'ali-oss' {
         listV2(obj: ListV2Options, options?: RequestOptions): Promise<ListV2Result>;
 
         delete(name: string, options?: RequestOptions): Promise<DeleteResult>;
+
+        copy(name: string, sourceName: string, options?: RequestOptions): Promise<CopyObjectResult>;
+
+        head(name: string, options?: RequestOptions): Promise<HeadObjectResult>;
 
         listBuckets(query?: ListBucketsQueryType | null, options?: RequestOptions): Promise<ListBucketsResult>;
     }

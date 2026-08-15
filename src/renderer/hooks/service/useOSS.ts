@@ -3,7 +3,7 @@ import { sleep } from '@linzb93/utils';
 import type { TableItem, ExtraTableItem } from '@/shared/types';
 import MsgBoxFileList from '@/renderer/components/FileList.vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
-import { requestActions } from '@/renderer/utils/request';
+import { requestActions, request } from '@/renderer/utils/request';
 import { getOSSList as apiGetOSSList, addDirectory, deleteItem as deleteItemApi, copyTemplate } from '@/renderer/api';
 import { useBreadcrumb } from '../common/useBreadcrumb';
 import { scrollTo } from '@/renderer/utils/scroll-to';
@@ -38,6 +38,7 @@ const getOSSList = async (isConcat: boolean = true) => {
         });
         ossList.value = isConcat ? ossList.value.concat(list) : list;
         finished.value = !data.token;
+        request('oss:set-current-path', { path: fullPath.value });
     } catch (error) {
         loading.value = false;
         finished.value = true;
@@ -124,6 +125,17 @@ export async function deleteItem(item: TableItem) {
     ElMessage.success('删除成功');
     getOSSList(false);
 }
+/**
+ * 复制文件（记录到剪贴板，供右键粘贴使用）
+ * @param {TableItem} item - 列表项
+ */
+export const copyFile = async (item: TableItem) => {
+    await request('oss:copy', {
+        name: item.name,
+        path: item.path,
+    });
+    ElMessage.success('文件等待复制');
+};
 /**
  * 创建目录
  */

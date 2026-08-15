@@ -10,6 +10,8 @@ export const registerOssController = () => {
     ipcMain.handle('oss:delete', (event, dataStr: string) => deleteFile(dataStr));
     ipcMain.handle('oss:get-buckets', (event, dataStr: string) => getBuckets(dataStr));
     ipcMain.handle('oss:download', (event, dataStr: string) => download(dataStr));
+    ipcMain.handle('oss:copy', (event, dataStr: string) => copy(dataStr));
+    ipcMain.handle('oss:set-current-path', (event, dataStr: string) => setCurrentPath(dataStr));
     ipcMain.on('oss:upload', (event, data: AddOptions) => upload(event, data));
 };
 
@@ -36,6 +38,21 @@ const deleteFile = (dataStr: string) => {
 const getBuckets = (dataStr: string) => {
     const data = JSON.parse(dataStr) as OssConfig;
     return formatResponse(() => ossService.getBuckets(data));
+};
+
+const copy = (dataStr: string) => {
+    const data = JSON.parse(dataStr) as {
+        name: string;
+        path: string;
+    };
+    return formatResponse(() => ossService.setCopiedFile({ name: data.name, path: data.path }));
+};
+
+const setCurrentPath = (dataStr: string) => {
+    const data = JSON.parse(dataStr) as {
+        path: string;
+    };
+    return formatResponse(() => ossService.setCurrentPath(data.path));
 };
 
 const download = (dataStr: string) => {

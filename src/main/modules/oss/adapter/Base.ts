@@ -23,6 +23,17 @@ export default abstract class {
      */
     abstract deleteFile(url: string): Promise<any>;
     /**
+     * 复制文件到目标路径
+     * @param {string} sourcePath - 源对象 key
+     * @param {string} targetPath - 目标对象 key
+     */
+    abstract copyFile(sourcePath: string, targetPath: string): Promise<void>;
+    /**
+     * 判断对象是否存在
+     * @param {string} name - 对象 key
+     */
+    abstract head(name: string): Promise<boolean>;
+    /**
      * 创建目录
      */
     abstract addDirectory(params: { prefix: string; names: string }): Promise<void>;

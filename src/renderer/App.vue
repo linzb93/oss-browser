@@ -18,14 +18,24 @@
                 </div>
                 <div class="flexalign-center">
                     <div class="sidebar flexpack-end">
-                        <el-icon :size="30" @click="settingVisible = true">
-                            <Setting />
-                        </el-icon>
-                        <el-icon :size="30">
-                            <sort />
-                        </el-icon>
-                        <el-icon :size="30" @click="historyVisible = true"><Collection /></el-icon>
-                        <el-icon :size="30" @click="manageVisible = true"><User /></el-icon>
+                        <el-tooltip content="设置">
+                            <el-icon :size="34" @click="settingVisible = true">
+                                <Setting />
+                            </el-icon>
+                        </el-tooltip>
+                        <el-tooltip content="上传与下载">
+                            <el-icon :size="34">
+                                <sort />
+                            </el-icon>
+                        </el-tooltip>
+
+                        <el-tooltip content="历史记录">
+                            <el-icon :size="34" @click="historyVisible = true"><Collection /></el-icon>
+                        </el-tooltip>
+
+                        <el-tooltip content="用户管理">
+                            <el-icon :size="34" @click="manageVisible = true"><User /></el-icon>
+                        </el-tooltip>
                     </div>
                     <div class="cont flexitem-1">
                         <breadcrumb />
@@ -52,22 +62,6 @@
                                     </template>
                                 </el-dropdown>
                             </div>
-                            <el-dropdown @command="moreCommand">
-                                <el-button type="primary">
-                                    <span>更多功能</span>
-                                    <el-icon :size="14" class="dropdown-icon"><arrow-down /></el-icon>
-                                </el-button>
-                                <template #dropdown>
-                                    <el-dropdown-menu>
-                                        <el-dropdown-item command="setting">设置</el-dropdown-item>
-                                        <el-dropdown-item command="see-collect">查看收藏夹</el-dropdown-item>
-                                        <el-dropdown-item command="collect">收藏</el-dropdown-item>
-                                        <el-dropdown-item command="home-page">设为首页</el-dropdown-item>
-                                        <el-dropdown-item command="upload-history">上传历史</el-dropdown-item>
-                                        <el-dropdown-item command="manage-account">管理账号</el-dropdown-item>
-                                    </el-dropdown-menu>
-                                </template>
-                            </el-dropdown>
                         </div>
                         <div class="other-wrap">
                             <el-table
@@ -272,6 +266,14 @@ onBeforeMount(async () => {
         handleMainPost('reload', () => {
             getOSSList('reset');
         });
+        handleMainPost('collect', async () => {
+            await addCollect({ path: fullPath.value });
+            ElMessage.success('保存成功');
+        });
+        handleMainPost('set-index', async () => {
+            await setHome({ path: fullPath.value });
+            ElMessage.success('设置成功');
+        });
         handleMainPost('paste-rename', async ({ name }: { name: string }) => {
             try {
                 const { value } = await ElMessageBox.prompt('请确认文件名称', '粘贴文件', {
@@ -386,33 +388,6 @@ const handleSwitchAccount = () => {
     getOSSList('reset');
     getCurrentTemplate();
 };
-/**
- * 处理更多命令
- * @param {'setting' | 'see-collect' | 'collect' | 'home-page' | 'upload-history' | 'manage-account'} cmd - 命令名称
- */
-const moreCommand = async (
-    cmd: 'setting' | 'see-collect' | 'collect' | 'home-page' | 'upload-history' | 'manage-account',
-) => {
-    const actions = {
-        'setting': () => (settingVisible.value = true),
-        'see-collect': () => (collectVisible.value = true),
-        'collect': async () => {
-            await addCollect({ path: fullPath.value });
-            ElMessage.success('保存成功');
-        },
-        'home-page': async () => {
-            await setHome({ path: fullPath.value });
-            ElMessage.success('设置成功');
-        },
-        'upload-history': () => (historyVisible.value = true),
-        'manage-account': () => (manageVisible.value = true),
-    };
-    if (typeof actions[cmd] === 'function') {
-        actions[cmd]();
-    } else {
-        ElMessage.error('没有这个命令');
-    }
-};
 </script>
 <style lang="scss" scoped>
 @use '@/renderer/styles/mixin.scss' as *;
@@ -427,8 +402,8 @@ const moreCommand = async (
     .el-icon {
         margin: 20px auto 0;
         cursor: pointer;
-        padding: 5px;
-        border-radius: 2px;
+        padding: 8px;
+        border-radius: 50%;
         &:hover {
             background: #e1e1e1;
         }

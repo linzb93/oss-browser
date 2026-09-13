@@ -65,6 +65,18 @@ export default (win: BrowserWindow) => {
                 },
             },
             {
+                label: '收藏目录',
+                click() {
+                    postRenderer('collect');
+                },
+            },
+            {
+                label: '设为首页',
+                click() {
+                    postRenderer('set-index');
+                },
+            },
+            {
                 label: '开发者工具',
                 click: () => {
                     win.webContents.openDevTools();

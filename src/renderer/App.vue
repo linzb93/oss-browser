@@ -141,7 +141,7 @@
             <setting-dialog v-model:visible="settingVisible" />
             <preview-dialog v-model:visible="previewVisible" />
         </template>
-        <account-pane v-model:visible="manageVisible" @jump="getOSSList(false)" @add="onAdd" />
+        <account-pane v-model:visible="manageVisible" @jump="handleSwitchAccount" @add="onAdd" />
         <add-account-dialog v-model:visible="addVisible" :detail="currentAccountForm" />
     </div>
 </template>
@@ -323,6 +323,11 @@ const currentAccountForm = ref<AccountItem>({} as AccountItem);
 const onAdd = (row: AccountItem) => {
     currentAccountForm.value = row;
     addVisible.value = true;
+};
+
+const handleSwitchAccount = () => {
+    getOSSList(false);
+    getCurrentTemplate();
 }
 /**
  * 处理更多命令

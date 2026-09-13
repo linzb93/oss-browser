@@ -1,17 +1,19 @@
 import { request } from '@/renderer/utils/request';
-import type { ResponseTableItem, AddParams, AccountItem, BucketItem } from '@/shared/types';
+import type {
+    ResponseTableItem,
+    AddParams,
+    AccountItem,
+    BucketItem,
+    GetOSSListParams,
+    GetOSSListResponse,
+} from '@/shared/types';
 
 /**
  * 获取文件列表
- * @param {object} params - 查询参数
- * @param {string} params.prefix - 路径前缀
- * @param {boolean} params.useToken - 是否使用分页token
- * @returns {Promise<{list: ResponseTableItem[], token: string}>} 文件列表和下一页token的Promise
+ * @param {GetOSSListParams} params - 分页查询参数
+ * @returns {Promise<GetOSSListResponse>} 文件列表分页结果
  */
-export function getOSSList(params: { prefix: string; useToken: boolean }): Promise<{
-    list: ResponseTableItem[];
-    token: string;
-}> {
+export function getOSSList(params: GetOSSListParams): Promise<GetOSSListResponse> {
     return request('oss:get-list', params);
 }
 /**

@@ -92,7 +92,7 @@ const deleteItem = async (target: FormCollectItem) => {
 const enter = (item: FormCollectItem) => {
     setPath(item.path);
     visible.value = false;
-    getOSSList(false);
+    getOSSList('reset');
 };
 /**
  * 关闭收藏目录

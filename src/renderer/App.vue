@@ -1,5 +1,5 @@
 <template>
-    <div class="cont full-height">
+    <div class="full-height">
         <el-empty v-if="hasNoAccount">
             <template #description>
                 <el-button type="primary" @click="addVisible = true">添加您的第一个账号</el-button>
@@ -16,127 +16,159 @@
                 <div class="layer flex-center" @keyup="setDragState(false)">
                     <p class="tips">请将需要上传的文件拖拽至此</p>
                 </div>
-                <breadcrumb />
                 <div class="flexalign-center">
-                    <div class="flexitem-1">
-                        <el-button type="primary" @click="createDirectory">创建目录</el-button>
-                        <el-dropdown
-                            class="ml10"
-                            @command="(cmd: BatchCommandKey) => batchCommand(cmd, selected)"
-                            v-if="selected.length"
-                        >
-                            <el-button type="primary">
-                                <span>批量操作</span>
-                                <el-icon :size="14" class="dropdown-icon"><arrow-down /></el-icon>
-                            </el-button>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item command="copy">批量复制地址</el-dropdown-item>
-                                    <el-dropdown-item command="download">批量下载</el-dropdown-item>
-                                    <el-dropdown-item command="delete"
-                                        ><el-text type="danger">批量删除</el-text></el-dropdown-item
-                                    >
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
+                    <div class="sidebar flexpack-end">
+                        <el-icon :size="30" @click="settingVisible = true">
+                            <Setting />
+                        </el-icon>
+                        <el-icon :size="30">
+                            <sort />
+                        </el-icon>
+                        <el-icon :size="30" @click="historyVisible = true"><Collection /></el-icon>
+                        <el-icon :size="30" @click="manageVisible = true"><User /></el-icon>
                     </div>
-                    <el-dropdown @command="moreCommand">
-                        <el-button type="primary">
-                            <span>更多功能</span>
-                            <el-icon :size="14" class="dropdown-icon"><arrow-down /></el-icon>
-                        </el-button>
-                        <template #dropdown>
-                            <el-dropdown-menu>
-                                <el-dropdown-item command="setting">设置</el-dropdown-item>
-                                <el-dropdown-item command="see-collect">查看收藏夹</el-dropdown-item>
-                                <el-dropdown-item command="collect">收藏</el-dropdown-item>
-                                <el-dropdown-item command="home-page">设为首页</el-dropdown-item>
-                                <el-dropdown-item command="upload-history">上传历史</el-dropdown-item>
-                                <el-dropdown-item command="manage-account">管理账号</el-dropdown-item>
-                            </el-dropdown-menu>
-                        </template>
-                    </el-dropdown>
-                </div>
-                <div
-                    class="other-wrap"
-                    :infinite-scroll-immediate="false"
-                    :infinite-scroll-disabled="disabled"
-                    :infinite-scroll-distance="200"
-                    v-infinite-scroll="() => getOSSList(true)"
-                >
-                    <el-table :data="list" v-loading="tableLoading" @selection-change="handleSelectionChange">
-                        <el-table-column
-                            type="selection"
-                            :selectable="(row: ExtraTableItem) => row.type !== 'directory'"
-                            width="35"
-                        />
-                        <el-table-column label="名称">
-                            <template #default="scope">
-                                <div class="flexalign-center">
-                                    <el-icon v-if="scope.row.type === 'directory'" :size="16" style="margin-right: 5px">
-                                        <folder />
-                                    </el-icon>
-                                    <file-type-icon :type="pathUtil.extname(scope.row.name)" v-else />
-                                    <span
-                                        class="file-name"
-                                        :class="{ active: activeIndex === scope.$index }"
-                                        @click="clickPath(scope.row)"
-                                        >{{ scope.row.name }}</span
-                                    >
-                                </div>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="大小">
-                            <template #default="scope">
-                                <template v-if="scope.row.type === 'directory'">-</template>
-                                <template v-else>{{ getSize(scope.row) }}</template>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="最后修改时间">
-                            <template #default="scope">
-                                {{
-                                    scope.row.type === 'directory'
-                                        ? '-'
-                                        : dayjs(scope.row.lastModified).format('YYYY-MM-DD HH:mm:ss')
-                                }}
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="操作">
-                            <template #default="scope">
-                                <el-link type="primary" :underline="false" @click="requestActions.copy(scope.row.url)"
-                                    >获取地址</el-link
+                    <div class="cont flexitem-1">
+                        <breadcrumb />
+                        <div class="flexalign-center">
+                            <div class="flexitem-1">
+                                <el-button type="primary" @click="createDirectory">创建目录</el-button>
+                                <el-dropdown
+                                    class="ml10"
+                                    @command="(cmd: BatchCommandKey) => batchCommand(cmd, selected)"
+                                    v-if="selected.length"
                                 >
-                                <el-link
-                                    type="primary"
-                                    :underline="false"
-                                    v-if="scope.row.type !== 'directory'"
-                                    @click="copyFile(scope.row)"
-                                    >复制文件</el-link
-                                >
-                                <el-link
-                                    type="primary"
-                                    :underline="false"
-                                    class="mr10"
-                                    @click="requestActions.download(scope.row.url)"
-                                    >下载</el-link
-                                >
-                                <el-link
-                                    type="primary"
-                                    :underline="false"
-                                    class="mr10"
-                                    style="margin-left: 0"
-                                    v-if="isPic(scope.row) && !isNil(currentTemplate.id)"
-                                    @click="getStyle(scope.row, currentAccount.domain)"
-                                    >复制样式</el-link
-                                >
-                                <delete-confirm @confirm="deleteItem(scope.row)"></delete-confirm>
-                            </template>
-                        </el-table-column>
-                    </el-table>
+                                    <el-button type="primary">
+                                        <span>批量操作</span>
+                                        <el-icon :size="14" class="dropdown-icon"><arrow-down /></el-icon>
+                                    </el-button>
+                                    <template #dropdown>
+                                        <el-dropdown-menu>
+                                            <el-dropdown-item command="copy">批量复制地址</el-dropdown-item>
+                                            <el-dropdown-item command="download">批量下载</el-dropdown-item>
+                                            <el-dropdown-item command="delete"
+                                                ><el-text type="danger">批量删除</el-text></el-dropdown-item
+                                            >
+                                        </el-dropdown-menu>
+                                    </template>
+                                </el-dropdown>
+                            </div>
+                            <el-dropdown @command="moreCommand">
+                                <el-button type="primary">
+                                    <span>更多功能</span>
+                                    <el-icon :size="14" class="dropdown-icon"><arrow-down /></el-icon>
+                                </el-button>
+                                <template #dropdown>
+                                    <el-dropdown-menu>
+                                        <el-dropdown-item command="setting">设置</el-dropdown-item>
+                                        <el-dropdown-item command="see-collect">查看收藏夹</el-dropdown-item>
+                                        <el-dropdown-item command="collect">收藏</el-dropdown-item>
+                                        <el-dropdown-item command="home-page">设为首页</el-dropdown-item>
+                                        <el-dropdown-item command="upload-history">上传历史</el-dropdown-item>
+                                        <el-dropdown-item command="manage-account">管理账号</el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </template>
+                            </el-dropdown>
+                        </div>
+                        <div class="other-wrap">
+                            <el-table
+                                :data="list"
+                                v-loading="tableLoading"
+                                height="calc(100vh - 140px)"
+                                @selection-change="handleSelectionChange"
+                            >
+                                <el-table-column
+                                    type="selection"
+                                    :selectable="(row: ExtraTableItem) => row.type !== 'directory'"
+                                    width="35"
+                                />
+                                <el-table-column label="名称">
+                                    <template #default="scope">
+                                        <div class="flexalign-center">
+                                            <el-icon
+                                                v-if="scope.row.type === 'directory'"
+                                                :size="16"
+                                                style="margin-right: 5px"
+                                            >
+                                                <folder />
+                                            </el-icon>
+                                            <file-type-icon :type="pathUtil.extname(scope.row.name)" v-else />
+                                            <span
+                                                class="file-name"
+                                                :class="{ active: activeIndex === scope.$index }"
+                                                @click="clickPath(scope.row)"
+                                                >{{ scope.row.name }}</span
+                                            >
+                                        </div>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="大小">
+                                    <template #default="scope">
+                                        <template v-if="scope.row.type === 'directory'">-</template>
+                                        <template v-else>{{ getSize(scope.row) }}</template>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="最后修改时间">
+                                    <template #default="scope">
+                                        {{
+                                            scope.row.type === 'directory'
+                                                ? '-'
+                                                : dayjs(scope.row.lastModified).format('YYYY-MM-DD HH:mm:ss')
+                                        }}
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="操作">
+                                    <template #default="scope">
+                                        <el-link
+                                            type="primary"
+                                            underline="never"
+                                            @click="requestActions.copy(scope.row.url)"
+                                            >获取地址</el-link
+                                        >
+                                        <el-link
+                                            type="primary"
+                                            underline="never"
+                                            v-if="scope.row.type !== 'directory'"
+                                            @click="copyFile(scope.row)"
+                                            >复制文件</el-link
+                                        >
+                                        <el-link
+                                            type="primary"
+                                            underline="never"
+                                            class="mr10"
+                                            @click="requestActions.download(scope.row.url)"
+                                            >下载</el-link
+                                        >
+                                        <el-link
+                                            type="primary"
+                                            underline="never"
+                                            class="mr10"
+                                            style="margin-left: 0"
+                                            v-if="isPic(scope.row) && !isNil(currentTemplate.id)"
+                                            @click="getStyle(scope.row, currentAccount.domain)"
+                                            >复制样式</el-link
+                                        >
+                                        <delete-confirm @confirm="deleteItem(scope.row)"></delete-confirm>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                            <div class="pagination-wrap">
+                                <ui-pagination
+                                    :current-page="currentPage"
+                                    :page-size="pageSize"
+                                    :page-sizes="pageSizes"
+                                    :has-prev="hasPrev"
+                                    :has-next="hasNext"
+                                    @prev="onPrev"
+                                    @next="onNext"
+                                    @update:page-size="setPageSize"
+                                />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <upload-history v-model:visible="historyVisible" @select="getOSSList(false)" />
-            <progress-drawer v-model:visible="progressVisible" @refresh="getOSSList(false)" />
+            <upload-history v-model:visible="historyVisible" @select="getOSSList('reset')" />
+            <progress-drawer v-model:visible="progressVisible" @refresh="getOSSList('reset')" />
             <collect-pane v-model:visible="collectVisible" />
             <setting-dialog v-model:visible="settingVisible" />
             <preview-dialog v-model:visible="previewVisible" />
@@ -151,11 +183,12 @@ import { ref, onBeforeMount, computed } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import dayjs from 'dayjs';
 import { isNil } from 'lodash-es';
-import { Folder, ArrowDown } from '@element-plus/icons-vue';
+import { Folder, ArrowDown, Setting, Sort, Collection, User } from '@element-plus/icons-vue';
 import AccountPane from '@/renderer/components/AccountPane.vue';
 import AddAccountDialog from '@/renderer/components/AddAccountDialog.vue';
 import Breadcrumb from '@/renderer/components/Breadcrumb.vue';
 import FileTypeIcon from '@/renderer/components/FileTypeIcon.vue';
+import UiPagination from '@/renderer/components/ui/Pagination.vue';
 import { requestActions } from '@/renderer/utils/request';
 import DeleteConfirm from '@/renderer/components/DeleteConfirm.vue';
 import UploadHistory from '@/renderer/components/UploadHistory.vue';
@@ -186,7 +219,8 @@ import { useTemplate } from '@/renderer/hooks/service/useTemplate';
 import { ExtraTableItem, AccountItem } from '@/shared/types';
 
 const { openPreview } = usePreview();
-const { ossList, getOSSList, disabled, tableLoading } = useOSSStore();
+const { ossList, getOSSList, setPageSize, tableLoading, currentPage, pageSize, pageSizes, hasNext, hasPrev } =
+    useOSSStore();
 const { currentAccount, loadCurrentAccount, hasNoAccount } = useAccount();
 const { breadcrumb, fullPath, pop: popBreadcrumb, push: pushBreadcrumb, setPath } = useBreadcrumb();
 const { getSetting, setting } = useSettingStore();
@@ -195,7 +229,11 @@ const { dragActive, setDragState, dropFile, progressVisible } = useUpload();
 
 const list = computed<ExtraTableItem[]>(() =>
     ossList.value.map((item) => ({
-        ...item,
+        name: item.name,
+        type: item.type ?? '',
+        size: item.size,
+        lastModified: item.lastModified,
+        path: item.path,
         url: `${currentAccount.value.domain}/${item.path}`,
     })),
 );
@@ -223,7 +261,7 @@ onBeforeMount(async () => {
     if (!hasNoAccount.value) {
         await getSetting();
         setPath(setting.value.homePath);
-        await getOSSList(false);
+        await getOSSList('reset');
         await getCurrentTemplate();
         handleMainPost('back', () => {
             popBreadcrumb();
@@ -232,7 +270,7 @@ onBeforeMount(async () => {
             createDirectory();
         });
         handleMainPost('reload', () => {
-            getOSSList(false);
+            getOSSList('reset');
         });
         handleMainPost('paste-rename', async ({ name }: { name: string }) => {
             try {
@@ -307,10 +345,29 @@ const clickPath = (item: ExtraTableItem) => {
         return;
     }
     pushBreadcrumb(item.name);
-    getOSSList(false);
+    getOSSList('reset');
 };
 
 const activeIndex = ref(-1);
+
+/**
+ * el-pagination 的「上一页」点击处理
+ */
+const onPrev = () => {
+    if (!hasPrev.value) {
+        return;
+    }
+    getOSSList('prev');
+};
+/**
+ * el-pagination 的「下一页」点击处理
+ */
+const onNext = () => {
+    if (!hasNext.value) {
+        return;
+    }
+    getOSSList('next');
+};
 
 /**
  * 重置选中项索引
@@ -326,9 +383,9 @@ const onAdd = (row: AccountItem) => {
 };
 
 const handleSwitchAccount = () => {
-    getOSSList(false);
+    getOSSList('reset');
     getCurrentTemplate();
-}
+};
 /**
  * 处理更多命令
  * @param {'setting' | 'see-collect' | 'collect' | 'home-page' | 'upload-history' | 'manage-account'} cmd - 命令名称
@@ -359,8 +416,31 @@ const moreCommand = async (
 </script>
 <style lang="scss" scoped>
 @use '@/renderer/styles/mixin.scss' as *;
+.sidebar {
+    height: 100vh;
+    width: 60px;
+    display: flex;
+    flex-shrink: 0;
+    flex-direction: column;
+    padding: 30px 0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    .el-icon {
+        margin: 20px auto 0;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 2px;
+        &:hover {
+            background: #e1e1e1;
+        }
+        &:first-child {
+            margin-top: 0;
+        }
+    }
+}
 .cont {
     padding: 10px 10px 0;
+    display: flex;
+    flex-direction: column;
 }
 .el-link + .el-link {
     margin-left: 10px;
@@ -373,12 +453,15 @@ const moreCommand = async (
     }
 }
 .other-wrap {
-    position: absolute;
-    top: 65px;
-    bottom: 0;
-    left: 0;
-    right: -10px;
+    flex: 1;
     overflow: auto;
+    display: flex;
+    flex-direction: column;
+}
+.pagination-wrap {
+    padding: 10px 0;
+    display: flex;
+    justify-content: flex-end;
 }
 .dropdown-icon {
     margin-left: 5px;

@@ -45,7 +45,7 @@
                 <template #default="scope">
                     <el-link
                         type="primary"
-                        :underline="false"
+                        underline="never"
                         @click="requestActions.copy(`${currentAccount.domain}/${scope.row.path}`)"
                         >复制</el-link
                     >

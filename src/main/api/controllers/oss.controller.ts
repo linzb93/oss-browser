@@ -18,7 +18,8 @@ export const registerOssController = () => {
 const getFileList = (dataStr: string) => {
     const data = JSON.parse(dataStr) as {
         prefix: string;
-        useToken: boolean;
+        pageSize: number;
+        direction: 'reset' | 'next' | 'prev';
     };
     return formatResponse(() => ossService.getFileList(data));
 };

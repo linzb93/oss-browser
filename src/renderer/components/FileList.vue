@@ -3,7 +3,7 @@
     <ul>
         <li v-for="item in list" :key="item.name">
             <span class="name">{{ item.name }}</span>
-            <el-link class="ml5" :underline="false" @click="openDialog(item.path || '', item.onlineUrl || '')"
+            <el-link class="ml5" underline="never" @click="openDialog(item.path || '', item.onlineUrl || '')"
                 >查看对比</el-link
             >
         </li>

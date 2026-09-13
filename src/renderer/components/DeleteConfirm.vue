@@ -9,7 +9,7 @@
             </div>
         </div>
         <template #reference>
-            <el-link v-if="!hasSlot" type="danger" :underline="false">{{ deleteText }}</el-link>
+            <el-link v-if="!hasSlot" type="danger" underline="never">{{ deleteText }}</el-link>
             <slot name="icon" v-else />
         </template>
     </el-popover>

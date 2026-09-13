@@ -18,10 +18,10 @@
                 <el-table-column label="操作">
                     <template #default="scope">
                         <div class="flexalign-center">
-                            <el-link type="primary" :underline="false" class="mr10" @click="edit(scope.row)"
+                            <el-link type="primary" underline="never" class="mr10" @click="edit(scope.row)"
                                 >编辑</el-link
                             >
-                            <el-link type="danger" :underline="false" @click="confirmDelete(scope.row)">移除</el-link>
+                            <el-link type="danger" underline="never" @click="confirmDelete(scope.row)">移除</el-link>
                         </div>
                     </template>
                 </el-table-column>

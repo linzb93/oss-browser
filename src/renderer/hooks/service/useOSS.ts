@@ -1,4 +1,4 @@
-import { ref, computed, h } from 'vue';
+import { ref, h } from 'vue';
 import { sleep } from '@linzb93/utils';
 import type { TableItem, ExtraTableItem } from '@/shared/types';
 import MsgBoxFileList from '@/renderer/components/FileList.vue';
@@ -11,39 +11,68 @@ import { getSize } from '@/renderer/utils/size';
 
 const { fullPath } = useBreadcrumb();
 export type BatchCommandKey = 'download' | 'delete' | 'copy';
+/** 每页条数可选档位 */
+const PAGE_SIZES = [20, 40, 80, 100];
+/** 每页条数默认值，与后端 max-keys 默认对齐 */
+const DEFAULT_PAGE_SIZE = 40;
 const ossList = ref<TableItem[]>([]);
-const finished = ref(false);
+/** 是否有下一页 */
+const hasNext = ref(false);
+/** 是否有上一页 */
+const hasPrev = ref(false);
+/** 当前页码，从 1 开始 */
+const currentPage = ref(1);
+/** 每页条数 */
+const pageSize = ref(DEFAULT_PAGE_SIZE);
+/** 分页尺寸档位 */
+const pageSizes = PAGE_SIZES;
 const loading = ref(true);
-const disabled = computed(() => loading.value || finished.value);
 
-const getOSSList = async (isConcat: boolean = true) => {
+const toTableItem = (item: { name: string; type: string; size: number; lastModified?: string | number }) => {
+    const path = `${fullPath.value}${item.name}${item.type === 'dir' ? '/' : ''}`;
+    return {
+        ...item,
+        path,
+        sizeFormat: getSize(item),
+    };
+};
+
+/**
+ * 加载文件列表
+ * @param {('reset' | 'next' | 'prev')} direction - 翻页方向：
+ *   - reset: 重新加载（切换目录、刷新等场景）
+ *   - next : 进入下一页
+ *   - prev : 返回上一页
+ */
+const getOSSList = async (direction: 'reset' | 'next' | 'prev' = 'reset') => {
     loading.value = true;
-    if (!isConcat) {
-        finished.value = false;
-        scrollTo(0, 800, '.other-wrap');
-    }
     try {
         const data = await apiGetOSSList({
             prefix: fullPath.value,
-            useToken: isConcat,
+            pageSize: pageSize.value,
+            direction,
         });
-        loading.value = false;
-        const list = data.list.map((item) => {
-            const path = `${fullPath.value}${item.name}${item.type === 'dir' ? '/' : ''}`;
-            return {
-                ...item,
-                path,
-                sizeFormat: getSize(item),
-            };
-        });
-        ossList.value = isConcat ? ossList.value.concat(list) : list;
-        finished.value = !data.token;
+        const list = data.list.map(toTableItem);
+        ossList.value = list;
+        currentPage.value = data.page;
+        hasNext.value = data.hasNext;
+        hasPrev.value = data.hasPrev;
         request('oss:set-current-path', { path: fullPath.value });
     } catch (error) {
-        loading.value = false;
-        finished.value = true;
         ElMessage.error('接口故障，请稍后再试');
+    } finally {
+        loading.value = false;
     }
+};
+
+/**
+ * 切换每页条数，自动重置到首页。
+ * @param {number} size - 新的每页条数
+ */
+const setPageSize = async (size: number) => {
+    pageSize.value = size;
+    scrollTo(0, 800, '.other-wrap');
+    await getOSSList('reset');
 };
 
 /**
@@ -100,7 +129,7 @@ const batchDelete = (selected: ExtraTableItem[]) => {
             paths: selected.map((item) => `${fullPath}${item.name}`).join(','),
         });
         ElMessage.success('删除成功');
-        getOSSList(false);
+        getOSSList('reset');
     });
 };
 /**
@@ -123,7 +152,7 @@ export async function deleteItem(item: TableItem) {
         paths: `${fullPath.value}${name}`,
     });
     ElMessage.success('删除成功');
-    getOSSList(false);
+    getOSSList('reset');
 }
 /**
  * 复制文件（记录到剪贴板，供右键粘贴使用）
@@ -165,7 +194,7 @@ export const createDirectory = () => {
                 type: 'directory',
             });
             ElMessage.success('创建成功');
-            getOSSList(false);
+            getOSSList('reset');
         })
         .catch(() => {
             //
@@ -200,5 +229,18 @@ const setTableLoading = async () => {
     tableLoading.value = false;
 };
 export const useOSSStore = () => {
-    return { ossList, getOSSList, fullPath, disabled, tableLoading, setTableLoading };
+    return {
+        ossList,
+        getOSSList,
+        setPageSize,
+        fullPath,
+        tableLoading,
+        setTableLoading,
+        currentPage,
+        pageSize,
+        pageSizes,
+        hasNext,
+        hasPrev,
+        loading,
+    };
 };

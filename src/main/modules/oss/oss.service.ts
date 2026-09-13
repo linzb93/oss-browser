@@ -66,8 +66,15 @@ export function add(AppCtor: new (options: AppConstructorOptions) => App) {
  * 获取文件列表
  * @param prefix 目录前缀
  */
-export async function getFileList(data: { prefix: string; useToken: boolean }): Promise<{
+export async function getFileList(data: {
+    prefix: string;
+    pageSize: number;
+    direction: 'reset' | 'next' | 'prev';
+}): Promise<{
     list: FileItem[];
+    hasNext: boolean;
+    hasPrev: boolean;
+    page: number;
 }> {
     return await currentApp.getFileList(data);
 }

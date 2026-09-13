@@ -35,11 +35,11 @@ const { breadcrumb, setIndex, pop } = useBreadcrumb();
 
 const setBreadcrumb = (index: number) => {
     setIndex(index);
-    getOSSList(false);
+    getOSSList('reset');
 };
 const popBreadcrumb = () => {
     pop();
-    getOSSList(false);
+    getOSSList('reset');
 };
 </script>
 <style lang="scss" scoped></style>

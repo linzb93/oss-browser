@@ -24,13 +24,9 @@
                             </el-icon>
                         </el-tooltip>
                         <el-tooltip content="上传与下载">
-                            <el-icon :size="34">
+                            <el-icon :size="34" @click="fileTransferVisible = true">
                                 <sort />
                             </el-icon>
-                        </el-tooltip>
-
-                        <el-tooltip content="历史记录">
-                            <el-icon :size="34" @click="historyVisible = true"><Collection /></el-icon>
                         </el-tooltip>
 
                         <el-tooltip content="用户管理">
@@ -169,6 +165,7 @@
         </template>
         <account-pane v-model:visible="manageVisible" @jump="handleSwitchAccount" @add="onAdd" />
         <add-account-dialog v-model:visible="addVisible" :detail="currentAccountForm" />
+        <file-transfer-dialog v-model:visible="fileTransferVisible" />
     </div>
 </template>
 
@@ -211,6 +208,7 @@ import type { BatchCommandKey } from '@/renderer/hooks/service/useOSS';
 import { usePreview } from '@/renderer/hooks/service/usePreview';
 import { useTemplate } from '@/renderer/hooks/service/useTemplate';
 import { ExtraTableItem, AccountItem } from '@/shared/types';
+import FileTransferDialog from '@/renderer/components/fileTransfer/Dialog.vue';
 
 const { openPreview } = usePreview();
 const { ossList, getOSSList, setPageSize, tableLoading, currentPage, pageSize, pageSizes, hasNext, hasPrev } =
@@ -249,6 +247,8 @@ const restoreExtension = (originName: string, newName: string) => {
     }
     return newName;
 };
+
+const fileTransferVisible = ref(false);
 
 onBeforeMount(async () => {
     await loadCurrentAccount();

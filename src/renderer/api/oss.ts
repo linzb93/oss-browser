@@ -47,3 +47,11 @@ export const getBuckets = async (
 ): Promise<BucketItem[]> => {
     return request('oss:get-buckets', params);
 };
+
+export const uploadFiles = (params: {
+    prefix: string;
+    names: string;
+    type: string;
+}) => {
+    window.ipcRenderer.send('oss:upload', params);
+}

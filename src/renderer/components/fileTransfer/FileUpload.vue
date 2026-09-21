@@ -46,54 +46,51 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { Check } from '@element-plus/icons-vue';
-import { request, requestActions } from '@/renderer/utils/request';
+import { requestActions } from '@/renderer/utils/request';
 import pathUtils from '@/renderer/utils/path';
 import { getSize } from '@/renderer/utils/size';
 import { useAccount } from '@/renderer/hooks/service/useAccount';
-import { useUpload } from '@/renderer/hooks/service/useUpload';
-import { useBreadcrumb } from '@/renderer/hooks/common/useBreadcrumb';
-import { useSettingStore } from '@/renderer/hooks/common/useSetting';
-
+import { handleMainPost } from '@/renderer/utils';
 const emit = defineEmits(['refresh']);
 
 interface ListItem {
     path: string;
+    size: number;
+    progress?: number;
+    finished: boolean;
 }
 const { currentAccount } = useAccount();
-const list =  ref<ListItem[]>([]);
-const { uploadingList } = useUpload();
-const { fullPath } = useBreadcrumb();
+const list = ref<ListItem[]>([]);
 const finished = ref(false);
-let removeEvt = () => {};
+let removeMainPost = () => {};
 
 /**
- * 开始上传文件
+ * 渲染上传进度
  */
-const startUpload = () => {
-    const { listener, removeListener } = request.send('oss:upload', {
-        prefix: fullPath.value,
-        names: uploadingList.value.map((item) => item.path).join(','),
-        type: 'file',
-    });
-    listener((obj: { data: any; type: 'upload-finished' | 'uploading' }) => {
-        const { type, data } = obj;
-        if (type === 'upload-finished') {
-            // 上传完成，显示批量操作按钮
-            finished.value = true;
-            removeEvt();
-            ElMessage.success('上传成功');
-        }
-        list.value = data;
-    });
-    removeEvt = removeListener;
+const renderUploadProgress = () => {
+    removeMainPost = handleMainPost(
+        'upload-progress',
+        ({ type, data }: { type: 'upload-finished' | 'uploading'; data: ListItem[] }) => {
+            if (type === 'upload-finished') {
+                // 上传完成，显示批量操作按钮
+                finished.value = true;
+                ElMessage.success('上传成功');
+            }
+            list.value = data;
+        },
+    );
 };
+
+onMounted(() => {
+    renderUploadProgress();
+});
 
 onUnmounted(() => {
     list.value = [];
-    removeEvt();
+    removeMainPost();
     emit('refresh');
 })
 </script>

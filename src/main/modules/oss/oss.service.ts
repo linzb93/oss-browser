@@ -12,6 +12,7 @@ import { AddOptions, AppConstructorOptions } from './oss.dto';
 import { ossEvents } from './oss.repository';
 import { Database } from '../../types/api';
 import { accountEvents } from '../account/events';
+import { getWindow } from '../window/window.service';
 
 let currentApp: App;
 /**
@@ -104,7 +105,7 @@ export async function deleteFile(paths: string): Promise<any> {
 /**
  * 上传文件，支持批量目录上传
  */
-export async function upload(e: IpcMainEvent, data: AddOptions) {
+export async function upload(data: AddOptions) {
     const { names, prefix } = data;
     let list = names
         .split(',')
@@ -190,11 +191,15 @@ export async function upload(e: IpcMainEvent, data: AddOptions) {
         map((data) => `已经经过了${data}秒`),
         takeUntil(task$),
     );
+    const win = getWindow();
     timer$.subscribe({
         next() {
-            e.sender.send(`oss-upload-receiver`, {
-                type: 'uploading',
-                data: cloneDeep(statusList),
+            win.webContents.send('main-post', {
+                method: 'upload-progress',
+                data: {
+                    type: 'uploading',
+                    data: cloneDeep(statusList),
+                },
             });
         },
         complete() {
@@ -203,9 +208,12 @@ export async function upload(e: IpcMainEvent, data: AddOptions) {
                 names,
                 type: 'file',
             });
-            e.sender.send(`oss-upload-receiver`, {
-                type: 'upload-finished',
-                data: cloneDeep(statusList),
+            win.webContents.send('main-post', {
+                method: 'upload-progress',
+                data: {
+                    type: 'upload-finished',
+                    data: cloneDeep(statusList),
+                },
             });
         },
     });

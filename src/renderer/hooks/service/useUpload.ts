@@ -1,9 +1,11 @@
-import { ref, h } from 'vue';
-import { ElMessageBox, ElMessage } from 'element-plus';
-import MsgBoxFileList from '@/renderer/components/FileList.vue';
-import { getSize } from '@/renderer/utils/size';
-import { type TableItem, type UploadedTableItem } from '@/shared/types';
+import { ref, h } from "vue";
+import { ElMessageBox, ElMessage } from "element-plus";
+import MsgBoxFileList from "@/renderer/components/FileList.vue";
+import { type TableItem, type UploadedTableItem } from "@/shared/types";
+import { uploadFiles } from "@/renderer/api";
+import { useBreadcrumb } from "@/renderer/hooks/common/useBreadcrumb";
 
+const { fullPath } = useBreadcrumb();
 const active = ref(false);
 
 /**
@@ -11,7 +13,7 @@ const active = ref(false);
  * @param {boolean} state - 拖拽状态
  */
 const setDragState = (state: boolean) => {
-    active.value = state;
+  active.value = state;
 };
 
 const progressVisible = ref(false);
@@ -20,66 +22,76 @@ const uploadingList = ref<TableItem[]>([]);
 /**
  * 文件上传操作钩子
  */
-export function useUpload() {
-    /**
-     * 处理文件拖拽事件
-     * @param {DragEvent} event - 拖拽事件
-     * @param {TableItem[]} tableList - 目标文件列表
-     * @param {string} prefix - 前缀路径
-     */
-    const dropFile = async (event: DragEvent, tableList: TableItem[], prefix: string) => {
-        active.value = false;
-        const files = event.dataTransfer?.files as FileList;
-        const upOriginList = Array.from(files) as UploadedTableItem[];
-        const resolveList = await new Promise<UploadedTableItem[]>((resolve) => {
-            // 过滤重名文件，其他正常上传
-            const duplicateFiles = upOriginList.filter((item) => tableList.find((sub) => sub.name === item.name));
-            if (duplicateFiles.length) {
-                ElMessageBox({
-                    message: h(MsgBoxFileList, {
-                        list: duplicateFiles.map((item) => ({
-                            name: item.name,
-                            path: URL.createObjectURL(item as unknown as Blob),
-                            onlineUrl: `${prefix}/${tableList.find((sub) => sub.name === item.name)?.path}`,
-                        })),
-                        tips: '下列文件已存在，是否覆盖？',
-                    }),
-                    title: '温馨提醒',
-                    showCancelButton: true,
-                    confirmButtonText: '覆盖',
-                    cancelButtonText: '不覆盖',
-                })
-                    .then(() => {
-                        resolve(upOriginList);
-                    })
-                    .catch(() => {
-                        resolve(upOriginList.filter((item) => !duplicateFiles.find((d) => d.name === item.name)));
-                    })
-                    .catch(console.log);
-            } else {
-                resolve(upOriginList);
-            }
-        });
-        if (resolveList.length) {
-            uploadingList.value = Array.from(
-                resolveList.map((item) => ({
-                    name: item.name,
-                    path: item.path,
-                    size: item.size,
-                    url: '',
-                    sizeFormat: getSize(item),
-                })),
+export function useUpload(options?: {
+    afterUploadCallback?:Function
+}) {
+  /**
+   * 处理文件拖拽事件
+   * @param {DragEvent} event - 拖拽事件
+   * @param {TableItem[]} tableList - 目标文件列表
+   * @param {string} prefix - 前缀路径
+   */
+  const dropFile = async (
+    event: DragEvent,
+    tableList: TableItem[],
+    prefix: string,
+  ) => {
+    active.value = false;
+    const files = event.dataTransfer?.files as FileList;
+    const upOriginList = Array.from(files) as unknown as UploadedTableItem[];
+    const resolveList = await new Promise<UploadedTableItem[]>((resolve) => {
+      // 过滤重名文件，其他正常上传
+      const duplicateFiles = upOriginList.filter((item) =>
+        tableList.find((sub) => sub.name === item.name),
+      );
+      if (duplicateFiles.length) {
+        ElMessageBox({
+          message: h(MsgBoxFileList, {
+            list: duplicateFiles.map((item) => ({
+              name: item.name,
+              path: URL.createObjectURL(item as unknown as Blob),
+              onlineUrl: `${prefix}/${tableList.find((sub) => sub.name === item.name)?.path}`,
+            })),
+            tips: "下列文件已存在，是否覆盖？",
+          }),
+          title: "温馨提醒",
+          showCancelButton: true,
+          confirmButtonText: "覆盖",
+          cancelButtonText: "不覆盖",
+        })
+          .then(() => {
+            resolve(upOriginList);
+          })
+          .catch(() => {
+            resolve(
+              upOriginList.filter(
+                (item) => !duplicateFiles.find((d) => d.name === item.name),
+              ),
             );
-            progressVisible.value = true;
-        } else {
-            ElMessage.warning('没有文件需要上传');
-        }
-    };
-    return {
-        progressVisible,
-        dragActive: active,
-        setDragState,
-        dropFile,
-        uploadingList,
-    };
+          })
+          .catch(console.log);
+      } else {
+        resolve(upOriginList);
+      }
+    });
+    if (resolveList.length) {
+      uploadFiles({
+        prefix: fullPath.value,
+        type: "file",
+        names: resolveList.map((item) => item.path).join(","),
+      });
+      if (typeof options?.afterUploadCallback === 'function') {
+        options.afterUploadCallback();
+      }
+    } else {
+      ElMessage.warning("上传取消");
+    }
+  };
+  return {
+    progressVisible,
+    dragActive: active,
+    setDragState,
+    dropFile,
+    uploadingList,
+  };
 }

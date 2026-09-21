@@ -174,7 +174,7 @@ import { ref, onBeforeMount, computed } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import dayjs from 'dayjs';
 import { isNil } from 'es-toolkit';
-import { Folder, ArrowDown, Setting, Sort, Collection, User } from '@element-plus/icons-vue';
+import { Folder, ArrowDown, Setting, Sort, User } from '@element-plus/icons-vue';
 import AccountPane from '@/renderer/components/AccountPane.vue';
 import AddAccountDialog from '@/renderer/components/AddAccountDialog.vue';
 import Breadcrumb from '@/renderer/components/Breadcrumb.vue';
@@ -217,7 +217,9 @@ const { currentAccount, loadCurrentAccount, hasNoAccount } = useAccount();
 const { breadcrumb, fullPath, pop: popBreadcrumb, push: pushBreadcrumb, setPath } = useBreadcrumb();
 const { getSetting, setting } = useSettingStore();
 const { currentTemplate, getCurrentTemplate } = useTemplate();
-const { dragActive, setDragState, dropFile, progressVisible } = useUpload();
+const { dragActive, setDragState, dropFile, progressVisible } = useUpload({
+    afterUploadCallback: () => {}
+});
 
 const list = computed<ExtraTableItem[]>(() =>
     ossList.value.map((item) => ({

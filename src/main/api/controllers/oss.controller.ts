@@ -12,7 +12,7 @@ export const registerOssController = () => {
     ipcMain.handle('oss:download', (event, dataStr: string) => download(dataStr));
     ipcMain.handle('oss:copy', (event, dataStr: string) => copy(dataStr));
     ipcMain.handle('oss:set-current-path', (event, dataStr: string) => setCurrentPath(dataStr));
-    ipcMain.handle('oss:upload', (event, data: AddOptions) => upload(data));
+    ipcMain.handle('oss:upload', (event, data: string) => upload(data));
 };
 
 const getFileList = (dataStr: string) => {
@@ -63,6 +63,11 @@ const download = (dataStr: string) => {
     return formatResponse(() => ossService.download(data.url));
 };
 
-const upload = (data: AddOptions) => {
-    ossService.upload(data);
+const upload = (dataStr: string) => {
+    const data = JSON.parse(dataStr) as {
+        prefix: string;
+    names: string;
+    type: string;
+    };
+    return formatResponse(() => ossService.upload(data));
 };

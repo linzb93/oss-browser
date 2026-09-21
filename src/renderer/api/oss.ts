@@ -53,5 +53,5 @@ export const uploadFiles = (params: {
     names: string;
     type: string;
 }) => {
-    window.ipcRenderer.send('oss:upload', params);
+    return request('oss:upload', params);
 }

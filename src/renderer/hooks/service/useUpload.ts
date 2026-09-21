@@ -78,7 +78,7 @@ export function useUpload(options?: {
       uploadFiles({
         prefix: fullPath.value,
         type: "file",
-        names: resolveList.map((item) => item.path).join(","),
+        names: resolveList.map((item) => window.webUtils.getPathForFile(item as unknown as File)).join(","),
       });
       if (typeof options?.afterUploadCallback === 'function') {
         options.afterUploadCallback();

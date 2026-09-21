@@ -2,7 +2,7 @@
 <el-dialog v-model="visible" title="设置" width="740px" @closed="onClosed">
 <el-tabs type="card" v-model="activeTab">
   <el-tab-pane label="样式复制管理" name="copy-style-manage">
-    <copy-style @close="onClose" />
+    <copy-style />
   </el-tab-pane>
   <el-tab-pane label="收藏夹管理" name="collect-manage">
     <collect @close="onClose" />

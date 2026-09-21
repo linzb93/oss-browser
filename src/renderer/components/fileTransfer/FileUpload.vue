@@ -54,6 +54,7 @@ import pathUtils from '@/renderer/utils/path';
 import { getSize } from '@/renderer/utils/size';
 import { useAccount } from '@/renderer/hooks/service/useAccount';
 import { handleMainPost } from '@/renderer/utils';
+
 const emit = defineEmits(['refresh']);
 
 interface ListItem {
@@ -78,6 +79,7 @@ const renderUploadProgress = () => {
                 // 上传完成，显示批量操作按钮
                 finished.value = true;
                 ElMessage.success('上传成功');
+                emit('refresh');
             }
             list.value = data;
         },

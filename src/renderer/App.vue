@@ -158,14 +158,13 @@
                 </div>
             </div>
             <upload-history v-model:visible="historyVisible" @select="getOSSList('reset')" />
-            <progress-drawer v-model:visible="progressVisible" @refresh="getOSSList('reset')" />
             <collect-pane v-model:visible="collectVisible" />
             <setting-dialog v-model:visible="settingVisible" />
             <preview-dialog v-model:visible="previewVisible" />
         </template>
         <account-pane v-model:visible="manageVisible" @jump="handleSwitchAccount" @add="onAdd" />
         <add-account-dialog v-model:visible="addVisible" :detail="currentAccountForm" />
-        <file-transfer-dialog v-model:visible="fileTransferVisible" />
+        <file-transfer-dialog v-model:visible="fileTransferVisible" @refresh="getOSSList('reset')" />
     </div>
 </template>
 
@@ -185,7 +184,6 @@ import DeleteConfirm from '@/renderer/components/DeleteConfirm.vue';
 import UploadHistory from '@/renderer/components/UploadHistory.vue';
 import CollectPane from '@/renderer/components/CollectPane.vue';
 import PreviewDialog from '@/renderer/components/Preview.vue';
-import ProgressDrawer from '@/renderer/components/Progress.vue';
 import { handleMainPost } from '@/renderer/utils';
 import { getSize } from '@/renderer/utils/size';
 import pathUtil from '@/renderer/utils/path';
@@ -217,8 +215,10 @@ const { currentAccount, loadCurrentAccount, hasNoAccount } = useAccount();
 const { breadcrumb, fullPath, pop: popBreadcrumb, push: pushBreadcrumb, setPath } = useBreadcrumb();
 const { getSetting, setting } = useSettingStore();
 const { currentTemplate, getCurrentTemplate } = useTemplate();
-const { dragActive, setDragState, dropFile, progressVisible } = useUpload({
-    afterUploadCallback: () => {}
+const { dragActive, setDragState, dropFile } = useUpload({
+    afterUploadCallback: () => {
+        fileTransferVisible.value = true;
+    }
 });
 
 const list = computed<ExtraTableItem[]>(() =>

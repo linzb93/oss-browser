@@ -23,12 +23,11 @@
 </template>
 
 <script setup lang="ts">
-import { readonly, ref } from 'vue';
+import { readonly } from 'vue';
 import { useTemplate } from '@/renderer/hooks/service/useTemplate';
 
 const { visible, form, saveAction, close, closed } = useTemplate();
 const rules = readonly({});
-const formRef = ref(null);
 const emit = defineEmits(['submit']);
 /**
  * 保存模板项

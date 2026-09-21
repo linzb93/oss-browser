@@ -6,7 +6,7 @@ import { createWriteStream } from 'node:fs';
 import fsp from 'fs-extra';
 import { clipboard, dialog, shell } from 'electron';
 import pMap from 'p-map';
-import { castArray } from 'lodash-es';
+import { castArray } from 'es-toolkit/compat';
 
 /**
  * 工具函数管理
@@ -51,7 +51,7 @@ export async function download(paths: string, directory: string) {
  * @param path - 文件地址
  */
 function downloadOne(data: { url: string; savedPath: string; directory: string; domain: string }) {
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
         const callback = async (resp: http.IncomingMessage) => {
             if (resp.statusCode === 200) {
                 const localPath = join(data.savedPath, data.url.replace(`${data.domain}/${data.directory}/`, ''));

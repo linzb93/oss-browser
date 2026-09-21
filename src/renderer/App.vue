@@ -173,7 +173,7 @@
 import { ref, onBeforeMount, computed } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import dayjs from 'dayjs';
-import { isNil } from 'lodash-es';
+import { isNil } from 'es-toolkit';
 import { Folder, ArrowDown, Setting, Sort, Collection, User } from '@element-plus/icons-vue';
 import AccountPane from '@/renderer/components/AccountPane.vue';
 import AddAccountDialog from '@/renderer/components/AddAccountDialog.vue';
@@ -185,7 +185,6 @@ import DeleteConfirm from '@/renderer/components/DeleteConfirm.vue';
 import UploadHistory from '@/renderer/components/UploadHistory.vue';
 import CollectPane from '@/renderer/components/CollectPane.vue';
 import PreviewDialog from '@/renderer/components/Preview.vue';
-import SettingDialog from '@/renderer/components/Setting.vue';
 import ProgressDrawer from '@/renderer/components/Progress.vue';
 import { handleMainPost } from '@/renderer/utils';
 import { getSize } from '@/renderer/utils/size';
@@ -209,6 +208,7 @@ import { usePreview } from '@/renderer/hooks/service/usePreview';
 import { useTemplate } from '@/renderer/hooks/service/useTemplate';
 import { ExtraTableItem, AccountItem } from '@/shared/types';
 import FileTransferDialog from '@/renderer/components/fileTransfer/Dialog.vue';
+import SettingDialog from '@/renderer/components/setting/Dialog.vue';
 
 const { openPreview } = usePreview();
 const { ossList, getOSSList, setPageSize, tableLoading, currentPage, pageSize, pageSizes, hasNext, hasPrev } =

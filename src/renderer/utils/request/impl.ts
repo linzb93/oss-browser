@@ -1,7 +1,7 @@
 import { unref, isReactive } from 'vue';
 import { sleep } from '@linzb93/utils';
 import { loading } from '../loading';
-import { isUndefined } from 'lodash-es';
+import { isUndefined } from 'es-toolkit';
 import type { Option } from './types';
 
 export async function request<T = any>(path: string, params?: any, options?: Option): Promise<T> {

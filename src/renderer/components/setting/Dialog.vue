@@ -2,10 +2,10 @@
 <el-dialog v-model="visible" title="设置" width="740px" @closed="onClosed">
 <el-tabs type="card" v-model="activeTab">
   <el-tab-pane label="样式复制管理" name="copy-style-manage">
-    <copy-style />
+    <copy-style @close="onClose" />
   </el-tab-pane>
   <el-tab-pane label="收藏夹管理" name="collect-manage">
-    <collect />
+    <collect @close="onClose" />
   </el-tab-pane>
 </el-tabs>
 
@@ -27,6 +27,10 @@ watch(visible, (vis) => {
 });
 
 const activeTab = ref('');
+
+const onClose = () => {
+  visible.value = false;
+}
 const onClosed = () => {
   activeTab.value = '';
 }

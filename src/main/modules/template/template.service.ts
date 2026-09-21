@@ -1,4 +1,4 @@
-import { omit } from 'lodash-es';
+import { omit } from 'es-toolkit';
 import { Database } from '../../types/api';
 import { sql } from '../../infra/sql';
 import * as settingService from '../setting/setting.service';
@@ -41,7 +41,7 @@ export async function getDetail(id: number): Promise<Database['templates'][numbe
  */
 export async function add(obj: Database['templates'][number]): Promise<void> {
     const id = await sql((db) => db.defaultAppId);
-    await sql(id, (db) => {
+    await sql(id, async (db) => {
         if (!db.templates) {
             db.templates = [
                 {
@@ -50,6 +50,10 @@ export async function add(obj: Database['templates'][number]): Promise<void> {
                     id: 1,
                 },
             ];
+            await settingService.set({
+                ...await settingService.get(),
+                copyTemplateId: 1
+            })
             return;
         }
         db.templates.push({

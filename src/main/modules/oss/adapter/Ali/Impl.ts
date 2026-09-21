@@ -1,5 +1,5 @@
 import { basename, join, dirname, extname } from 'node:path';
-import { omit } from 'lodash-es';
+import { omit } from 'es-toolkit';
 import bytes from 'bytes';
 import { AliOssClient } from '@/main/infra/ali-oss';
 import fs from 'fs-extra';

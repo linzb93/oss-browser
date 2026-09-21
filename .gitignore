@@ -33,3 +33,6 @@ yarn.lock
 .claude/settings.local.json
 temp/
 secret.json
+stat.html
+stat.main.html
+stat.renderer.html

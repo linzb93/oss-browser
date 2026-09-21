@@ -57,7 +57,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep } from 'es-toolkit';
 import TemplateEditor from '@/renderer/components/TemplateEditor.vue';
 import { useTemplate } from '@/renderer/hooks/service/useTemplate';
 import { useSettingStore } from '@/renderer/hooks/common/useSetting';

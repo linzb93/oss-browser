@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { cloneDeep, omit } from 'lodash-es';
+import { cloneDeep, omit } from 'es-toolkit';
 import { ElMessage } from 'element-plus';
 import { useBreadcrumb } from '@/renderer/hooks/common/useBreadcrumb';
 import { CollectItem } from '@/shared/types';

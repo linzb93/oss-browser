@@ -2,7 +2,7 @@ import { join, dirname, basename, extname } from 'node:path';
 import { type IpcMainEvent } from 'electron';
 import fs from 'fs-extra';
 import { interval, Subject, takeUntil, map } from 'rxjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep } from 'es-toolkit';
 import { AliOssClient, OssConfig } from '@/main/infra/ali-oss';
 import slash from 'slash';
 import App from './adapter/Base';

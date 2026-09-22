@@ -1,6 +1,6 @@
 import { type BrowserWindow, Menu } from 'electron';
 import { postRenderer, requestRenderer } from '../window/window.service';
-import * as ossService from '../oss/oss.service';
+import * as ossService from '@/main/modules/oss/oss.service';
 
 /**
  * 执行粘贴：把剪贴板里的文件复制到当前目录

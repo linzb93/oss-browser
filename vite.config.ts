@@ -1,7 +1,8 @@
 import fs from 'node:fs';
-import { defineConfig, type Plugin } from 'vite';
+import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import electron from 'vite-plugin-electron/simple';
+import { electronSimple } from 'vite-plugin-electron/multi-env';
+import { notBundle } from 'vite-plugin-electron/plugin';
 import pkg from './package.json' with { type: 'json' };
 import { fileURLToPath, URL } from 'node:url';
 import { visualizer } from 'rollup-plugin-visualizer';
@@ -27,37 +28,13 @@ const visualizerPlugin = (processName: string) =>
           })
         : null;
 
-/**
- * 将主进程里的 node_modules 依赖标记为 external，确保产物保留裸模块名（如 `import "uuid"`），
- * 而不是被打包进文件、或被写成指向 node_modules 的绝对/相对路径。
- * 仅对主进程构建生效（preload 与 renderer 不受影响）。
- */
-const externalizeNodeModulesPlugin = (): Plugin => ({
-    name: 'externalize-node-modules',
-    apply: 'build',
-    enforce: 'pre',
-    resolveId(id, importer, options) {
-        // 入口与无 importer 的顶层解析交给 Vite 处理
-        if (options?.isEntry || !importer) return null;
-        // 本地引用（相对路径、绝对路径、`@/` 别名、虚拟模块）交给 Vite 正常打包
-        if (
-            id.startsWith('.') ||
-            id.startsWith('/') ||
-            /^[a-zA-Z]:[\\/]/.test(id) ||
-            id.startsWith('@/') ||
-            id.startsWith('\0')
-        ) {
-            return null;
-        }
-        // bare specifier（第三方依赖、Node 内置模块、electron）=> 标记为 external
-        return { id, external: true };
-    },
-});
-
 // https://vitejs.dev/config/
-export default defineConfig(() => {
+export default defineConfig(({ command }) => {
     fs.rmSync('dist-electron', { recursive: true, force: true });
-    const sourcemap = false;
+
+    const isServe = command === 'serve';
+    const isBuild = command === 'build';
+    const sourcemap = isServe || !!process.env.VSCODE_DEBUG;
 
     return {
         define: {
@@ -70,10 +47,11 @@ export default defineConfig(() => {
         },
         plugins: [
             vue(),
-            electron({
+            electronSimple({
                 main: {
-                    // Shortcut of `build.lib.entry`
-                    entry: {
+                    // Shortcut of `options.build.rolldownOptions.input`
+                    // (`options.build.rollupOptions.input` on Vite < 8)
+                    input: {
                         index: 'src/main/bootstrap/index.ts',
                     },
                     onstart({ startup }) {
@@ -83,44 +61,36 @@ export default defineConfig(() => {
                             startup();
                         }
                     },
-                    vite: {
-                        resolve: {
-                            alias: {
-                                '@': fileURLToPath(new URL('./src', import.meta.url)),
-                            },
+                    plugins: [notBundle()],
+                    options: {
+                        define: {
+                            'process.platform': JSON.stringify(process.platform),
                         },
-                        plugins: [externalizeNodeModulesPlugin(), visualizerPlugin('main')],
                         build: {
                             sourcemap,
                             minify: false,
                             outDir: 'dist-electron/main',
-                            rollupOptions: {
-                                // 所有 npm 依赖都不打进主进程产物，运行时直接通过 import 从 node_modules 解析。
-                                // 因此这些依赖必须保留在 node_modules 中（dependencies 会被 electron-builder 打进 app.asar）。
-                                external: [/node_modules/],
-                            },
                         },
                     },
                 },
                 preload: {
-                    // Shortcut of `build.rollupOptions.input`.
-                    // Preload scripts may contain Web assets, so use the `build.rollupOptions.input` instead `build.lib.entry`.
+                    // Shortcut of `options.build.rolldownOptions.input`.
+                    // Preload scripts may contain Web assets, so use the `.input` instead of the lib `entry`.
                     input: 'src/main/preload/index.ts',
-                    vite: {
+                    plugins: [notBundle()],
+                    options: {
                         build: {
                             sourcemap: sourcemap ? 'inline' : undefined, // #332
                             minify: false,
                             outDir: 'dist-electron/preload',
-                            rollupOptions: {
-                                external: Object.keys('dependencies' in pkg ? pkg.dependencies : {}),
-                            },
                         },
                     },
                 },
                 // Ployfill the Electron and Node.js API for Renderer process.
                 // If you want use Node.js in Renderer process, the `nodeIntegration` needs to be enabled in the Main process.
                 // See 👉 https://github.com/electron-vite/vite-plugin-electron-renderer
-                renderer: {},
+                // Note: the `renderer` preset is not supported by the multi-env API,
+                // and is no longer needed by this project.
             }),
             visualizerPlugin('renderer'),
         ],

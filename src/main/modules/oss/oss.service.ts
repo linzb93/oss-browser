@@ -55,7 +55,7 @@ export function getCurrentPath() {
  * 添加OSS App
  * @param app OSS App适配器
  */
-export function add(AppCtor: new (options: AppConstructorOptions) => App) {
+export function add(AppCtor: new (options: AppConstructorOptions) => App) {    
     currentApp = new AppCtor({
         sizeBoundary: '20MB',
     });

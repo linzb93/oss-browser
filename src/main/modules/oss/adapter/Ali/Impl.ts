@@ -61,6 +61,9 @@ export default class extends BaseOss {
     async init() {
         await sql((db) => {
             const account = db.accounts.find((item) => item.id === db.defaultAppId);
+            if (!account) {
+                throw new Error('Account not found');
+            }
             this.client = new AliOssClient(omit(account, ['id', 'platform', 'name']));
         });
     }

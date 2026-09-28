@@ -55,3 +55,15 @@ export const uploadFiles = (params: {
 }) => {
     return request('oss:upload', params);
 }
+
+/**
+ * 复制在线文件：把在线地址的文件以流的方式上传到当前oss目录
+ * @param {object} params - 目标目录、在线地址与文件名称
+ * @param {string} params.prefix - 目标目录前缀
+ * @param {string} params.url - 在线文件地址
+ * @param {string} [params.name] - 重命名后的文件名，不传则使用原名
+ * @returns {Promise<void>}
+ */
+export const copyOnlineFile = (params: { prefix: string; url: string; name?: string }): Promise<void> => {
+    return request('oss:copy-online-file', params, { showLoading: true });
+};

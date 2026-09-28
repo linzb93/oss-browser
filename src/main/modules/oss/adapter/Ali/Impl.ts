@@ -1,4 +1,5 @@
 import { basename, join, dirname, extname } from 'node:path';
+import { Transform, type Readable } from 'node:stream';
 import { omit } from 'es-toolkit';
 import bytes from 'bytes';
 import { AliOssClient } from '@/main/infra/ali-oss';
@@ -246,6 +247,50 @@ export default class extends BaseOss {
                 },
             });
         }
+    }
+    /**
+     * 以流的方式上传文件，边读边传，不会把整个文件读进内存
+     * 注意：multipartUpload 不支持流（内部需要文件大小），所以这里统一走 put → putStream
+     * @param prefix oss目录
+     * @param item 上传信息，size 为 0 表示流长度未知（使用 chunked 编码）
+     */
+    async putStream(
+        prefix: string,
+        item: {
+            ossPath: string;
+            stream: Readable;
+            size: number;
+        },
+    ) {
+        const { stream, ossPath, size } = item;
+        const absolutePath = slash(join(prefix, ossPath));
+        const postProgress = (progress: number) => {
+            this.postUploadProgress({
+                path: absolutePath,
+                progress,
+                size,
+            });
+        };
+        // ali-oss 的流式上传没有进度回调，用 Transform 统计已传输的字节数换算进度
+        let transferred = 0;
+        const counter = new Transform({
+            transform(chunk, _encoding, callback) {
+                transferred += chunk.length;
+                if (size) {
+                    // 留 1% 给服务端写入完成
+                    postProgress(Math.min((transferred / size) * 100, 99));
+                }
+                callback(null, chunk);
+            },
+        });
+        stream.pipe(counter);
+        try {
+            await this.client.putStream(absolutePath, counter, size ? { contentLength: size } : undefined);
+        } finally {
+            // 上传成功时源流已结束，这里是空操作；上传失败时及时断开源流，避免在线文件还在后台继续下载
+            stream.destroy();
+        }
+        postProgress(100);
     }
     /**
      * 下载文件

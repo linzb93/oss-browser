@@ -1,4 +1,5 @@
 import { join, dirname, basename, extname } from 'node:path';
+import { Readable } from 'node:stream';
 import { type IpcMainEvent } from 'electron';
 import fs from 'fs-extra';
 import { interval, Subject, takeUntil, map } from 'rxjs';
@@ -13,6 +14,11 @@ import { ossEvents } from './oss.repository';
 import { Database } from '../../types/api';
 import { accountEvents } from '../account/events';
 import { getWindow } from '../window/window.service';
+
+/**
+ * fetch 响应体的类型（跟随当前运行环境里的 fetch 实现）
+ */
+type FetchBody = NonNullable<Awaited<ReturnType<typeof fetch>>['body']>;
 
 let currentApp: App;
 /**
@@ -217,6 +223,93 @@ export async function upload(data: AddOptions) {
             });
         },
     });
+}
+
+/**
+ * 复制在线文件：把在线地址的文件以流的方式上传到指定目录
+ * @param data 目标目录、在线地址，以及重命名后的文件名（为空则使用原名）
+ */
+export async function copyOnlineFile(data: { prefix: string; url: string; name?: string }) {
+    const { prefix } = data;
+    const { url, name: originName } = parseOnlineUrl(data.url);
+    const fileName = data.name?.trim() || originName;
+    if (!fileName) {
+        throw new Error('无法从在线地址中解析出文件名，请重命名后再上传');
+    }
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`获取在线文件失败（HTTP ${response.status}）`);
+    }
+    if (!response.body) {
+        throw new Error('在线文件内容为空');
+    }
+    // 长度未知时交给 ali-oss 用 chunked 编码
+    const size = Number(response.headers.get('content-length')) || 0;
+    // 边下载边上传，避免把整个文件读进内存
+    const stream = bodyToStream(response.body);
+    await currentApp.putStream(prefix, {
+        ossPath: fileName,
+        stream,
+        size,
+    });
+    ossEvents.emit('add', {
+        prefix,
+        names: fileName,
+        type: 'file',
+    });
+}
+
+/**
+ * 把在线响应的 body 转成 Node 可读流。
+ * 这里通过读取器手动迭代，而不是直接用 Readable.fromWeb，以免不同 web 流实现之间的品牌校验问题。
+ * @param body 在线响应的 body
+ * @returns Node 可读流
+ */
+function bodyToStream(body: FetchBody) {
+    const reader = body.getReader();
+    return Readable.from(
+        (async function* () {
+            try {
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) {
+                        return;
+                    }
+                    yield value;
+                }
+            } finally {
+                reader.releaseLock();
+            }
+        })(),
+    );
+}
+
+/**
+ * 解析在线文件地址：补全协议头并提取原文件名
+ * @param url 用户输入的在线地址
+ * @returns 规范化后的地址与文件名（地址末尾没有文件名时为空字符串）
+ */
+function parseOnlineUrl(url: string) {
+    const normalized = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+    let pathname = '';
+    try {
+        pathname = new URL(normalized).pathname;
+    } catch {
+        throw new Error('在线文件地址不合法');
+    }
+    const segment = pathname.split('/').filter(Boolean).pop() || '';
+    try {
+        return {
+            url: normalized,
+            name: decodeURIComponent(segment),
+        };
+    } catch {
+        // 地址里有非法的转义字符时，直接使用原始片段
+        return {
+            url: normalized,
+            name: segment,
+        };
+    }
 }
 
 export const validate = async (data: Database['accounts'][number]) => {

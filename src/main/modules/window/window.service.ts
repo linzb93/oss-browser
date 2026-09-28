@@ -2,6 +2,7 @@ import { BrowserWindow, ipcMain } from 'electron';
 
 let win: BrowserWindow;
 export function setWindow(instance: BrowserWindow) {
+    console.log(instance);
     win = instance;
 }
 export function getWindow() {
@@ -9,6 +10,7 @@ export function getWindow() {
 }
 
 export function postRenderer(eventName: string, params?: any) {
+    console.log(win);
     win.webContents.send('main-post', {
         method: eventName,
         data: params,

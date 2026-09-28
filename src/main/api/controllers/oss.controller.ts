@@ -13,6 +13,7 @@ export const registerOssController = () => {
     ipcMain.handle('oss:copy', (event, dataStr: string) => copy(dataStr));
     ipcMain.handle('oss:set-current-path', (event, dataStr: string) => setCurrentPath(dataStr));
     ipcMain.handle('oss:upload', (event, data: string) => upload(data));
+    ipcMain.handle('oss:copy-online-file', (event, dataStr: string) => copyOnlineFile(dataStr));
 };
 
 const getFileList = (dataStr: string) => {
@@ -70,4 +71,16 @@ const upload = (dataStr: string) => {
     type: string;
     };
     return formatResponse(() => ossService.upload(data));
+};
+
+/**
+ * 复制在线文件：把在线地址的文件以流的方式上传到指定目录
+ */
+const copyOnlineFile = (dataStr: string) => {
+    const data = JSON.parse(dataStr) as {
+        prefix: string;
+        url: string;
+        name?: string;
+    };
+    return formatResponse(() => ossService.copyOnlineFile(data));
 };

@@ -53,6 +53,12 @@ export default (win: BrowserWindow) => {
                 },
             },
             {
+                label: '复制在线文件',
+                click() {
+                    postRenderer('copy-online-file');
+                },
+            },
+            {
                 label: '刷新应用',
                 click: () => {
                     win.webContents.reload();

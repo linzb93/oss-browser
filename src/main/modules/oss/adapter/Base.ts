@@ -1,3 +1,4 @@
+import type { Readable } from 'node:stream';
 import { FileItem } from '../../../types/vo';
 import { AppConstructorOptions, BucketObject } from '../oss.dto';
 
@@ -63,6 +64,22 @@ export default abstract class {
         pathItem: {
             ossPath: string;
             localPath: string;
+        }
+    ): Promise<void>;
+    /**
+     * 以流的方式上传文件，用于「复制在线文件」这类边下载边上传的场景，避免把整个文件读进内存
+     * @param {string} prefix 前缀
+     * @param {object} item 上传信息
+     * @param {string} item.ossPath 目标文件名（不含前缀）
+     * @param {Readable} item.stream 文件可读流
+     * @param {number} item.size 流的字节长度，未知时传 0
+     */
+    abstract putStream(
+        prefix: string,
+        item: {
+            ossPath: string;
+            stream: Readable;
+            size: number;
         }
     ): Promise<void>;
     /**

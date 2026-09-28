@@ -36,6 +36,7 @@ interface AccountItem {
 | `oss-download` | 下载文件 | `paths: string` (多个路径用逗号分隔) | `void` (下载由主进程后台执行) |
 | `oss-upload` | 上传文件 (通过 `ipcRenderer.send`) | `FormData` 或自定义对象 | (通过 `oss-upload-receiver` 事件回调进度) |
 | `get-buckets` | 获取当前账号下的 Bucket 列表 | `config: OssConfig` | `{ name: string }[]` |
+| `oss:copy-online-file` | 复制在线文件：把在线地址的文件以流的方式上传到指定目录（右键菜单「复制在线文件」触发） | `{ prefix: string, url: string, name?: string }` (`name` 为空时使用地址里的原文件名) | `void` |
 
 **数据结构参考**：
 ```typescript

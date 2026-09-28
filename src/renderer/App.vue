@@ -165,6 +165,7 @@
         <account-pane v-model:visible="manageVisible" @jump="handleSwitchAccount" @add="onAdd" />
         <add-account-dialog v-model:visible="addVisible" :detail="currentAccountForm" />
         <file-transfer-dialog v-model:visible="fileTransferVisible" @refresh="getOSSList('reset')" />
+        <copy-online-file v-model:visible="copyOnlineFileVisible" @confirm="handleCopyOnlineFile" />
     </div>
 </template>
 
@@ -188,7 +189,7 @@ import { handleMainPost } from '@/renderer/utils';
 import { getSize } from '@/renderer/utils/size';
 import pathUtil from '@/renderer/utils/path';
 import { isPic } from '@/renderer/utils/picture';
-import { addCollect, setHome } from '@/renderer/api';
+import { addCollect, setHome, copyOnlineFile as apiCopyOnlineFile } from '@/renderer/api';
 import { useSettingStore } from '@/renderer/hooks/common/useSetting';
 import { useBreadcrumb } from '@/renderer/hooks/common/useBreadcrumb';
 import {
@@ -207,6 +208,7 @@ import { useTemplate } from '@/renderer/hooks/service/useTemplate';
 import { ExtraTableItem, AccountItem } from '@/shared/types';
 import FileTransferDialog from '@/renderer/components/fileTransfer/Dialog.vue';
 import SettingDialog from '@/renderer/components/setting/Dialog.vue';
+import CopyOnlineFile from '@/renderer/components/CopyOnlineFile.vue';
 
 const { openPreview } = usePreview();
 const { ossList, getOSSList, setPageSize, tableLoading, currentPage, pageSize, pageSizes, hasNext, hasPrev } =
@@ -251,6 +253,21 @@ const restoreExtension = (originName: string, newName: string) => {
 };
 
 const fileTransferVisible = ref(false);
+const copyOnlineFileVisible = ref(false);
+
+/**
+ * 复制在线文件：把在线地址的文件上传到当前oss目录，成功后刷新页面
+ * @param {object} payload - 在线地址与目标文件名
+ */
+const handleCopyOnlineFile = async ({ url, name }: { url: string; name: string }) => {
+    try {
+        await apiCopyOnlineFile({ prefix: fullPath.value, url, name });
+        ElMessage.success('上传成功');
+        getOSSList('reset');
+    } catch (error) {
+        ElMessage.error((error as { message?: string } | null)?.message || '上传失败');
+    }
+};
 
 onBeforeMount(async () => {
     await loadCurrentAccount();
@@ -302,6 +319,10 @@ onBeforeMount(async () => {
             } catch (error) {
                 return false;
             }
+        });
+        handleMainPost('copy-online-file', () => {
+            console.log(1111)
+            copyOnlineFileVisible.value = true;
         });
         handleMainPost('location', (data: { isDown: boolean }) => {
             const { isDown } = data;

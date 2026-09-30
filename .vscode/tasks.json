@@ -1,31 +1,30 @@
 {
-  // See https://go.microsoft.com/fwlink/?LinkId=733558 
-  // for the documentation about the tasks.json format
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "Before Debug",
-      "type": "shell",
-      "command": "node .vscode/.debug.script.mjs",
-      "isBackground": true,
-      "problemMatcher": {
-        "owner": "typescript",
-        "fileLocation": "relative",
-        "pattern": {
-          // TODO: correct "regexp"
-          "regexp": "^([a-zA-Z]\\:\/?([\\w\\-]\/?)+\\.\\w+):(\\d+):(\\d+): (ERROR|WARNING)\\: (.*)$",
-          "file": 1,
-          "line": 3,
-          "column": 4,
-          "code": 5,
-          "message": 6
-        },
-        "background": {
-          "activeOnStart": true,
-          "beginsPattern": "^.*VITE v.*  ready in \\d* ms.*$",
-          "endsPattern": "^.*\\[startup\\] Electron App.*$"
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            // 供 launch.json 的 “Debug App” 使用：后台启动 electron-vite dev，
+            // 通过 problemMatcher 识别 electron-vite 的输出，等开发服务器就绪后再附加调试器。
+            "label": "electron-vite: dev:debug",
+            "type": "npm",
+            "script": "dev:debug",
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "electron-vite",
+                "pattern": {
+                    "regexp": "^$"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "electron main process built successfully",
+                    "endsPattern": "dev server running for the electron renderer process at"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
         }
-      }
-    }
-  ]
+    ]
 }

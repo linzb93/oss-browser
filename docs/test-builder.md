@@ -6,10 +6,15 @@
 
 ### 1. 整体测试架构与环境配置
 
-由于 Electron 应用的特殊性，你需要为 Vitest 配置两种不同的测试运行环境（建议通过 Vitest Workspaces 区分）：
+项目已经配置好 `vitest.config.ts`：默认环境为 `node`（主进程 / 纯函数测试），按「就近原则」收集 `src/**/*.{test,spec}.{ts,tsx}`。
 
-- **主进程 (Main Process)**：配置为 `environment: 'node'`。
-- **渲染进程 (Renderer Process)**：配置为 `environment: 'jsdom'` 或 `happy-dom`。
+需要 DOM 的渲染进程测试，在测试文件顶部单独声明环境即可（Vitest 4 已移除 `environmentMatchGlobs`，改为按文件声明）：
+
+```ts
+// @vitest-environment jsdom
+```
+
+如果希望严格隔离两种环境，也可以按 Vitest 4 的 `test.projects` 把「主进程 = node」和「渲染进程 = jsdom」拆成两个 project。
 
 ### 2. 主进程 (Main Process) 测试方向
 
@@ -25,7 +30,7 @@
 
 - **组件交互 (@vue/test-utils)**：针对基于 `element-plus` 的文件列表、传输队列、登录配置面板进行组件测试。验证组件能否正确渲染数据源，以及用户的点击、搜索、拖拽等行为是否触发了预期的内部函数。
 - **状态管理 (Pinia)**：独立测试 Pinia Store。例如验证“传输列表 Store”中的上传进度计算、任务暂停/取消状态流转、以及多任务并发时的队列维护是否正确。
-- **IPC 调用隔离**：前端不应该直接关心后端如何执行。你需要利用 Vitest 全局 Mock 掉 Preload 脚本注入的 `window.electron`（或相关桥接 API），只验证“前端是否在正确的时机，向主进程发送了带有正确参数的请求”。
+- **IPC 调用隔离**：前端不应该直接关心后端如何执行。你需要利用 Vitest 全局 Mock 掉 Preload 脚本注入的 `window.ipcRenderer` / `window.webUtils`，只验证“前端是否在正确的时机，向主进程发送了带有正确参数的请求”。
 
 ### 4. 公共纯函数 (Utils & Helpers)
 
@@ -35,7 +40,7 @@
 ### 5. 关键的 Vitest 进阶策略
 
 - **RxJS 异步流测试**：注意到项目中使用了 `rxjs`，涉及复杂的异步任务调度。可以结合 Vitest 的 Fake Timers (`vi.useFakeTimers()`) 来模拟时间推进，测试任务队列的并发控制、轮询逻辑和超时熔断。
-- **全局 Setup 文件**：在 `vitest.setup.ts` 中将 `electron` 模块全局 Mock，否则任何引入了 electron 对象的模块在执行测试时都会直接报错崩溃。
+- **全局 Setup 文件**：在 `vitest.config.ts` 中加上 `test.setupFiles: ['src/test/setup.ts']`，并在该文件里把 `electron` 模块全局 Mock（`vi.mock('electron', ...)`），否则任何引入了 electron 对象的模块在执行测试时都会直接报错崩溃。
 
 这两种方式在前端和 Node.js 社区中都非常常见，它们各有优劣，通常取决于项目的架构风格和团队偏好。
 

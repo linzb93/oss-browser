@@ -18,8 +18,10 @@
 | **UI 组件库** | Element Plus       | 配合 SCSS 定制样式           |
 | **状态管理**  | Pinia              | 轻量级状态管理               |
 | **路由管理**  | Vue Router         | 页面导航                     |
-| **构建工具**  | Vite               | 极速开发与构建               |
-| **打包工具**  | electron-builder   | 生成各平台安装包             |
+| **构建工具**  | electron-vite      | 一份配置同时构建主进程/预加载/渲染进程 |
+| **打包工具**  | electron-builder   | 生成各平台安装包（TS 配置）  |
+| **代码规范**  | ESLint 9 (flat)    | @stylistic + typescript-eslint + eslint-plugin-vue |
+| **测试框架**  | Vitest             | 单元测试（node / jsdom）     |
 | **OSS SDK**   | ali-oss            | 阿里云 OSS 官方 SDK          |
 | **本地存储**  | lowdb / fs-extra   | 轻量级 JSON 数据库与文件操作 |
 
@@ -54,7 +56,7 @@ graph TD
 
 - **主进程 (Main Process)**：负责应用生命周期、窗口管理、本地文件读写、以及与 OSS 服务的交互。所有涉及系统级操作（文件、网络、数据库）的逻辑均在主进程完成。
 - **渲染进程 (Renderer Process)**：负责 UI 展示与用户交互。通过 IPC (Inter-Process Communication) 向主进程发送指令并接收数据。
-- **预加载脚本 (Preload Script)**：虽然存在 `electron/preload/index.ts`，但本项目目前主要通过 `ipcRenderer.invoke` 进行通信，保持了较低的耦合度。
+- **预加载脚本 (Preload Script)**：虽然存在 `src/main/preload/index.ts`，但本项目目前主要通过 `ipcRenderer.invoke` 进行通信，保持了较低的耦合度。
 
 ## 4. 目录结构概览
 
@@ -94,6 +96,7 @@ graph TD
 - **[IPC 通信协议 (ipc.md)](./ipc.md)**：详细列出了前端与主进程通信的所有频道 (Channel)、参数及返回结构。**新增 API 时请更新此文档。**
 - **[模块详细设计 (modules.md)](./modules.md)**：深入讲解 OSS、账号、设置等核心模块的内部实现逻辑与数据流。
 - **[开发与扩展指南 (guide.md)](./guide.md)**：手把手教你如何新增一个功能、调试技巧以及打包发布流程。
+- **[构建与工具链 (build.md)](./build.md)**：electron-vite / electron-builder / ESLint / Vitest 的配置说明、产物目录约定与调试方式。
 
 ## 6. 快速开始
 
@@ -109,15 +112,17 @@ npm install
 npm run dev
 ```
 
-这将同时启动 Vite 开发服务器（渲染进程）和 Electron（主进程）。
+该命令由 electron-vite 统一驱动：先构建主进程与预加载脚本，再启动渲染进程开发服务器（http://127.0.0.1:3344）并拉起 Electron。
 
 ### 构建应用
 
 ```bash
-npm run build
+npm run build       # 只构建产物：dist/（渲染进程）与 dist-electron/（主进程、预加载）
+npm run build:win   # 构建并打包 Windows 安装包
+npm run build:mac   # 构建并打包 macOS 安装包
 ```
 
-构建产物将输出到 `dist/` 或 `release/` 目录。
+安装包输出到 `release/<version>/`。完整的工具链说明见 [build.md](./build.md)。
 
 ## 7. 约定与最佳实践
 

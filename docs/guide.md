@@ -24,16 +24,20 @@ npm install
 npm run dev
 ```
 
-此命令将同时启动：
+此命令由 electron-vite 驱动（配置见 `electron.vite.config.ts`），会依次：
 
-- Vite 开发服务器 (http://localhost:3344)
-- Electron 主进程 (自动加载 dist-electron/main/index.js)
+- 构建主进程（`dist-electron/main/index.js`）与预加载脚本（`dist-electron/preload/index.mjs`）
+- 启动渲染进程开发服务器 (http://127.0.0.1:3344)，并把地址通过 `VITE_DEV_SERVER_URL` 传给主进程
+- 拉起 Electron 窗口
+
+主进程 / 预加载脚本的改动默认需要重启应用；使用 `npm run dev:debug`（带 `--watch`）会在文件变化后自动重建并重启。
 
 ## 2. 调试技巧
 
 ### 2.1 主进程调试
 
-- 在 VS Code 中配置 `launch.json`，使用 "Attach to Main Process" 配置。
+- 先执行 `npm run dev:debug`（即 `electron-vite dev --watch --inspect=5858 --remoteDebuggingPort=9229`）。
+- 在 VS Code 中按 F5 选择 **Debug App**：会自动启动上一步的开发环境，并附加主进程（端口 5858）与渲染进程（端口 9229）调试器，配置见 `.vscode/launch.json` 与 `.vscode/tasks.json`。
 - 或者直接在终端输出日志，Electron 控制台会显示主进程的 `console.log`。
 
 ### 2.2 渲染进程调试
@@ -96,19 +100,29 @@ npm run dev
 ### 4.1 构建生产包
 
 ```bash
-npm run build
+npm run build        # 只构建产物（dist/ 与 dist-electron/）
+npm run build:win    # 构建 + 打包 Windows 安装包
+npm run build:mac    # 构建 + 打包 macOS 安装包
+npm run build:linux  # 构建 + 打包 Linux 安装包
 ```
 
-此命令会执行 `vue-tsc` 类型检查、`vite build` 打包前端资源，最后使用 `electron-builder` 打包出对应平台的安装包（如 `.dmg`, `.exe`）。
+`npm run build` 由 electron-vite 分别构建主进程、预加载脚本与渲染进程；`build:win` / `build:mac` / `build:linux`
+在此基础上调用 electron-builder（配置见 `electron-builder.config.ts`）生成对应平台的安装包（`.exe` / `.dmg` / `.AppImage`），
+输出目录为 `release/<version>/`。需要分析打包体积时使用 `npm run build:report`。
 
 ### 4.2 常见构建问题
 
 - **依赖缺失**: 确保 `dependencies` 中包含了所有运行时需要的包（如 `ali-oss`, `fs-extra`），`devDependencies` 仅包含构建工具。
-- **静态资源丢失**: 检查 `public/` 目录下的资源引用路径是否正确。
+- **静态资源丢失**: 检查 `public/` 目录下的资源引用路径是否正确（`public/` 会被拷贝到 `dist/`）。
 - **原生模块**: 如果使用了 C++ 编写的原生模块，可能需要 `electron-rebuild`。
+- **preload 不生效**: 预加载脚本必须保持「CommonJS 内容 + `index.mjs` 文件名」这一形态（沙箱限制 + `lifecycle.ts` 的引用路径），
+  对应 `electron.vite.config.ts` 中 preload 的 `format: 'cjs'` 与 `entryFileNames`，不要随意改动。
+- **下载 Electron / 打包工具很慢**: 镜像配置在 `package.json#config`（npm 安装阶段）与 `electron-builder.config.ts`（打包阶段）。
 
 ## 5. 代码规范
 
+- **工具**: 统一由 ESLint 负责（配置见 `eslint.config.js`）。`npm run lint` 检查、`npm run lint:fix` 自动修复、
+  `npm run check` 做类型检查 + 自动修复；提交时 husky 会执行 `npm run check` 与循环依赖检查。缩进为 **4 空格 + 分号**。
 - **命名**:
     - 文件夹/文件：小驼峰 (camelCase) 或 kebab-case，Vue 组件推荐大驼峰 (PascalCase)。
     - 变量/函数：小驼峰 (camelCase)。
@@ -117,12 +131,16 @@ npm run build
     - 核心逻辑必须写注释。
     - 接口方法使用 JSDoc 风格注释。
 - **Git 提交**:
-    - 遵循 Conventional Commits 规范 (e.g., `feat: add rename function`, `fix: bug in upload`).
+    - 遵循 Conventional Commits 规范 (e.g., `feat: add rename function`, `fix: bug in upload`)，由 commitlint 校验。
+    - 发版（版本号 + CHANGELOG）使用 `npm run release`（standard-version）。
 
 ## 6. 常见问题 (FAQ)
 
 - **Q: 为什么修改了主进程代码没生效？**
-    - A: 主进程代码修改后通常需要重启应用（`npm run dev` 会自动重启 Electron，但有时可能失效，手动重启试试）。
+    - A: 默认的 `npm run dev` 只在启动时构建一次主进程与预加载脚本，改动后需要重启应用；用 `npm run dev:debug`（带 `--watch`）会在变化后自动重建并重启 Electron。
+
+- **Q: 构建 / 调试相关的问题该看哪份文档？**
+    - A: 见 [build.md](./build.md)：electron-vite / electron-builder 的配置要点、产物目录约定、开发地址注入与调试方式都在那里。
 
 - **Q: 前端请求 IPC 报错 "No handler registered for..."？**
     - A: 检查 `electron/main/router.ts` 中是否真的注册了该 channel，拼写是否一致。

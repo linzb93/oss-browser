@@ -10,16 +10,27 @@
         "isolatedModules": true,
         "experimentalDecorators": true,
         "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
         "lib": ["ESNext", "DOM"],
         "skipLibCheck": true,
         "noEmit": true,
-        "allowJs": true,
-        "baseUrl": "./src",
+        "baseUrl": ".",
         "ignoreDeprecations": "6.0",
+        "types": ["vite/client", "electron", "node"],
+        "typeRoots": ["./node_modules/@types", "./node_modules"],
         "paths": {
-            "@/*": ["*"]
+            "@/*": ["src/*"]
         }
     },
-    "include": ["src"],
-    "references": [{ "path": "./tsconfig.node.json" }]
+    "include": [
+        "src/**/*.ts",
+        "src/**/*.vue",
+        "electron.vite.config.ts",
+        "electron-builder.config.ts",
+        "vitest.config.ts"
+    ],
+    "exclude": ["node_modules", "dist", "dist-electron", "release"],
+    "vueCompilerOptions": {
+        "target": 3
+    }
 }

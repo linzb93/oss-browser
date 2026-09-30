@@ -1,53 +1,47 @@
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-  "version": "0.2.0",
-  "compounds": [
-    {
-      "name": "Debug App",
-      "preLaunchTask": "Before Debug",
-      "configurations": [
-        "Debug Main Process",
-        "Debug Renderer Process"
-      ],
-      "presentation": {
-        "hidden": false,
-        "group": "",
-        "order": 1
-      },
-      "stopAll": true
-    }
-  ],
-  "configurations": [
-    {
-      "name": "Debug Main Process",
-      "type": "node",
-      "request": "launch",
-      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
-      "windows": {
-        "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
-      },
-      "runtimeArgs": [
-        "--remote-debugging-port=9229",
-        "."
-      ],
-      "envFile": "${workspaceFolder}/.vscode/.debug.env",
-      "console": "integratedTerminal"
-    },
-    {
-      "name": "Debug Renderer Process",
-      "port": 9229,
-      "request": "attach",
-      "type": "chrome",
-      "timeout": 60000,
-      "skipFiles": [
-        "<node_internals>/**",
-        "${workspaceRoot}/node_modules/**",
-        "${workspaceRoot}/dist-electron/**",
-        // Skip files in host(VITE_DEV_SERVER_URL)
-        "http://127.0.0.1:3344/**"
-      ]
-    },
-  ]
+    // 调试方式：先启动 `npm run dev:debug`（electron-vite dev --watch --inspect=5858
+    // --remoteDebuggingPort=9229），再用下面的配置附加调试器。
+    // 直接按 F5 选择 “Debug App” 时，会通过 preLaunchTask 自动启动 dev:debug。
+    "version": "0.2.0",
+    "compounds": [
+        {
+            "name": "Debug App",
+            "preLaunchTask": "electron-vite: dev:debug",
+            "configurations": ["Debug Main Process", "Debug Renderer Process"],
+            "presentation": {
+                "hidden": false,
+                "group": "",
+                "order": 1
+            },
+            "stopAll": true
+        }
+    ],
+    "configurations": [
+        {
+            // 主进程：electron-vite 通过 --inspect=5858 打开 V8 inspector
+            "name": "Debug Main Process",
+            "type": "node",
+            "request": "attach",
+            "port": 5858,
+            "restart": true,
+            "timeout": 60000,
+            "skipFiles": ["<node_internals>/**", "${workspaceFolder}/node_modules/**"]
+        },
+        {
+            // 渲染进程：electron-vite 通过 --remoteDebuggingPort 打开远程调试端口
+            "name": "Debug Renderer Process",
+            "type": "chrome",
+            "request": "attach",
+            "port": 9229,
+            "timeout": 60000,
+            "webRoot": "${workspaceFolder}",
+            "skipFiles": [
+                "<node_internals>/**",
+                "${workspaceFolder}/node_modules/**",
+                "${workspaceFolder}/dist-electron/**",
+                // 跳过 vite 注入的客户端脚本
+                "http://127.0.0.1:3344/@vite/**"
+            ]
+        }
+    ]
 }

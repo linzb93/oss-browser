@@ -6,16 +6,20 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-tsconfig.node.tsbuildinfo
 node_modules
 dist
-dist-ssr
 dist-electron
 release
+coverage
+
+# 本地环境变量（electron-builder.config.ts 通过 dotenv 读取）
+.env
+.env.*
+!.env.example
+
 *.local
 
 # Editor directories and files
-.vscode/.debug.env
 .idea
 .DS_Store
 *.suo
@@ -33,6 +37,6 @@ yarn.lock
 .claude/settings.local.json
 temp/
 secret.json
-stat.html
-stat.main.html
-stat.renderer.html
+
+# 体积分析报告（npm run build:report）
+stats.*.html

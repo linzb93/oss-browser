@@ -9,11 +9,11 @@
 <script setup>
 import { QuestionFilled } from "@element-plus/icons-vue";
 const props = defineProps({
-  content: String,
-  color: {
-    type: String,
-    default: "#333",
-  },
+    content: String,
+    color: {
+        type: String,
+        default: "#333",
+    },
 });
 </script>
 <style lang="scss" scoped></style>

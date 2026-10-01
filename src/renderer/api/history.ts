@@ -1,5 +1,5 @@
 import { request } from '@/renderer/utils/request';
-import type { IHistroyResponse, HistoryItem, IPageRequest } from '@/shared/types';
+import type { IHistroyResponse, IPageRequest } from '@/shared/types';
 /**
  * 获取上传历史列表
  * @param {IPageRequest} query - 分页查询参数

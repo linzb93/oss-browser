@@ -23,19 +23,19 @@ import FileDownload from './FileDownload.vue';
 
 const visible = defineModel<boolean>('visible', { required: true, default: false });
 
-const emit = defineEmits(['refresh'])
+const emit = defineEmits(['refresh']);
 
 watch(visible, (vis) => {
-  if (!vis) {
-    return;
-  }
-  activeTab.value = 'during-upload';
+    if (!vis) {
+        return;
+    }
+    activeTab.value = 'during-upload';
 });
 
 const activeTab = ref('');
 const onClosed = () => {
-  activeTab.value = '';
-}
+    activeTab.value = '';
+};
 </script>
 <style lang="scss" scoped>
 

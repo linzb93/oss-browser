@@ -7,16 +7,6 @@ const easeInOutQuad = function (t: number, b: number, c: number, d: number) {
     return (-c / 2) * (t * (t - 2) - 1) + b;
 };
 
-// requestAnimationFrame for Smart Animating http://goo.gl/sx5sts
-var requestAnimFrame = (function () {
-    return (
-        window.requestAnimationFrame ||
-        function (callback) {
-            window.setTimeout(callback, 1000 / 60);
-        }
-    );
-})();
-
 /**
  * @param {number} amount
  */
@@ -48,7 +38,7 @@ export function scrollTo(to: number, duration: number, selector: string) {
     // increment the time
     currentTime += increment;
     // find the value with the quadratic in-out easing function
-    var val = easeInOutQuad(currentTime, start, change, duration);
+    const val = easeInOutQuad(currentTime, start, change, duration);
     // move the document.body
     move(val, dom);
 }

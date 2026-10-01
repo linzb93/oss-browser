@@ -1,4 +1,4 @@
-import { ipcMain, IpcMainEvent } from 'electron';
+import { ipcMain } from 'electron';
 import { OssConfig } from 'ali-oss';
 import * as ossService from '@/main/modules/oss/oss.service';
 import formatResponse from '@/main/shared/utils/formatResponse';
@@ -67,8 +67,8 @@ const download = (dataStr: string) => {
 const upload = (dataStr: string) => {
     const data = JSON.parse(dataStr) as {
         prefix: string;
-    names: string;
-    type: string;
+        names: string;
+        type: string;
     };
     return formatResponse(() => ossService.upload(data));
 };

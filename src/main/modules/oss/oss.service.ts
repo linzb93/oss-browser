@@ -1,6 +1,5 @@
 import { join, dirname, basename, extname } from 'node:path';
 import { Readable } from 'node:stream';
-import { type IpcMainEvent } from 'electron';
 import fs from 'fs-extra';
 import { interval, Subject, takeUntil, map } from 'rxjs';
 import { cloneDeep } from 'es-toolkit';
@@ -113,7 +112,7 @@ export async function deleteFile(paths: string): Promise<any> {
  */
 export async function upload(data: AddOptions) {
     const { names, prefix } = data;
-    let list = names
+    const list = names
         .split(',')
         .map((name) => {
             if (!extname(name)) {
@@ -335,7 +334,7 @@ function readDirectoryRecursively(directory: string): string[] {
     let fileList: string[] = [];
     const files = fs.readdirSync(directory);
 
-    files.forEach((file) => {
+    files.forEach((file:any) => {
         const filePath = join(directory, file);
         const stats = fs.statSync(filePath);
 

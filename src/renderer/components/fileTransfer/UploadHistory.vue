@@ -49,7 +49,7 @@ const selectedIds = ref<string[]>([]);
 
 onMounted(() => {
     getList();
-})
+});
 
 const getList = async () => {
     const result = await getHistoryList(pageQuery.value);

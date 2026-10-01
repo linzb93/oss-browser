@@ -10,7 +10,7 @@
                 class="wrap"
                 :class="{ active: dragActive }"
                 @dragover.prevent="setDragState(true)"
-                @drop.prevent="(e) => dropFile(e, ossList, currentAccount.domain)"
+                @drop.prevent="(e:any) => dropFile(e, ossList, currentAccount.domain)"
                 @dragleave.prevent="setDragState(false)"
             >
                 <div class="layer flex-center" @keyup="setDragState(false)">
@@ -321,7 +321,7 @@ onBeforeMount(async () => {
             }
         });
         handleMainPost('copy-online-file', () => {
-            console.log(1111)
+            console.log(1111);
             copyOnlineFileVisible.value = true;
         });
         handleMainPost('location', (data: { isDown: boolean }) => {

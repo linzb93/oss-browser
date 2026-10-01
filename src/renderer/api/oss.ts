@@ -1,6 +1,5 @@
 import { request } from '@/renderer/utils/request';
 import type {
-    ResponseTableItem,
     AddParams,
     AccountItem,
     BucketItem,
@@ -54,7 +53,7 @@ export const uploadFiles = (params: {
     type: string;
 }) => {
     return request('oss:upload', params);
-}
+};
 
 /**
  * 复制在线文件：把在线地址的文件以流的方式上传到当前oss目录

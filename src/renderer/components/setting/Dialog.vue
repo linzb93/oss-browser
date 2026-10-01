@@ -20,20 +20,20 @@ import CopyStyle from './CopyStyle.vue';
 const visible = defineModel<boolean>('visible', { required: true, default: false });
 
 watch(visible, (vis) => {
-  if (!vis) {
-    return;
-  }
-  activeTab.value = 'copy-style-manage';
+    if (!vis) {
+        return;
+    }
+    activeTab.value = 'copy-style-manage';
 });
 
 const activeTab = ref('');
 
 const onClose = () => {
-  visible.value = false;
-}
+    visible.value = false;
+};
 const onClosed = () => {
-  activeTab.value = '';
-}
+    activeTab.value = '';
+};
 </script>
 <style lang="scss" scoped>
 

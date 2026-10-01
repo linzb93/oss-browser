@@ -24,10 +24,10 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
 });
 
 contextBridge.exposeInMainWorld('webUtils', {
-  // 将获取路径的方法暴露给渲染进程
-  getPathForFile: (file:any) => {
-    return webUtils.getPathForFile(file);
-  }
+    // 将获取路径的方法暴露给渲染进程
+    getPathForFile: (file:any) => {
+        return webUtils.getPathForFile(file);
+    }
 });
 
 // --------- Preload scripts loading ---------
@@ -121,6 +121,8 @@ const { appendLoading, removeLoading } = useLoading();
 domReady().then(appendLoading);
 
 window.onmessage = (ev) => {
-    ev.data.payload === 'removeLoading' && removeLoading();
+    if (ev.data.payload === 'removeLoading'){
+        removeLoading();
+    } 
 };
 setTimeout(removeLoading, 4999);

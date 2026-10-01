@@ -94,7 +94,7 @@ onUnmounted(() => {
     list.value = [];
     removeMainPost();
     emit('refresh');
-})
+});
 </script>
 <style lang="scss" scoped>
 

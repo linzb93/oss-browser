@@ -135,10 +135,10 @@ export default class extends BaseOss {
             }));
         const dirs = result.prefixes
             ? result.prefixes.map((subDir) => ({
-                  name: subDir.split('/').slice(-2)[0],
-                  type: 'directory',
-                  size: 0,
-              }))
+                name: subDir.split('/').slice(-2)[0],
+                type: 'directory',
+                size: 0,
+            }))
             : [];
         const list = dirs.concat(files);
 
@@ -164,8 +164,8 @@ export default class extends BaseOss {
                 nextContinuationToken === '-1'
                     ? {}
                     : {
-                          'continuation-token': nextContinuationToken,
-                      };
+                        'continuation-token': nextContinuationToken,
+                    };
             const res = await this.client.listV2({
                 'prefix': path,
                 'max-keys': 100,

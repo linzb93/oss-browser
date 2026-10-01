@@ -19,9 +19,9 @@
 </template>
 <script setup>
 const props = defineProps({
-  width: {
-    type: Number,
-    default: 16,
-  },
+    width: {
+        type: Number,
+        default: 16,
+    },
 });
 </script>

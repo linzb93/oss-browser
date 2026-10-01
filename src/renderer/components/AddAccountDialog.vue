@@ -26,7 +26,7 @@
             </el-form-item>
             <el-form-item label="bucket" prop="bucket">
                 <el-select style="width: 267px" v-model="form.bucket" :disabled="disabled">
-                    <el-option v-for="item in bucketList" :label="item.name" :value="item.name"></el-option>
+                    <el-option v-for="item in bucketList" :key="item.name" :label="item.name" :value="item.name"></el-option>
                 </el-select>
                 <el-button type="primary" class="ml10" @click="getBuckets()">获取</el-button>
             </el-form-item>
@@ -59,7 +59,7 @@ watch(visible, (vis) => {
         return;
     }
     form.value = { ...props.detail };
-})
+});
 
 const emit = defineEmits(['submit']);
 const { saveAccount, getAccountList } = useAccount();
@@ -92,7 +92,7 @@ const rules: FormRules = {
             message: '请输入domain前缀',
         },
         {
-            pattern: /^https?\:\/\//,
+            pattern: /^https?:\/\//,
             message: '请输入正确的domain前缀',
         },
     ],

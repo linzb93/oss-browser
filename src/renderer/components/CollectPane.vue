@@ -9,7 +9,7 @@
                     class="input-name"
                     v-model="item.name"
                     v-else
-                    @keypress.native.stop.prevent.enter="item.isEdit = false"
+                    @keypress.stop.prevent.enter="item.isEdit = false"
                 />
                 <el-tooltip :content="item.path"
                     ><span class="path">{{ item.path }}</span></el-tooltip

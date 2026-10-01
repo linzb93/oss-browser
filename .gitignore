@@ -37,6 +37,6 @@ yarn.lock
 .claude/settings.local.json
 temp/
 secret.json
-
+tsconfig.node.tsbuildinfo
 # 体积分析报告（npm run build:report）
 stats.*.html

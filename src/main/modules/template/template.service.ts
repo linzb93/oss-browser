@@ -53,7 +53,7 @@ export async function add(obj: Database['templates'][number]): Promise<void> {
             await settingService.set({
                 ...await settingService.get(),
                 copyTemplateId: 1
-            })
+            });
             return;
         }
         db.templates.push({

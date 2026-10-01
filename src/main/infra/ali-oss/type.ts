@@ -1,4 +1,3 @@
-import OSS, { OssConfig } from 'ali-oss';
 export interface AddOptions {
     /**
      * 上传目录，目录末尾有带"/"

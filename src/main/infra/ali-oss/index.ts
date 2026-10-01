@@ -1,8 +1,5 @@
 export * from './client';
 import { AddOptions } from './type';
-import { AliOssClient } from './client';
-
-let currentClient: AliOssClient | null = null;
 
 // 保留用于向后兼容（如果需要），但已更新为使用 AliOssClient
 // 然而，原始的 index.ts 使用了全局 currentClient，它使用空配置进行了初始化？
@@ -19,14 +16,14 @@ export const listBuckets = async () => {
     throw new Error('Use AliOssClient instance directly');
 };
 
-export const deleteFile = async (paths: string) => {
+export const deleteFile = async (_: string) => {
     throw new Error('Use AliOssClient instance directly');
 };
 
-export const addDirectory = async (param: AddOptions) => {
+export const addDirectory = async (_: AddOptions) => {
     throw new Error('Use AliOssClient instance directly');
 };
 
-export const addFile = async (param: AddOptions) => {
+export const addFile = async (_: AddOptions) => {
     throw new Error('Use AliOssClient instance directly');
 };

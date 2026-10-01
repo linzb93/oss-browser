@@ -5,7 +5,7 @@
                 <span class="dot"></span>
                 <span class="name" v-if="!item.isEdit">{{ item.name }}</span>
                 <el-input size="small" class="input-name" v-model="item.name" v-else
-                    @keypress.native.stop.prevent.enter="item.isEdit = false" />
+                    @keypress.stop.prevent.enter="item.isEdit = false" />
                 <el-tooltip :content="item.path"><span class="path">{{ item.path }}</span></el-tooltip>
                 <span class="icons">
                     <el-icon :size="18" @click="enter(item)" title="进入">
@@ -48,7 +48,7 @@ const list = ref<CollectItem[]>([]);
 const formList = ref<FormCollectItem[]>([]);
 onMounted(() => {
     getList();
-})
+});
 
 /**
  * 获取收藏列表。

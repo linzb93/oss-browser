@@ -71,7 +71,7 @@ export default defineConfig(({ command, mode }) => {
                 // 因此关闭依赖外部化，把第三方依赖内联进来。
                 externalizeDeps: false,
                 rollupOptions: {
-                    input: { index: resolve(ROOT, 'src/main/preload/index.ts') },
+                    input: { index: resolve(ROOT, 'src/preload/index.ts') },
                     output: {
                         // 内容必须是 CJS：沙箱 preload 不做 ESM 处理，
                         // 打包产物（release/2.1.0 的 app.asar）也是这个形态。

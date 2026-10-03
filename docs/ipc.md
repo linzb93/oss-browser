@@ -33,7 +33,7 @@ interface AccountItem {
 | `oss-get-list` | 获取指定目录下的文件列表 | `{ prefix: string, useToken?: boolean }` | `{ list: FileItem[], token?: string }` |
 | `oss-delete` | 删除文件或目录 | `{ paths: string }` (多个路径用逗号分隔) | `string[]` (失败列表) |
 | `oss-add-directory` | 创建目录 | `{ prefix: string, name: string }` | `void` |
-| `oss-download` | 下载文件 | `paths: string` (多个路径用逗号分隔) | `void` (下载由主进程后台执行) |
+| `oss:download` | 下载单文件、目录或批量文件 | `{ paths: string }`（逗号分隔的 OSS 对象 key，目录以 `/` 结尾） | `void`（下载由主进程后台执行，进度通过 `main-post` / `download-progress` 推送） |
 | `oss-upload` | 上传文件 (通过 `ipcRenderer.send`) | `FormData` 或自定义对象 | (通过 `oss-upload-receiver` 事件回调进度) |
 | `get-buckets` | 获取当前账号下的 Bucket 列表 | `config: OssConfig` | `{ name: string }[]` |
 | `oss:copy-online-file` | 复制在线文件：把在线地址的文件以流的方式上传到指定目录（右键菜单「复制在线文件」触发） | `{ prefix: string, url: string, name?: string }` (`name` 为空时使用地址里的原文件名) | `void` |
@@ -49,6 +49,49 @@ interface FileItem {
   lastModified: string;
 }
 ```
+
+### 2.1 主进程推送：下载进度
+
+主进程通过 `main-post` 事件（`method: 'download-progress'`）推送下载进度，渲染层用 `handleMainPost('download-progress', cb)` 接收。与上传进度（`upload-progress`）同构。
+
+```typescript
+interface DownloadProgressPayload {
+  /** downloading：下载中；download-finished：全部结束；download-canceled：用户取消选择保存目录 */
+  type: 'downloading' | 'download-finished' | 'download-canceled';
+  /** 文件明细，最多 200 条（超过时 truncated 为 true） */
+  data: {
+    /** OSS 对象 key，用于拼接在线地址 */
+    key: string;
+    /** 本地保存的相对路径（保留目录结构） */
+    path: string;
+    /** 总字节数，未知时为 0 */
+    size: number;
+    /** 已下载字节数 */
+    loaded: number;
+    /** 0 - 100 */
+    progress: number;
+    /** 是否已结束（成功或失败） */
+    finished: boolean;
+    /** 是否下载失败 */
+    failed?: boolean;
+  }[];
+  /** 明细是否被截断 */
+  truncated: boolean;
+  /** 本地保存目录，未选择时为空串 */
+  savedPath: string;
+  total: number;
+  finished: number;
+  failed: number;
+  /** 总体进度 0 - 100：按每个文件的完成度取平均，已结束的文件计 100 */
+  percent: number;
+}
+```
+
+说明：
+
+- 下载过程中主进程按 `interval(1000)` 节流推送 `downloading`，全部结束后推送一次 `download-finished`。
+- 选择保存目录被取消时推送 `download-canceled`；空目录（展开后没有文件）不发保存目录选择框，直接推送 `download-finished` 且 `data` 为空。
+- 单个文件失败（非 200、写盘失败、30s 空闲超时等）只标记 `failed`，不影响其他文件，也不会让整批下载一直挂起。
 
 ## 3. 设置 (Setting)
 

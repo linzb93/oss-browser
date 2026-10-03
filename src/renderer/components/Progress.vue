@@ -56,16 +56,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, unref } from 'vue';
+import { ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { Check } from '@element-plus/icons-vue';
 import { request, requestActions } from '@/renderer/utils/request';
 import pathUtils from '@/renderer/utils/path';
 import { getSize } from '@/renderer/utils/size';
 import { useAccount } from '@/renderer/hooks/service/useAccount';
-import { useUpload } from '@/renderer/hooks/service/useUpload';
+import { useTransfer } from '@/renderer/hooks/service/useTransfer';
 import { useBreadcrumb } from '@/renderer/hooks/common/useBreadcrumb';
-import { useSettingStore } from '@/renderer/hooks/common/useSetting';
 
 const emit = defineEmits(['refresh']);
 const visible = defineModel<boolean>('visible', { required: true, default: false });
@@ -75,7 +74,7 @@ interface ListItem {
 }
 const { currentAccount } = useAccount();
 
-const { uploadingList } = useUpload();
+const { uploadingList } = useTransfer();
 const { fullPath } = useBreadcrumb();
 
 const list = ref<ListItem[]>([]);

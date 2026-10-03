@@ -20,19 +20,22 @@ import { ref, watch } from 'vue';
 import UploadHistory from './UploadHistory.vue';
 import FileUpload from './FileUpload.vue';
 import FileDownload from './FileDownload.vue';
+import { useDownload } from '@/renderer/hooks/service/useDownload';
 
 const visible = defineModel<boolean>('visible', { required: true, default: false });
 
 const emit = defineEmits(['refresh']);
 
+const { downloading } = useDownload();
+
+const activeTab = ref('');
 watch(visible, (vis) => {
     if (!vis) {
         return;
     }
-    activeTab.value = 'during-upload';
+    // 下载过程中打开弹窗时，直接展示下载进度
+    activeTab.value = downloading.value ? 'during-download' : 'during-upload';
 });
-
-const activeTab = ref('');
 const onClosed = () => {
     activeTab.value = '';
 };

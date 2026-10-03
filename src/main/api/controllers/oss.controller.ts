@@ -59,9 +59,9 @@ const setCurrentPath = (dataStr: string) => {
 
 const download = (dataStr: string) => {
     const data = JSON.parse(dataStr) as {
-        url: string;
+        paths: string;
     };
-    return formatResponse(() => ossService.download(data.url));
+    return formatResponse(() => ossService.download(data.paths));
 };
 
 const upload = (dataStr: string) => {

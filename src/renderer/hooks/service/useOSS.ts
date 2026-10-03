@@ -6,6 +6,7 @@ import { ElMessageBox, ElMessage } from 'element-plus';
 import { requestActions, request } from '@/renderer/utils/request';
 import { getOSSList as apiGetOSSList, addDirectory, deleteItem as deleteItemApi, copyTemplate } from '@/renderer/api';
 import { useBreadcrumb } from '../common/useBreadcrumb';
+import { downloadTargets } from './useDownload';
 import { scrollTo } from '@/renderer/utils/scroll-to';
 import { getSize } from '@/renderer/utils/size';
 
@@ -135,11 +136,11 @@ const batchDelete = (selected: ExtraTableItem[]) => {
 /**
  * 批量下载文件
  */
-const batchDownload = async (selected: ExtraTableItem[]) => {
+const batchDownload = (selected: ExtraTableItem[]) => {
     if (!checkMultiSelect(selected)) {
         return;
     }
-    await requestActions.download(selected.map((item) => item.url).join(','));
+    downloadTargets(selected.map((item) => item.path));
 };
 
 /**

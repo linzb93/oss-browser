@@ -1,4 +1,4 @@
-import { basename, join, dirname, extname } from 'node:path';
+import { basename, join, extname } from 'node:path';
 import { Transform, type Readable } from 'node:stream';
 import { omit } from 'es-toolkit';
 import bytes from 'bytes';
@@ -8,6 +8,7 @@ import pMap from 'p-map';
 import { sql } from '@/main/infra/sql';
 import BaseOss from '../Base';
 import * as utilService from '@/main/modules/util/util.service';
+import { commonDirPrefix, toDirAnchor, toRelativePath } from '@/main/modules/util/download';
 import { FileItem } from '@/main/types/vo';
 import slash from 'slash';
 import { AppConstructorOptions } from '../../oss.dto';
@@ -154,6 +155,7 @@ export default class extends BaseOss {
     }
     /**
      * 获取一个目录下的所有文件（含子目录里面的文件）
+     * @param path 目录的 oss 路径，以 / 结尾
      */
     private async getAllFileUnderDirectory(path: string): Promise<string[]> {
         // 存放文件完整的oss路径
@@ -293,35 +295,48 @@ export default class extends BaseOss {
         postProgress(100);
     }
     /**
-     * 下载文件
-     * @param callback
+     * 下载文件，支持单文件、目录与批量下载。
+     * - 目录（以 / 结尾）会展开为目录下所有文件，本地保留目录结构
+     * - 单文件、同目录批量下载会被平铺到用户选择的目录
+     * @param paths oss 对象 key，多个用逗号分隔；目录以 / 结尾
      */
     async download(paths: string) {
         const account = await sql((db) => db.accounts.find((item) => item.id === db.defaultAppId));
         if (!account) {
             throw new Error('Account not found');
         }
-        const pathList = paths.split(',');
-        const dir = dirname(pathList[0].replace(`${account.domain}/`, ''));
-        const list = await pMap(
-            pathList,
-            async (path) => {
-                if (path.endsWith('/')) {
-                    return await this.getAllFileUnderDirectory(path.replace(`${account.domain}/`, ''));
+        const domain = account.domain.replace(/\/+$/, '');
+        // 去重，避免同一个文件被重复下载
+        const keys = [...new Set(paths.split(',').map((item) => item.trim()).filter(Boolean))];
+        const expanded = await pMap(
+            keys,
+            async (key) => {
+                const anchor = toDirAnchor(key);
+                if (key.endsWith('/')) {
+                    return {
+                        anchor,
+                        files: await this.getAllFileUnderDirectory(key),
+                    };
                 }
-                return [path.replace(`${account.domain}/`, '')];
+                return {
+                    anchor,
+                    files: [key],
+                };
             },
-            {
-                concurrency: 4,
-            },
+            { concurrency: 4 },
         );
-        await utilService.download(
-            list
-                .flat()
-                .map((item) => `${account.domain}/${item}`)
-                .join(','),
-            dir,
-        );
+        const stripPrefix = commonDirPrefix(expanded.map((item) => item.anchor));
+        // 过滤空值与目录占位对象（以 / 结尾的空对象）
+        const fileKeys = [
+            ...new Set(expanded.flatMap((item) => item.files).filter((key) => !!key && !key.endsWith('/'))),
+        ];
+        const targets = fileKeys.map((key) => ({
+            key,
+            path: toRelativePath(key, stripPrefix),
+            // 逐个路径段编码，兼容文件名里的空格、中文与 # 等字符
+            url: `${domain}/${key.split('/').map(encodeURIComponent).join('/')}`,
+        }));
+        await utilService.download(targets);
     }
     addUploadListener(callback: uploadProgressCallback): void {
         this.uploadCallback = callback;

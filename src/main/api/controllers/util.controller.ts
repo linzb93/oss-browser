@@ -18,7 +18,7 @@ const download = (dataStr: string) => {
     const data = JSON.parse(dataStr) as {
         url: string;
     };
-    return formatResponse(() => utilService.download(data.url, ''));
+    return formatResponse(() => utilService.downloadUrls(data.url));
 };
 const open = (dataStr: string) => {
     const data = JSON.parse(dataStr) as {

@@ -18,11 +18,12 @@ const setDragState = (state: boolean) => {
 
 const progressVisible = ref(false);
 const uploadingList = ref<TableItem[]>([]);
-
+const transferFinished = ref(false);
+const uploading = ref(false);
 /**
  * 文件上传操作钩子
  */
-export function useUpload(options?: {
+export function useTransfer(options?: {
     afterUploadCallback?:Function
 }) {
     /**
@@ -93,5 +94,7 @@ export function useUpload(options?: {
         setDragState,
         dropFile,
         uploadingList,
+        transferFinished,
+        uploading,
     };
 }

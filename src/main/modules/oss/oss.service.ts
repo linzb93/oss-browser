@@ -350,6 +350,10 @@ function readDirectoryRecursively(directory: string): string[] {
     return fileList;
 }
 
+/**
+ * 下载文件：支持单文件、目录与批量下载
+ * @param paths oss 对象 key，多个用逗号分隔；目录以 / 结尾
+ */
 export async function download(paths: string) {
     return await currentApp.download(paths);
 }

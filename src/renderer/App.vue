@@ -10,7 +10,7 @@
                 class="wrap"
                 :class="{ active: dragActive }"
                 @dragover.prevent="setDragState(true)"
-                @drop.prevent="(e:any) => dropFile(e, ossList, currentAccount.domain)"
+                @drop.prevent="(e:DragEvent) => dropFile(e, ossList, currentAccount.domain)"
                 @dragleave.prevent="setDragState(false)"
             >
                 <div class="layer flex-center" @keyup="setDragState(false)">
@@ -23,8 +23,14 @@
                                 <Setting />
                             </el-icon>
                         </el-tooltip>
-                        <el-tooltip content="上传与下载">
-                            <el-icon :size="34" @click="fileTransferVisible = true">
+                        <el-tooltip :content="downloading ? `下载中 ${downloadSummary.percent}%` : '上传与下载'">
+                            <el-icon v-if="uploading" :size="34" @click="fileTransferVisible = true">
+                                <top class="animated up" />
+                            </el-icon>
+                            <el-icon v-else-if="downloading" :size="34" @click="fileTransferVisible = true">
+                                <bottom class="animated down" />
+                            </el-icon>
+                            <el-icon v-else :size="34" @click="fileTransferVisible = true">
                                 <sort />
                             </el-icon>
                         </el-tooltip>
@@ -125,8 +131,8 @@
                                             type="primary"
                                             underline="never"
                                             class="mr10"
-                                            @click="requestActions.download(scope.row.url)"
-                                            >下载</el-link
+                                            @click="downloadTargets(scope.row.path)"
+                                            >{{ scope.row.type === 'directory' ? '下载目录' : '下载' }}</el-link
                                         >
                                         <el-link
                                             type="primary"
@@ -174,7 +180,7 @@ import { ref, onBeforeMount, computed } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import dayjs from 'dayjs';
 import { isNil } from 'es-toolkit';
-import { Folder, ArrowDown, Setting, Sort, User } from '@element-plus/icons-vue';
+import { Folder, ArrowDown, Setting, Sort, User, Top, Bottom } from '@element-plus/icons-vue';
 import AccountPane from '@/renderer/components/AccountPane.vue';
 import AddAccountDialog from '@/renderer/components/AddAccountDialog.vue';
 import Breadcrumb from '@/renderer/components/Breadcrumb.vue';
@@ -201,7 +207,8 @@ import {
     copyFile,
 } from '@/renderer/hooks/service/useOSS';
 import { useAccount } from '@/renderer/hooks/service/useAccount';
-import { useUpload } from '@/renderer/hooks/service/useUpload';
+import { useTransfer } from '@/renderer/hooks/service/useTransfer';
+import { useDownload } from '@/renderer/hooks/service/useDownload';
 import type { BatchCommandKey } from '@/renderer/hooks/service/useOSS';
 import { usePreview } from '@/renderer/hooks/service/usePreview';
 import { useTemplate } from '@/renderer/hooks/service/useTemplate';
@@ -217,11 +224,8 @@ const { currentAccount, loadCurrentAccount, hasNoAccount } = useAccount();
 const { breadcrumb, fullPath, pop: popBreadcrumb, push: pushBreadcrumb, setPath } = useBreadcrumb();
 const { getSetting, setting } = useSettingStore();
 const { currentTemplate, getCurrentTemplate } = useTemplate();
-const { dragActive, setDragState, dropFile } = useUpload({
-    afterUploadCallback: () => {
-        fileTransferVisible.value = true;
-    }
-});
+const { dragActive, setDragState, dropFile, uploading } = useTransfer();
+const { downloading, downloadSummary, downloadTargets, applyDownloadProgress } = useDownload();
 
 const list = computed<ExtraTableItem[]>(() =>
     ossList.value.map((item) => ({
@@ -254,7 +258,12 @@ const restoreExtension = (originName: string, newName: string) => {
 
 const fileTransferVisible = ref(false);
 const copyOnlineFileVisible = ref(false);
-
+interface UploadListItem {
+    path: string;
+    size: number;
+    progress?: number;
+    finished: boolean;
+}
 /**
  * 复制在线文件：把在线地址的文件上传到当前oss目录，成功后刷新页面
  * @param {object} payload - 在线地址与目标文件名
@@ -320,10 +329,22 @@ onBeforeMount(async () => {
                 return false;
             }
         });
+        handleMainPost(
+            'upload-progress',
+            ({ type, data }: { type: 'upload-finished' | 'uploading'; data: UploadListItem[] }) => {
+                if (type === 'upload-finished') {
+                // 上传完成，显示批量操作按钮
+                    uploading.value = false;
+                    ElMessage.success('上传成功');
+                } else {
+                    uploading.value = true;
+                }
+            },
+        );
         handleMainPost('copy-online-file', () => {
-            console.log(1111);
             copyOnlineFileVisible.value = true;
         });
+        handleMainPost('download-progress', applyDownloadProgress);
         handleMainPost('location', (data: { isDown: boolean }) => {
             const { isDown } = data;
             if (isDown) {
@@ -367,6 +388,8 @@ const clickPath = (item: ExtraTableItem) => {
             openPreview(item.url);
             return;
         }
+        // 其他文件直接下载
+        downloadTargets(item.path);
         return;
     }
     pushBreadcrumb(item.name);
@@ -392,13 +415,6 @@ const onNext = () => {
         return;
     }
     getOSSList('next');
-};
-
-/**
- * 重置选中项索引
- */
-const resetActiveIndex = () => {
-    activeIndex.value = -1;
 };
 
 const currentAccountForm = ref<AccountItem>({} as AccountItem);
@@ -440,6 +456,10 @@ const handleSwitchAccount = () => {
     display: flex;
     flex-direction: column;
 }
+// .animated {
+//     &.up {}
+//     &.down {}
+// }
 .el-link + .el-link {
     margin-left: 10px;
 }

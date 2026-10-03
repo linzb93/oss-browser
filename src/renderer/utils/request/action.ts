@@ -13,22 +13,6 @@ export const requestActions = {
     },
 
     /**
-     * 下载文件，支持单个或批量下载
-     * @param {string} url 下载地址
-     * @returns
-     */
-    async download(url: string) {
-        try {
-            await request('oss:download', {
-                url,
-            });
-        } catch (error) {
-            console.log(error);
-            return;
-        }
-        ElMessage.success('下载成功');
-    },
-    /**
      * 打开网站或者文件
      * @param url 网址或者本地文件地址
      */

@@ -221,7 +221,7 @@ const { openPreview } = usePreview();
 const { ossList, getOSSList, setPageSize, tableLoading, currentPage, pageSize, pageSizes, hasNext, hasPrev } =
     useOSSStore();
 const { currentAccount, loadCurrentAccount, hasNoAccount } = useAccount();
-const { breadcrumb, fullPath, pop: popBreadcrumb, push: pushBreadcrumb, setPath } = useBreadcrumb();
+const {  fullPath, pop: popBreadcrumb, push: pushBreadcrumb, setPath } = useBreadcrumb();
 const { getSetting, setting } = useSettingStore();
 const { currentTemplate, getCurrentTemplate } = useTemplate();
 const { dragActive, setDragState, dropFile, uploading } = useTransfer();
@@ -336,6 +336,7 @@ onBeforeMount(async () => {
                 // 上传完成，显示批量操作按钮
                     uploading.value = false;
                     ElMessage.success('上传成功');
+                    getOSSList('reset');
                 } else {
                     uploading.value = true;
                 }

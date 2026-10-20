@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import TemplateEditor from '@/renderer/components/TemplateEditor.vue';
 import { useTemplate } from '@/renderer/hooks/service/useTemplate';
@@ -73,6 +73,10 @@ const save = async () => {
         },
     });
 };
+
+onMounted(() => {
+    getTemplates();
+});
 </script>
 <style lang="scss" scoped>
 .copy-con {

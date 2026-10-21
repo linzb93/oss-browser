@@ -71,9 +71,7 @@ const handleSourceFiles = async (paths: string[]) => {
                 },
             }),
             showCancelButton: true,
-            confirmButtonText: "删除",
-            cancelButtonText: "不删除",
-            type: "warning",
+            confirmButtonText: "删除"
         });
     } catch {
         // 用户选择不删除
@@ -144,6 +142,7 @@ export function useTransfer(options?: {
                             onlineUrl: `${prefix}/${tableList.find((sub) => sub.name === item.name)?.path}`,
                         })),
                         tips: "下列文件已存在，是否覆盖？",
+                        showCompare:true
                     }),
                     title: "温馨提醒",
                     showCancelButton: true,

@@ -132,30 +132,6 @@ export async function upload(data: AddOptions) {
             };
         })
         .flat();
-    // list = list.map((item, index) => {
-    //     let { ossPath } = item;
-    //     if (workflowItem.nameType === 'index') {
-    //         // 将目录地址里面的文件basename换成index值，目录前缀地址不变
-    //         const pathDirname = dirname(ossPath);
-    //         if (pathDirname === '.') {
-    //             ossPath = `${index + 1}${extname(ossPath)}`;
-    //         } else {
-    //             ossPath = `${pathDirname}/${index + 1}${extname(ossPath)}`;
-    //         }
-    //     } else if (workflowItem.nameType === 'uid') {
-    //         // 将目录地址里面的文件basename换成index值，目录前缀地址不变
-    //         const pathDirname = dirname(ossPath);
-    //         if (pathDirname === '.') {
-    //             ossPath = `${uuidv4()}${extname(ossPath)}`;
-    //         } else {
-    //             ossPath = `${pathDirname}/${uuidv4()}${extname(ossPath)}`;
-    //         }
-    //     }
-    //     return {
-    //         ...item,
-    //         ossPath,
-    //     };
-    // });
     const task$ = new Subject();
     let statusList = list.map((item) => {
         return {

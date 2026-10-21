@@ -127,7 +127,7 @@ const batchDelete = (selected: ExtraTableItem[]) => {
         cancelButtonText: '取消',
     }).then(async () => {
         await deleteItemApi({
-            paths: selected.map((item) => `${fullPath}${item.name}`).join(','),
+            paths: selected.map((item) => `${fullPath.value}${item.name}`).join(','),
         });
         ElMessage.success('删除成功');
         getOSSList('reset');

@@ -331,7 +331,7 @@ onBeforeMount(async () => {
         });
         handleMainPost(
             'upload-progress',
-            ({ type, data }: { type: 'upload-finished' | 'uploading'; data: UploadListItem[] }) => {
+            ({ type }: { type: 'upload-finished' | 'uploading'; data: UploadListItem[] }) => {
                 if (type === 'upload-finished') {
                 // 上传完成，显示批量操作按钮
                     uploading.value = false;

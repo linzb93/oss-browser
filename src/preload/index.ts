@@ -1,14 +1,40 @@
 import { ipcRenderer, contextBridge, webUtils } from 'electron';
 
 // --------- Expose some API to the Renderer process ---------
+
+/**
+ * 渲染层传入的监听器 -> 真正注册到 ipcRenderer 的包装函数。
+ * ipcRenderer.on 需要包一层才能把 event 一并传给渲染层回调，
+ * 因此 off 时必须用同一份包装函数，否则监听器永远无法被移除（造成内存泄漏）。
+ */
+type IpcListener = Parameters<typeof ipcRenderer.on>[1];
+const listenerWrappers = new Map<string, Map<IpcListener, IpcListener>>();
+
 contextBridge.exposeInMainWorld('ipcRenderer', {
     on(...args: Parameters<typeof ipcRenderer.on>) {
         const [channel, listener] = args;
-        return ipcRenderer.on(channel, (event, ...args) => listener(event, ...args));
+        let channelWrappers = listenerWrappers.get(channel);
+        if (!channelWrappers) {
+            channelWrappers = new Map();
+            listenerWrappers.set(channel, channelWrappers);
+        }
+        // 同一个监听器重复注册时复用同一个包装函数，保证引用可被移除
+        let wrapper = channelWrappers.get(listener);
+        if (!wrapper) {
+            wrapper = (event: any, ...args: any[]) => listener(event, ...args);
+            channelWrappers.set(listener, wrapper);
+        }
+        return ipcRenderer.on(channel, wrapper);
     },
     off(...args: Parameters<typeof ipcRenderer.off>) {
-        const [channel, ...omit] = args;
-        return ipcRenderer.off(channel, ...omit);
+        const [channel, listener] = args;
+        const channelWrappers = listenerWrappers.get(channel);
+        const wrapper = channelWrappers?.get(listener);
+        if (channelWrappers && wrapper) {
+            channelWrappers.delete(listener);
+            return ipcRenderer.off(channel, wrapper);
+        }
+        return ipcRenderer.off(channel, listener);
     },
     send(...args: Parameters<typeof ipcRenderer.send>) {
         const [channel, ...omit] = args;

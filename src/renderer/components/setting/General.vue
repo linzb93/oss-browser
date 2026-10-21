@@ -1,5 +1,5 @@
 <template>
-    <el-form label-suffix="：" label-width="160px">
+    <el-form label-suffix="：" label-width="180px">
         <el-form-item label="上传完成后删除源文件">
             <el-radio-group v-model="setting.deleteSourceFile" @change="onChange">
                 <el-radio :value="true">是</el-radio>

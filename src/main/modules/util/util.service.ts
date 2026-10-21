@@ -1,6 +1,6 @@
 import http from 'node:http';
 import https from 'node:https';
-import { dirname, join, resolve as resolvePath, sep } from 'node:path';
+import { dirname, isAbsolute, join, parse, resolve as resolvePath, sep } from 'node:path';
 import { createWriteStream } from 'node:fs';
 import fsp from 'fs-extra';
 import { clipboard, dialog, shell } from 'electron';
@@ -233,6 +233,31 @@ function downloadOne(target: DownloadTarget, item: DownloadProgressItem, savedPa
             settle(true, error.message);
         });
     });
+}
+
+/**
+ * 删除本地文件或目录，用于「上传完成后删除源文件」。
+ * 目录会连同其中的文件一起被删除，调用方需保证传入的是用户确实上传过的源路径。
+ * @param paths 本地绝对路径列表
+ */
+export async function removeLocalFiles(paths: string[]) {
+    // 只处理绝对路径，并排除磁盘根目录，避免误删
+    const list = [...new Set((paths || []).filter((path) => isAbsolute(path) && parse(path).root !== path))];
+    const failed: string[] = [];
+    await pMap(
+        list,
+        async (path) => {
+            try {
+                await fsp.remove(path);
+            } catch (error) {
+                failed.push(path);
+            }
+        },
+        { concurrency: 4 },
+    );
+    if (failed.length) {
+        throw new Error(`源文件删除失败：${failed.join('、')}`);
+    }
 }
 
 /**

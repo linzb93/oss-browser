@@ -1,6 +1,9 @@
 <template>
 <el-dialog v-model="visible" title="设置" width="740px" @closed="onClosed">
 <el-tabs type="card" v-model="activeTab">
+  <el-tab-pane label="通用设置" name="general">
+    <general />
+  </el-tab-pane>
   <el-tab-pane label="样式复制管理" name="copy-style-manage">
     <copy-style />
   </el-tab-pane>
@@ -16,6 +19,7 @@
 import { ref, watch } from 'vue';
 import Collect from './Collect.vue';
 import CopyStyle from './CopyStyle.vue';
+import General from './General.vue';
 
 const visible = defineModel<boolean>('visible', { required: true, default: false });
 
@@ -23,7 +27,7 @@ watch(visible, (vis) => {
     if (!vis) {
         return;
     }
-    activeTab.value = 'copy-style-manage';
+    activeTab.value = 'general';
 });
 
 const activeTab = ref('');

@@ -57,6 +57,15 @@ export interface Database {
          * 复制工作流ID
          */
         copyWorkflowId: number;
+        /**
+         * 上传完成后是否删除源文件
+         */
+        deleteSourceFile: boolean;
+        /**
+         * 上传完成后是否询问用户是否删除源文件。
+         * 用户在设置中主动把「上传完成后删除源文件」设为「否」后，不再询问。
+         */
+        askDeleteSourceFile: boolean;
     };
     history: {
         path: string;

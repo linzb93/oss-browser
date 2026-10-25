@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { DownloadProgressItem } from '@/shared/types/oss';
-import { DETAIL_LIMIT, commonDirPrefix, summarizeDownload, toDirAnchor, toRelativePath } from './download';
+import { DETAIL_LIMIT, commonDirPrefix, summarizeDownload, toParentDir, toRelativePath } from './download';
 
 const createItem = (data: Partial<DownloadProgressItem> = {}): DownloadProgressItem => ({
     key: 'a.jpg',
@@ -12,19 +12,41 @@ const createItem = (data: Partial<DownloadProgressItem> = {}): DownloadProgressI
     ...data,
 });
 
-describe('toDirAnchor', () => {
-    it('根目录文件锚点为空串', () => {
-        expect(toDirAnchor('a.jpg')).toBe('');
+describe('toParentDir', () => {
+    it('根目录文件父级为空串', () => {
+        expect(toParentDir('a.jpg')).toBe('');
     });
 
-    it('多级文件锚点为所在目录', () => {
-        expect(toDirAnchor('a/b.jpg')).toBe('a/');
-        expect(toDirAnchor('a/b/c.jpg')).toBe('a/b/');
+    it('多级文件父级为所在目录', () => {
+        expect(toParentDir('a/b.jpg')).toBe('a/');
+        expect(toParentDir('a/b/c.jpg')).toBe('a/b/');
     });
 
-    it('目录选中项保留目录本身作为锚点', () => {
-        expect(toDirAnchor('photos/')).toBe('photos/');
-        expect(toDirAnchor('photos/sub/')).toBe('photos/sub/');
+    it('目录选中项的父级是其所在目录，目录名本身保留给本地', () => {
+        expect(toParentDir('photos/')).toBe('');
+        expect(toParentDir('photos/sub/')).toBe('photos/');
+    });
+});
+
+describe('选中目录时的本地相对路径', () => {
+    it('单个目录保留目录名与子目录结构', () => {
+        const prefix = commonDirPrefix(['photos/'].map(toParentDir));
+        expect(prefix).toBe('');
+        expect(toRelativePath('photos/a.jpg', prefix)).toBe('photos/a.jpg');
+        expect(toRelativePath('photos/sub/b.jpg', prefix)).toBe('photos/sub/b.jpg');
+    });
+
+    it('只有一个子目录时保留该目录名', () => {
+        const prefix = commonDirPrefix(['photos/sub/'].map(toParentDir));
+        expect(prefix).toBe('photos/');
+        expect(toRelativePath('photos/sub/b.jpg', prefix)).toBe('sub/b.jpg');
+    });
+
+    it('同目录批量选中文件时仍平铺', () => {
+        const prefix = commonDirPrefix(['photos/a.jpg', 'photos/b.jpg'].map(toParentDir));
+        expect(prefix).toBe('photos/');
+        expect(toRelativePath('photos/a.jpg', prefix)).toBe('a.jpg');
+        expect(toRelativePath('photos/b.jpg', prefix)).toBe('b.jpg');
     });
 });
 

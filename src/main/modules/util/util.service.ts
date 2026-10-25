@@ -1,7 +1,8 @@
-import http from 'node:http';
-import https from 'node:https';
-import { dirname, isAbsolute, join, parse, resolve as resolvePath, sep } from 'node:path';
 import { createWriteStream } from 'node:fs';
+import { dirname, isAbsolute, join, parse, resolve as resolvePath, sep } from 'node:path';
+import type { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
+import axios from 'axios';
 import fsp from 'fs-extra';
 import { clipboard, dialog, shell } from 'electron';
 import pMap from 'p-map';
@@ -137,6 +138,20 @@ const toFileName = (url: string) => {
 };
 
 /**
+ * 把下载异常转成简短、可读的错误信息
+ * @param error 捕获到的异常
+ */
+const getDownloadErrorMessage = (error: unknown) => {
+    if (axios.isAxiosError(error)) {
+        if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
+            return '下载超时';
+        }
+        return error.message;
+    }
+    return error instanceof Error ? error.message : String(error);
+};
+
+/**
  * 下载单个文件
  * 不使用`win.webContents.downloadURL 方法是因为存在批量下载，不可能每个文件都选择一次下载目录。
  * 无论成功还是失败都会 resolve，避免单个文件失败导致整批下载一直挂起。
@@ -163,7 +178,8 @@ function downloadOne(target: DownloadTarget, item: DownloadProgressItem, savedPa
             item.finished = true;
             if (failed) {
                 item.failed = true;
-                console.log(`下载失败：${target.key}`, message);
+                // 打印完整在线地址，便于区分是地址拼错还是对象本身不存在
+                console.log(`下载失败：${target.url}`, message);
                 if (writing) {
                     fsp.remove(localPath).catch(() => {});
                 }
@@ -178,57 +194,47 @@ function downloadOne(target: DownloadTarget, item: DownloadProgressItem, savedPa
             return;
         }
 
-        const onResponse = (resp: http.IncomingMessage) => {
-            if (resp.statusCode !== 200) {
-                resp.resume();
-                settle(true, `HTTP ${resp.statusCode}`);
-                return;
-            }
-            const size = Number(resp.headers['content-length']) || 0;
-            item.size = size;
-            writing = true;
-            const stream = createWriteStream(localPath);
-            resp.on('data', (chunk: Buffer) => {
-                item.loaded += chunk.length;
-                if (size) {
-                    // 留 1% 给写入完成
-                    item.progress = Math.min(Math.round((item.loaded / size) * 100), 99);
-                }
-            });
-            resp.on('error', (error: Error) => {
-                stream.destroy();
-                settle(true, error.message);
-            });
-            stream.on('error', (error: Error) => {
-                resp.destroy();
-                settle(true, error.message);
-            });
-            stream.on('finish', () => settle(false));
-            resp.pipe(stream);
-        };
+        if (!URL.canParse(target.url)) {
+            settle(true, '在线地址不合法');
+            return;
+        }
 
         (async () => {
             try {
                 await fsp.mkdir(dirname(localPath), { recursive: true });
+
+                const response = await axios.get<Readable>(target.url, {
+                    responseType: 'stream',
+                    // 与原来的 socket 空闲超时保持一致：超过该时间没有数据就中止
+                    timeout: SOCKET_IDLE_TIMEOUT,
+                    // 下载的是原始文件，不能让 axios 自动解压，否则文件内容/进度都会失真
+                    decompress: false,
+                    headers: { 'Accept-Encoding': 'identity' },
+                    // 状态码自行判断，便于及时销毁非 200 响应的连接
+                    validateStatus: () => true,
+                });
+                const stream = response.data;
+                if (response.status !== 200) {
+                    stream.destroy();
+                    settle(true, `HTTP ${response.status}`);
+                    return;
+                }
+
+                item.size = Number(response.headers['content-length']) || 0;
+                stream.on('data', (chunk: Buffer) => {
+                    item.loaded += chunk.length;
+                    if (item.size) {
+                        // 留 1% 给写入完成
+                        item.progress = Math.min(Math.round((item.loaded / item.size) * 100), 99);
+                    }
+                });
+
+                writing = true;
+                await pipeline(stream, createWriteStream(localPath));
+                settle(false);
             } catch (error) {
-                settle(true, (error as Error).message);
-                return;
+                settle(true, getDownloadErrorMessage(error));
             }
-            let url: URL;
-            try {
-                // 用 WHATWG URL 解析，顺带处理文件名里的空格、中文等字符
-                url = new URL(target.url);
-            } catch {
-                settle(true, '在线地址不合法');
-                return;
-            }
-            const request = (url.protocol === 'https:' ? https : http).get(url, onResponse);
-            request.setTimeout(SOCKET_IDLE_TIMEOUT, () => {
-                request.destroy(new Error('下载超时'));
-            });
-            request.on('error', (error: Error) => {
-                settle(true, error.message);
-            });
         })().catch((error: Error) => {
             settle(true, error.message);
         });

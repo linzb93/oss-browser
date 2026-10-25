@@ -26,22 +26,21 @@ export interface DownloadTarget {
 }
 
 /**
- * 取对象 key 的「目录锚点」：
- * - 选中目录（以 / 结尾）时锚点就是目录本身，保证本地保留目录名
- * - 选中文件时锚点是它所在目录，保证单文件/同目录批量下载被平铺到所选目录
+ * 取选中项的「父级目录」，用于计算本地保存的公共前缀：
+ * - 选中目录（以 / 结尾）时父级是它所在的目录，这样目录名本身会被保留到本地
+ * - 选中文件时父级就是它所在目录，这样单文件/同目录批量下载会被平铺到所选目录
  * @param key OSS 对象 key
- * @returns 以 / 结尾的目录锚点，文件位于根目录时为空串
+ * @returns 以 / 结尾的父级目录，位于根目录时为空串
  * @example
- * toDirAnchor('a.jpg') // ''
- * toDirAnchor('a/b.jpg') // 'a/'
- * toDirAnchor('photos/') // 'photos/'
+ * toParentDir('a.jpg') // ''
+ * toParentDir('a/b.jpg') // 'a/'
+ * toParentDir('photos/') // ''
+ * toParentDir('photos/sub/') // 'photos/'
  */
-export const toDirAnchor = (key: string): string => {
-    if (key.endsWith('/')) {
-        return key;
-    }
-    const index = key.lastIndexOf('/');
-    return index === -1 ? '' : key.slice(0, index + 1);
+export const toParentDir = (key: string): string => {
+    const trimmed = key.endsWith('/') ? key.slice(0, -1) : key;
+    const index = trimmed.lastIndexOf('/');
+    return index === -1 ? '' : trimmed.slice(0, index + 1);
 };
 
 /**

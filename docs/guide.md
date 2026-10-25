@@ -100,15 +100,16 @@ npm run dev
 ### 4.1 构建生产包
 
 ```bash
-npm run build        # 只构建产物（dist/ 与 dist-electron/）
-npm run build:win    # 构建 + 打包 Windows 安装包
-npm run build:mac    # 构建 + 打包 macOS 安装包
-npm run build:linux  # 构建 + 打包 Linux 安装包
+npm run build        # 完整构建（主进程 + 渲染进程）并生成当前平台的安装包
+npm run build:ui     # 只构建渲染进程
+npm run build:main   # 只构建主进程与预加载脚本
+npm run build:app    # 不重新构建代码，直接用已有产物生成当前平台的安装包
 ```
 
-`npm run build` 由 electron-vite 分别构建主进程、预加载脚本与渲染进程；`build:win` / `build:mac` / `build:linux`
-在此基础上调用 electron-builder（配置见 `electron-builder.config.ts`）生成对应平台的安装包（`.exe` / `.dmg` / `.AppImage`），
-输出目录为 `release/<version>/`。需要分析打包体积时使用 `npm run build:report`。
+`build` / `build:ui` / `build:main` 由 electron-vite 构建（`scripts/build.mjs` 负责裁剪构建目标）；
+`build` 和 `build:app` 还会调用 electron-builder（配置见 `electron-builder.config.ts`）。
+electron-builder 不指定 `--win` / `--mac`，会按当前操作系统生成安装包（Windows `.exe` / macOS `.dmg`），
+输出目录为 `release/<version>/`。需要分析打包体积时使用 `npm run report`。
 
 ### 4.2 常见构建问题
 

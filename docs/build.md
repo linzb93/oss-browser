@@ -25,12 +25,11 @@ npm install          # 安装依赖
 npm run dev          # 启动开发环境（渲染进程 dev server + Electron 主进程）
 npm run dev:debug    # 带调试端口的开发环境（见第 6 节）
 
-npm run build        # 只构建产物（dist + dist-electron）
-npm run build:win    # 构建并打包 Windows 安装包
-npm run build:mac    # 构建并打包 macOS 安装包
-npm run build:linux  # 构建并打包 Linux 安装包
-npm run build:app    # 不重新构建，直接用已有产物打包
-npm run build:report # 构建并生成体积分析报告 stats.renderer.html
+npm run build        # 完整构建（主进程 + 渲染进程），并生成当前平台的安装包
+npm run build:ui     # 只构建渲染进程（dist/）
+npm run build:main   # 只构建主进程与预加载脚本（dist-electron/）
+npm run build:app    # 不重新构建代码，直接用已有产物生成当前平台的安装包
+npm run report       # 构建并生成体积分析报告 stats.renderer.html
 npm run preview      # 用构建产物启动 Electron
 
 npm run tsc          # tsc --noEmit
@@ -41,6 +40,10 @@ npm run check        # vue-tsc + eslint --fix（pre-commit 会执行）
 npm run test         # vitest run
 npm run release      # standard-version 发版
 ```
+
+`build` / `build:ui` / `build:main` 统一由 `scripts/build.mjs` 调用 electron-vite，通过 `ELECTRON_VITE_BUILD_TARGET`
+环境变量决定构建范围；`build:app` 只调用 electron-builder，且不传 `--win` / `--mac`，默认按**当前操作系统**
+生成安装包（Windows `.exe` / macOS `.dmg` / Linux `.AppImage`），因此两个平台使用同一条命令。
 
 ## 3. 产物目录（**不要改动**）
 
@@ -153,7 +156,7 @@ VS Code：直接按 F5 选择 **Debug App**（`.vscode/launch.json` 的 compound
 | 渲染层框架        | React + shadcn            | Vue 3 + Element Plus            | 沿用现有技术栈                           |
 | 发版工具          | @picgo/bump-version       | standard-version                | 保留现有发版流程                         |
 | 组件测试库        | @testing-library/react    | @vue/test-utils + jsdom         | Vue 对应方案                             |
-| 打包体积分析      | 无                        | rollup-plugin-visualizer        | 保留原有的 `build:report` 能力           |
+| 打包体积分析      | 无                        | rollup-plugin-visualizer        | 保留原有的 `report` 体积分析能力           |
 
 ## 10. 从旧构建迁移的注意点
 
@@ -174,5 +177,5 @@ npm run lint          # 检查规范与循环依赖
 npm run vue-tsc       # 类型检查
 npm run test          # 单元测试（当前仓库还没有测试用例）
 npm run dev           # 开发模式：窗口能正常加载 dev server，IPC 正常
-npm run build:win     # 打包并安装，确认 preload / 主进程路径正常
+npm run build         # 完整构建并打包当前平台安装包，确认 preload / 主进程路径正常
 ```

@@ -2,7 +2,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import vue from '@vitejs/plugin-vue';
 import { visualizer } from 'rollup-plugin-visualizer';
-import { defineConfig } from 'electron-vite';
+import { defineConfig, type UserConfig } from 'electron-vite';
 
 /**
  * 仓库根目录（本文件与 index.html 同级）。
@@ -20,6 +20,19 @@ const DEV_SERVER_URL = `http://${DEV_SERVER_HOST}:${DEV_SERVER_PORT}/`;
 const alias = {
     '@': resolve(ROOT, 'src'),
 };
+
+/**
+ * 构建目标，由 scripts/build.mjs 通过环境变量传入：
+ *
+ * - `main`：只构建主进程 + 预加载脚本
+ * - `ui`：只构建渲染进程
+ * - `all`：三者全部构建（直接运行 electron-vite build 时的默认值）
+ *
+ * electron-vite 只会构建配置对象里存在的项，因此下面按目标裁剪返回的配置即可，
+ * 不需要额外拆分配置文件。脚本用 Node 设置环境变量的方式兼容 Windows / macOS。
+ */
+type BuildTarget = 'all' | 'main' | 'ui';
+const BUILD_TARGET = (process.env.ELECTRON_VITE_BUILD_TARGET || 'all') as BuildTarget;
 
 /**
  * 三份配置的产物路径刻意保持与旧构建一致，因为 src 目录不允许改动：
@@ -42,7 +55,7 @@ export default defineConfig(({ command, mode }) => {
         process.env.VITE_DEV_SERVER_URL ||= DEV_SERVER_URL;
     }
 
-    return {
+    const config = {
         // 主进程（Node 环境，ESM 输出）
         main: {
             resolve: { alias },
@@ -93,7 +106,7 @@ export default defineConfig(({ command, mode }) => {
             clearScreen: false,
             plugins: [
                 vue(),
-                // 仅 `npm run build:report` 时生成体积分析报告
+                // 仅 `npm run report` 时生成体积分析报告
                 isReport &&
                     visualizer({
                         open: true, // 打包完成后自动打开分析页面
@@ -121,5 +134,17 @@ export default defineConfig(({ command, mode }) => {
                 strictPort: true,
             },
         },
-    };
+    } satisfies UserConfig;
+
+    // 只返回目标相关的配置：electron-vite 会跳过配置里不存在的构建项。
+    // 预加载脚本跟随主进程一起构建，因为它是主进程窗口加载时必需的产物。
+    if (BUILD_TARGET === 'main') {
+        return { main: config.main, preload: config.preload };
+    }
+
+    if (BUILD_TARGET === 'ui') {
+        return { renderer: config.renderer };
+    }
+
+    return config;
 });

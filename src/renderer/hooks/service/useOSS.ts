@@ -30,7 +30,8 @@ const pageSizes = PAGE_SIZES;
 const loading = ref(true);
 
 const toTableItem = (item: { name: string; type: string; size: number; lastModified?: string | number }) => {
-    const path = `${fullPath.value}${item.name}${item.type === 'dir' ? '/' : ''}`;
+    // 目录项的 type 是 'directory'，必须补上结尾的 /，下载时主进程才会按目录展开
+    const path = `${fullPath.value}${item.name}${item.type === 'directory' ? '/' : ''}`;
     return {
         ...item,
         path,

@@ -21,8 +21,10 @@ npm install       # 安装依赖
 npm run dev       # 开发模式（渲染进程 dev server + Electron 主进程）
 npm run dev:debug # 带调试端口的开发模式（VS Code 直接 F5 选择 Debug App）
 
-npm run build     # 只构建产物（dist/ 与 dist-electron/）
-npm run build:win # 构建并打包 Windows 安装包（mac/linux 同理）
+npm run build       # 完整构建（主进程 + 渲染进程）并生成当前平台的安装包
+npm run build:ui    # 只构建渲染进程（dist/）
+npm run build:main  # 只构建主进程与预加载脚本（dist-electron/）
+npm run build:app   # 不重新构建代码，直接用已有产物生成当前平台的安装包
 
 npm run lint      # ESLint + 循环依赖检查
 npm run test      # Vitest 单元测试

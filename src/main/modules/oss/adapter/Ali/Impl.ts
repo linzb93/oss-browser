@@ -8,7 +8,7 @@ import pMap from 'p-map';
 import { sql } from '@/main/infra/sql';
 import BaseOss from '../Base';
 import * as utilService from '@/main/modules/util/util.service';
-import { commonDirPrefix, toDirAnchor, toRelativePath } from '@/main/modules/util/download';
+import { commonDirPrefix, toParentDir, toRelativePath } from '@/main/modules/util/download';
 import { FileItem } from '@/main/types/vo';
 import slash from 'slash';
 import { AppConstructorOptions } from '../../oss.dto';
@@ -296,7 +296,7 @@ export default class extends BaseOss {
     }
     /**
      * 下载文件，支持单文件、目录与批量下载。
-     * - 目录（以 / 结尾）会展开为目录下所有文件，本地保留目录结构
+     * - 目录（以 / 结尾）会展开为目录下所有文件，并在本地创建同名目录、递归创建子目录
      * - 单文件、同目录批量下载会被平铺到用户选择的目录
      * @param paths oss 对象 key，多个用逗号分隔；目录以 / 结尾
      */
@@ -311,25 +311,17 @@ export default class extends BaseOss {
         const expanded = await pMap(
             keys,
             async (key) => {
-                const anchor = toDirAnchor(key);
                 if (key.endsWith('/')) {
-                    return {
-                        anchor,
-                        files: await this.getAllFileUnderDirectory(key),
-                    };
+                    return await this.getAllFileUnderDirectory(key);
                 }
-                return {
-                    anchor,
-                    files: [key],
-                };
+                return [key];
             },
             { concurrency: 4 },
         );
-        const stripPrefix = commonDirPrefix(expanded.map((item) => item.anchor));
+        // 以选中项的父级目录求公共前缀：选中目录时目录名会被保留，选中文件时被平铺
+        const stripPrefix = commonDirPrefix(keys.map((key) => toParentDir(key)));
         // 过滤空值与目录占位对象（以 / 结尾的空对象）
-        const fileKeys = [
-            ...new Set(expanded.flatMap((item) => item.files).filter((key) => !!key && !key.endsWith('/'))),
-        ];
+        const fileKeys = [...new Set(expanded.flat().filter((key) => !!key && !key.endsWith('/')))];
         const targets = fileKeys.map((key) => ({
             key,
             path: toRelativePath(key, stripPrefix),

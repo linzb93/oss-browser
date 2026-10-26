@@ -8,7 +8,7 @@
     <file-download />
   </el-tab-pane>
   <el-tab-pane label="上传历史" name="upload-history">
-    <upload-history />
+    <upload-history @select="visible = false" />
   </el-tab-pane>
 </el-tabs>
 

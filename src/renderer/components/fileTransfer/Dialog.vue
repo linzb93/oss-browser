@@ -8,7 +8,7 @@
     <file-download />
   </el-tab-pane>
   <el-tab-pane label="上传历史" name="upload-history">
-    <upload-history />
+    <upload-history @select="onHistorySelect" />
   </el-tab-pane>
 </el-tabs>
 
@@ -38,6 +38,10 @@ watch(visible, (vis) => {
 });
 const onClosed = () => {
     activeTab.value = '';
+};
+const onHistorySelect = () => {
+    visible.value = false;
+    emit('refresh');
 };
 </script>
 <style lang="scss" scoped>

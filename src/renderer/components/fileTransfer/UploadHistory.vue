@@ -2,7 +2,7 @@
     <div class="mb20">
             <el-button type="danger" :disabled="!selectedIds.length" @click="deleteHistory">删除</el-button>
         </div>
-        <el-table :data="list" row-key="id" @selection-change="handleSelectionChange">
+        <el-table :data="list" row-key="id" height="550px" @selection-change="handleSelectionChange">
             <el-table-column type="selection" width="55" reserve-selection />
             <el-table-column label="名称" prop="name">
                 <template #default="scope">
@@ -102,7 +102,7 @@ const onClosed = () => {
 </script>
 <style lang="scss" scoped>
 .preview {
-    width: 100px;
-    height: 100px;
+    width: 60px;
+    height: 60px;
 }
 </style>

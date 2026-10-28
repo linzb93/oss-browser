@@ -1,6 +1,6 @@
 {
   "name": "oss-browser",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "main": "dist-electron/main/index.js",
   "description": "OSS客户端",
   "author": "linzb93",
@@ -26,8 +26,6 @@
     "lint": "npm run lint:dpdm && npm run lint:dpdm-fe && npm run lint:code",
     "lint:code": "eslint .",
     "lint:fix": "eslint . --fix",
-    "lint:dpdm": "dpdm -T --tsconfig ./tsconfig.json --no-tree --no-warning --exit-code circular:1 src/main/bootstrap/index.ts",
-    "lint:dpdm-fe": "dpdm -T --tsconfig ./tsconfig.json --no-tree --no-warning --exit-code circular:1 src/renderer/main.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "release": "standard-version",

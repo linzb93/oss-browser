@@ -1,18 +1,18 @@
 <template>
-<el-dialog v-model="visible" title="上传与下载" width="740px" @closed="onClosed">
-<el-tabs type="card" v-model="activeTab">
-  <el-tab-pane label="上传管理" name="during-upload">
-    <file-upload @refresh="emit('refresh')" />
-  </el-tab-pane>
-  <el-tab-pane label="下载管理" name="during-download">
-    <file-download />
-  </el-tab-pane>
-  <el-tab-pane label="上传历史" name="upload-history">
-    <upload-history @select="visible = false" />
-  </el-tab-pane>
-</el-tabs>
+    <el-dialog v-model="visible" title="上传与下载" width="740px" @closed="onClosed">
+        <el-tabs type="card" v-model="activeTab">
+            <el-tab-pane label="上传管理" name="during-upload">
+                <file-upload @refresh="emit('refresh')" />
+            </el-tab-pane>
+            <el-tab-pane label="下载管理" name="during-download">
+                <file-download />
+            </el-tab-pane>
+            <el-tab-pane label="上传历史" name="upload-history">
+                <upload-history @select="onHistorySelect" />
+            </el-tab-pane>
+        </el-tabs>
 
-</el-dialog>
+    </el-dialog>
 </template>
 
 <script setup lang="ts">
@@ -39,7 +39,9 @@ watch(visible, (vis) => {
 const onClosed = () => {
     activeTab.value = '';
 };
+const onHistorySelect = () => {
+    visible.value = false;
+    emit('refresh');
+};
 </script>
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>
